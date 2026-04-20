@@ -65,7 +65,6 @@
     .chip:active{background:var(--slate-200)}
     .chip code{font-family:'Outfit',monospace;font-size:11px;font-weight:700;color:var(--slate-600);background:var(--slate-200);padding:1px 4px;border-radius:3px}
 
-    /* CATALOGOS PROVEEDORES */
     .catalogos-container{display:none}
     .catalogos-container.show{display:block}
     .cat-header{font-family:'Outfit',sans-serif;font-size:16px;font-weight:700;color:var(--slate-800);margin-bottom:6px;display:flex;align-items:center;gap:8px}
@@ -391,43 +390,59 @@ var SUPA_KEY='sb_publishable_QEHgCTmk9El1nJpMP-07Ig_Qbv4Wox5';
 var carrito=[],modoTab='codigo';
 var clienteActual=null;
 
-// === BASE DE DATOS DE CATÁLOGOS ===
+// === BASE DE DATOS DE CATÁLOGOS (CON PALABRAS CLAVE OCULTAS EN "t") ===
 var CATS=[
-  {n:'4Kar',c:'Multi-marca',clr:'#64748B',u:'https://www.4kar.com/#/'},
-  {n:'Amsoil',c:'Aceites',clr:'#8B5CF6',u:'https://amsoil.lat/encuentre-su-aceite/'},
-  {n:'Bendix',c:'Balatas',clr:'#EF4444',u:'https://www.bendix-brakes.com/product_catalog.php?origin=redirect'},
-  {n:'Continental',c:'Sellos / Mangueras',clr:'#F97316',u:'https://www.mycontiparts.com.mx/'},
-  {n:'DC Empaques',c:'Empaques',clr:'#F59E0B',u:'https://www.dcp.com.mx/varios/CatalogoElectronico.jsp'},
-  {n:'Denso',c:'Bujías',clr:'#EF4444',u:'https://densoautopartes.com/files/Catalogo_Bujias-Mex.pdf'},
-  {n:'Dorman',c:'Multi-marca',clr:'#64748B',u:'https://www.dormanproducts.es/default.aspx'},
-  {n:'FCS',c:'Amortiguadores',clr:'#3B82F6',u:'https://fcsautoparts.com/find-a-part/'},
-  {n:'Gonher',c:'Líneas / Refrig.',clr:'#06B6D4',u:'https://catalogo.grupogonher.com/CatalogoGonher/'},
-  {n:'GRC',c:'Amortiguadores',clr:'#3B82F6',u:'https://www.grcautopartes.com.mx/'},
-  {n:'Holbert',c:'Multi-marca',clr:'#64748B',u:'https://www.holbert.com.mx/'},
-  {n:'Interfil',c:'Filtros',clr:'#10B981',u:'https://interfil.com/'},
-  {n:'Keep On Green',c:'Refrigeración',clr:'#06B6D4',u:'https://keepongreen.com/'},
-  {n:'Knadian',c:'Multi-marca',clr:'#64748B',u:'https://knadian.com/'},
-  {n:'Lodi',c:'Suspensión',clr:'#3B82F6',u:'https://www.showmetheparts.com/lodi-sp/'},
-  {n:'Moog',c:'Suspensión',clr:'#3B82F6',u:'https://www.moogparts.com/es-mx/find-my-part.html'},
-  {n:'Monroe',c:'Amortiguadores',clr:'#3B82F6',u:'http://www.monroe.com.mx/'},
-  {n:'Motorad',c:'Termostatos',clr:'#06B6D4',u:'https://motorad.com/es/'},
-  {n:'Parts Master',c:'Multi-marca',clr:'#64748B',u:'https://mfr.activant.com/alliance/servlet'},
-  {n:'Rasa',c:'Radiadores',clr:'#06B6D4',u:'https://www.rasagdl.com.mx/'},
-  {n:'SPQ',c:'Multi-marca',clr:'#64748B',u:'https://tienda.spq.com.mx/'},
-  {n:'Standard',c:'Eléctricos',clr:'#F97316',u:'https://www.standardbrand.com/es/ecatalog'},
-  {n:'SYD',c:'Multi-marca',clr:'#64748B',u:'https://syd.com.mx/Catalogo/welcome'},
-  {n:'Timken',c:'Rodamientos',clr:'#6366F1',u:'https://www.showmetheparts.com/timken/'},
-  {n:'US Motor Works',c:'Multi-marca',clr:'#64748B',u:'https://www.usmotorworks.com/catalog/'},
-  {n:'Vazlo',c:'Multi-marca',clr:'#64748B',u:'https://www.vazloautoparts.com/'},
-  {n:'Wagner',c:'Balatas',clr:'#EF4444',u:'https://www.wagnerbrake.mx/find-my-part.html'},
-  {n:'Wix',c:'Filtros',clr:'#10B981',u:'https://www.wixfilters.com/es-mx/filter-finder.html'}
+  {n:'4Kar',c:'Multi-marca',clr:'#64748B',u:'https://www.4kar.com/#/',t:'tensores bandas poleas'}, //Ejemplo de tags ocultos
+  {n:'Auto Value',c:'Multi-marca',clr:'#64748B',u:'https://mfr.activant.com/alliance/servlet',t:''}, //Cambiado de Parts Master
+  {n:'Amsoil',c:'Aceites',clr:'#F59E0B',u:'https://amsoil.lat/encuentre-su-aceite/',t:'aceite lubricantes sintetico'},
+  {n:'Bendix',c:'Balatas',clr:'#EF4444',u:'https://www.bendix-brakes.com/product_catalog.php?origin=redirect',t:'balatas pastillas frenos discos'},
+  {n:'Bruck',c:'Multi-marca',clr:'#64748B',u:'https://catalogo.bruck.com.mx/',t:''},
+  {n:'Cauplas',c:'Enfriamiento',clr:'#06B6D4',u:'https://cauplas.com/catalogo',t:'mangueras enfriamiento radiator'},
+  {n:'Continental',c:'Refrigeración',clr:'#06B6D4',u:'https://www.mycontiparts.com.mx/',t:'mangueras refrigeracion'}, //Cambiado a Refrigeración
+  {n:'Cloyes',c:'Motor',clr:'#DC2626',u:'https://cloyes.mycarparts.net/',t:'cadenas de tiempo distribucion motor'},
+  {n:'Corapsa',c:'Rodamientos',clr:'#6366F1',u:'http://www.corapsa.com.mx/',t:'rodamientos chumaceras'},
+  {n:'DC Empaques',c:'Motor',clr:'#DC2626',u:'https://www.dcp.com.mx/varios/CatalogoElectronico.jsp',t:'empaques juntas motor cilindro'}, //Cambiado a Motor
+  {n:'Denso',c:'Eléctrico / Encendido',clr:'#F97316',u:'https://densoautopartes.com/files/Catalogo_Bujias-Mex.pdf',t:'bujias encendido sensores electrico'}, //Cambiado a Electrico
+  {n:'Dorman',c:'Multi-marca',clr:'#64748B',u:'https://www.dormanproducts.es/default.aspx',t:''},
+  {n:'Exel de Monterrey',c:'Químicos',clr:'#8B5CF6',u:'http://exeldemonterrey.com.mx/wp-content/uploads/2022/02/Catalogo-Exel-de-Monterrey.pdf',t:'limpiadores quimicos grasas solventes'}, //Nueva categoría
+  {n:'FCS',c:'Amortiguadores',clr:'#3B82F6',u:'https://fcsautoparts.com/find-a-part/',t:'amortiguadores suspension'},
+  {n:'Gonher',c:'Filtros',clr:'#10B981',u:'https://catalogo.grupogonher.com/CatalogoGonher/',t:'filtros aire aceite gasolina'}, //Cambiado a Filtros
+  {n:'GRC',c:'Amortiguadores',clr:'#3B82F6',u:'https://www.grcautopartes.com.mx/',t:'amortiguadores suspension'},
+  {n:'Grob',c:'Suspensión',clr:'#3B82F6',u:'https://www.grob.mx/',t:'terminales rótulas suspension'},
+  {n:'Hastings',c:'Motor',clr:'#DC2626',u:'https://hastings.apacatalog.com/Home/applicationsearch',t:'anillos piston motor cilindro'},
+  {n:'Holbert',c:'Multi-marca',clr:'#64748B',u:'https://www.holbert.com.mx/',t:''},
+  {n:'Interfil',c:'Filtros',clr:'#10B981',u:'https://interfil.com/',t:'filtros'},
+  {n:'Keep On Green',c:'Refrigeración',clr:'#06B6D4',u:'https://keepongreen.com/',t:'fan clutch bombas de agua tomas de agua tensores'}, //Tags ocultos que pediste
+  {n:'Knadian',c:'Multi-marca',clr:'#64748B',u:'https://knadian.com/',t:''},
+  {n:'Lodi',c:'Multi-marca',clr:'#64748B',u:'https://www.showmetheparts.com/lodi-sp/',t:''}, //Cambiado a Multi-marca
+  {n:'Moog',c:'Suspensión',clr:'#3B82F6',u:'https://www.moogparts.com/es-mx/find-my-part.html',t:'rotulas terminales suspension'},
+  {n:'Monroe',c:'Amortiguadores',clr:'#3B82F6',u:'http://www.monroe.com.mx/',t:'amortiguadores'},
+  {n:'Motorad',c:'Refrigeración',clr:'#06B6D4',u:'https://motorad.com/es/',t:'termostatos tapas radiator'},
+  {n:'Nikko',c:'Multi-marca',clr:'#64748B',u:'https://nikkoauto.mx/index.php',t:''},
+  {n:'Perfection Clutch',c:'Embrague',clr:'#EC4899',u:'https://www.perfectionmexico.com.mx/',t:'embragues kit plato disco balero'}, //Nueva categoría
+  {n:'Qualcast',c:'Motor',clr:'#DC2626',u:'https://qualcast.net/Catalog',t:'valvulas motor'},
+  {n:'Rasa',c:'Refrigeración',clr:'#06B6D4',u:'https://www.rasagdl.com.mx/',t:'radiadores'},
+  {n:'SPQ',c:'Multi-marca',clr:'#64748B',u:'https://tienda.spq.com.mx/',t:''},
+  {n:'Standard',c:'Eléctrico / Encendido',clr:'#F97316',u:'https://www.standardbrand.com/es/ecatalog',t:'modulo bobinas sensores electrico'},
+  {n:'ShowMeTheParts',c:'Multi-marca',clr:'#64748B',u:'https://www.showmetheparts.com/',t:''}, //Nueva categoría
+  {n:'SYD',c:'Suspensión',clr:'#3B82F6',u:'https://syd.com.mx/Catalogo/welcome',t:'suspension'}, //Cambiado a Suspensión
+  {n:'Tim Impulsores',c:'Eléctrico / Encendido',clr:'#F97316',u:'https://timmexico.com.mx/buscar',t:'impulsores arranque electrico alternadores'}, //Nueva categoría
+  {n:'Timken',c:'Rodamientos',clr:'#6366F1',u:'https://www.showmetheparts.com/timken/',t:'rodamientos'},
+  {n:'US Motor Works',c:'Multi-marca',clr:'#64748B',u:'https://www.usmotorworks.com/catalog/',t:''},
+  {n:'Vazlo',c:'Suspensión',clr:'#3B82F6',u:'https://www.vazloautoparts.com/',t:'suspension'}, //Cambiado a Suspensión
+  {n:'Wagner',c:'Balatas',clr:'#EF4444',u:'https://www.wagnerbrake.mx/find-my-part.html',t:'balatas frenos'},
+  {n:'Wix',c:'Filtros',clr:'#10B981',u:'https://www.wixfilters.com/es-mx/filter-finder.html',t:'filtros aire aceite'}
 ];
 var CAT_LEYENDA=[
-  {l:'Amortiguadores / Suspensión',clr:'#3B82F6'},
+  {l:'Suspensión / Amortiguadores',clr:'#3B82F6'},
   {l:'Balatas / Frenos',clr:'#EF4444'},
   {l:'Filtros',clr:'#10B981'},
   {l:'Refrigeración / Radiadores',clr:'#06B6D4'},
-  {l:'Eléctricos / Empaques',clr:'#F97316'},
+  {l:'Motor (Cadenas/Anillos/Valvulas)',clr:'#DC2626'},
+  {l:'Eléctrico / Encendido',clr:'#F97316'},
+  {l:'Embragues',clr:'#EC4899'},
+  {l:'Rodamientos',clr:'#6366F1'},
+  {l:'Químicos',clr:'#8B5CF6'},
   {l:'Multi-marca',clr:'#64748B'}
 ];
 
@@ -443,12 +458,13 @@ var CAT_LEYENDA=[
 
 function renderCatalogos(){
   var h='<div class="cat-header"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25"/></svg> Catálogos de Proveedores</div>';
-  h+='<div class="cat-tip">Busca la pieza en el catálogo, copia el <strong>número de parte</strong> y pégalo en la pestaña de búsqueda para cotizar.</div>';
-  h+='<div class="cat-filter"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/></svg><input type="text" id="catFilter" placeholder="Filtrar proveedor... (ej: balata, filtro, amortiguador)" oninput="filtrarCat(this.value)"></div>';
+  h+='<div class="cat-tip">Busca la pieza, copia el <strong>número de parte</strong> y pégalo en la pestaña de búsqueda. <br><strong>Pro tip:</strong> Escribe "tensor", "bomba de agua" o "balata" para filtrar proveedores.</div>';
+  h+='<div class="cat-filter"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/></svg><input type="text" id="catFilter" placeholder="Filtrar marca o pieza... (ej: balata, tensor, bujía)" oninput="filtrarCat(this.value)"></div>';
   h+='<div class="cat-grid">';
   for(var i=0;i<CATS.length;i++){
     var c=CATS[i];
-    h+='<a class="cat-card" href="'+c.u+'" target="_blank" rel="noopener" data-name="'+c.n.toLowerCase()+'" data-cat="'+c.c.toLowerCase()+'" style="border-left-color:'+c.clr+'">';
+    // Se pasan las tags ocultas al atributo data-tags
+    h+='<a class="cat-card" href="'+c.u+'" target="_blank" rel="noopener" data-name="'+c.n.toLowerCase()+'" data-cat="'+c.c.toLowerCase()+'" data-tags="'+(c.t||'').toLowerCase()+'" style="border-left-color:'+c.clr+'">';
     h+='<div class="cat-card-info"><div class="cat-card-name">'+c.n+'</div><div class="cat-card-cat">'+c.c+'</div></div>';
     h+='<svg class="cat-card-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"/></svg>';
     h+='</a>';
@@ -462,12 +478,14 @@ function renderCatalogos(){
   document.getElementById('catalogosContainer').innerHTML=h;
 }
 
+// Función actualizada para leer las palabras clave ocultas
 function filtrarCat(q){
   q=q.toLowerCase().trim();
   var cards=document.querySelectorAll('.cat-card');
   for(var i=0;i<cards.length;i++){
-    var n=cards[i].getAttribute('data-name'),c=cards[i].getAttribute('data-cat');
-    cards[i].style.display=(!q||n.indexOf(q)!==-1||c.indexOf(q)!==-1)?'':'none';
+    var n=cards[i].getAttribute('data-name'),c=cards[i].getAttribute('data-cat'),t=cards[i].getAttribute('data-tags')||'';
+    // Si no hay búsqueda, o si la búsqueda coincide con el nombre, la categoría, o las TAGS OCULTAS
+    cards[i].style.display=(!q||n.indexOf(q)!==-1||c.indexOf(q)!==-1||t.indexOf(q)!==-1)?'':'none';
   }
 }
 
