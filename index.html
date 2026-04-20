@@ -91,9 +91,6 @@
     .sel-top{display:flex;align-items:center;gap:8px}
     .sel-bot{display:flex;align-items:center;gap:8px;margin-top:4px}
     .sel-precio{font-family:'Outfit',sans-serif;font-size:13px;font-weight:700;color:var(--verde);white-space:nowrap}
-    .sel-precio-publico{font-size:11px;color:var(--slate-400);text-decoration:line-through;white-space:nowrap}
-    .sel-stock{font-size:11px;font-weight:600;display:flex;align-items:center;gap:3px;white-space:nowrap}
-    .sel-stock.ok{color:var(--verde)}.sel-stock.bajo{color:var(--rojo)}.sel-stock.cero{color:var(--slate-400)}
     .sel-qty{display:flex;align-items:center;border:1.5px solid var(--slate-200);border-radius:var(--r-sm);overflow:hidden;flex-shrink:0}
     .sel-qty-btn{width:30px;height:30px;border:none;background:var(--slate-50);cursor:pointer;font-size:16px;font-weight:700;color:var(--slate-600);line-height:1;touch-action:manipulation}
     .sel-qty-btn:active{background:var(--slate-200)}
@@ -120,12 +117,17 @@
     .dato-lbl{font-size:10px;color:var(--slate-400);text-transform:uppercase;letter-spacing:.08em;font-weight:600}
     .dato-val{font-family:'Outfit',sans-serif;font-size:24px;font-weight:700;margin-top:2px}
     .dato-val.precio{color:var(--verde)}.dato-val.ok{color:var(--verde)}.dato-val.bajo{color:var(--rojo)}.dato-val.cero{color:var(--slate-400)}
-    .precio-publico{font-size:15px!important;color:var(--slate-400)!important;text-decoration:line-through;font-weight:500!important}
     .precio-tuyo{font-size:24px!important;color:var(--verde)!important}
-    .precio-tuyo-lbl{font-size:10px!important;color:var(--verde)!important;font-weight:700!important;letter-spacing:.06em!important;margin-top:6px}
+    .precio-tuyo-lbl{font-size:10px!important;color:var(--verde)!important;font-weight:700!important;letter-spacing:.06em!important}
     .dot{width:6px;height:6px;border-radius:50%;display:inline-block;margin-right:4px;vertical-align:middle}
     .dot.ok{background:var(--verde)}.dot.bajo{background:var(--rojo);animation:pulse 1.5s infinite}.dot.cero{background:var(--slate-300)}
     @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+    
+    /* NUEVO CSS PARA EL DESGLOSE DE STOCK */
+    .stock-det{margin-top:5px;font-size:11.5px;font-weight:600;line-height:1.5;color:var(--slate-600)}
+    .stock-det .sm{color:var(--slate-700)}
+    .stock-det .ss{color:var(--slate-500);opacity:.85}
+
     .card-add-row{display:flex;align-items:center;gap:12px}
     .card-qty{display:flex;align-items:center;border:1.5px solid var(--slate-200);border-radius:var(--r-sm);overflow:hidden}
     .card-qty-btn{width:40px;height:40px;border:none;background:var(--slate-50);cursor:pointer;font-size:18px;font-weight:700;color:var(--slate-600);line-height:1;touch-action:manipulation}
@@ -168,7 +170,6 @@
     .ci-cod{font-family:'Outfit',sans-serif;font-size:13px;font-weight:700}
     .ci-desc{font-size:12px;color:var(--slate-400);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .ci-precios{display:flex;align-items:baseline;gap:6px;margin-top:2px}
-    .ci-pub{font-size:11px;color:var(--slate-400);text-decoration:line-through}
     .ci-precio{font-family:'Outfit',sans-serif;font-size:14px;font-weight:700;color:var(--verde)}
     .ci-qty{display:flex;align-items:center;border:1px solid var(--slate-200);border-radius:var(--r-sm);overflow:hidden;flex-shrink:0}
     .qbtn{width:34px;height:34px;border:none;background:var(--slate-50);cursor:pointer;font-size:16px;font-weight:700;color:var(--slate-600);touch-action:manipulation}
@@ -486,7 +487,8 @@ async function buscar(){
   try{
     if(modoTab==='descripcion'){
       var pat='%'+raw.replace(/\s+/g,'%')+'%';
-      var rows=await api('/rest/v1/inventario?descripcion=ilike.'+encodeURIComponent(pat)+'&select=codigo,descripcion,precio,stock_total,linea&order=descripcion&limit=200');
+      // MODIFICACIÓN 1: Se agregaron stock_matriz y stock_otras_sucursales
+      var rows=await api('/rest/v1/inventario?descripcion=ilike.'+encodeURIComponent(pat)+'&select=codigo,descripcion,precio,stock_total,stock_matriz,stock_otras_sucursales,linea&order=descripcion&limit=200');
       var unicos=[],seen=new Set();
       for(var i=0;i<(rows||[]).length;i++){var c=(rows[i].codigo||'').trim();if(c&&!seen.has(c)){seen.add(c);unicos.push(rows[i]);}}
       btn.disabled=false;document.getElementById('spinner').style.display='none';
@@ -496,7 +498,8 @@ async function buscar(){
       var q=raw.toUpperCase();
       if(q.indexOf('*')!==-1){
         var pat=q.replace(/\*/g,'%');
-        var rows=await api('/rest/v1/inventario?codigo=ilike.'+encodeURIComponent(pat)+'&select=codigo,descripcion,precio,stock_total,linea&order=codigo&limit=300');
+        // MODIFICACIÓN 2: Se agregaron stock_matriz y stock_otras_sucursales
+        var rows=await api('/rest/v1/inventario?codigo=ilike.'+encodeURIComponent(pat)+'&select=codigo,descripcion,precio,stock_total,stock_matriz,stock_otras_sucursales,linea&order=codigo&limit=300');
         var unicos=[],seen=new Set();
         for(var i=0;i<(rows||[]).length;i++){var c=(rows[i].codigo||'').trim().toUpperCase();if(c&&!seen.has(c)){seen.add(c);unicos.push(rows[i]);}}
         btn.disabled=false;document.getElementById('spinner').style.display='none';
@@ -522,20 +525,22 @@ async function buscarFamilia(codigo){
   var visitados=new Set(),cola=[codigo.toUpperCase()],res=[];
   while(cola.length){
     var actual=cola.shift();if(visitados.has(actual))continue;visitados.add(actual);
-    var filas=await api('/rest/v1/inventario?codigo=ilike.'+encodeURIComponent(actual)+'&select=codigo,descripcion,precio,stock_total,codigo_alternativo,linea&limit=20');
+    // MODIFICACIÓN 3: Se agregaron stock_matriz y stock_otras_sucursales
+    var filas=await api('/rest/v1/inventario?codigo=ilike.'+encodeURIComponent(actual)+'&select=codigo,descripcion,precio,stock_total,stock_matriz,stock_otras_sucursales,codigo_alternativo,linea&limit=20');
     if(filas&&filas.length){
       var f=filas[0];
       if(!res.some(function(r){return r.codigo.toUpperCase()===actual;}))
-        res.push({codigo:f.codigo,descripcion:f.descripcion,precio:f.precio,stock_total:f.stock_total,linea:f.linea||'',esPrincipal:f.codigo.toUpperCase()===codigo.toUpperCase()});
+        res.push({codigo:f.codigo,descripcion:f.descripcion,precio:f.precio,stock_total:f.stock_total,stock_matriz:f.stock_matriz,stock_otras_sucursales:f.stock_otras_sucursales,linea:f.linea||'',esPrincipal:f.codigo.toUpperCase()===codigo.toUpperCase()});
       for(var j=0;j<filas.length;j++){var alt=(filas[j].codigo_alternativo||'').trim().toUpperCase();if(alt&&!visitados.has(alt))cola.push(alt);}
     }
-    var rev=await api('/rest/v1/inventario?codigo_alternativo=ilike.'+encodeURIComponent(actual)+'&select=codigo,descripcion,precio,stock_total,codigo_alternativo,linea&limit=20');
+    // MODIFICACIÓN 4: Se agregaron stock_matriz y stock_otras_sucursales
+    var rev=await api('/rest/v1/inventario?codigo_alternativo=ilike.'+encodeURIComponent(actual)+'&select=codigo,descripcion,precio,stock_total,stock_matriz,stock_otras_sucursales,codigo_alternativo,linea&limit=20');
     if(rev&&rev.length){
       for(var j=0;j<rev.length;j++){
         var c=rev[j].codigo.toUpperCase();
         if(!visitados.has(c)&&!res.some(function(r){return r.codigo.toUpperCase()===c;})){
           visitados.add(c);
-          res.push({codigo:rev[j].codigo,descripcion:rev[j].descripcion,precio:rev[j].precio,stock_total:rev[j].stock_total,linea:rev[j].linea||'',esPrincipal:false});
+          res.push({codigo:rev[j].codigo,descripcion:rev[j].descripcion,precio:rev[j].precio,stock_total:rev[j].stock_total,stock_matriz:rev[j].stock_matriz,stock_otras_sucursales:rev[j].stock_otras_sucursales,linea:rev[j].linea||'',esPrincipal:false});
           var alt2=(rev[j].codigo_alternativo||'').trim().toUpperCase();if(alt2&&!visitados.has(alt2))cola.push(alt2);
         }
       }
@@ -554,8 +559,8 @@ function crearSelector(rows){
     h+='<span class="sel-cod">'+esc(r.codigo)+'</span>';
     h+='<span class="sel-desc">'+esc(r.descripcion||'')+'</span>';
     h+='<span class="sel-right"><span class="sel-top">';
-    if(c.esMayoreo){h+='<span class="sel-precio-publico">'+fmt(r.precio)+'</span><span class="sel-precio">'+fmt(c.precio)+'</span>';}
-    else{h+='<span class="sel-precio">'+fmt(r.precio)+'</span>';}
+    // MODIFICACIÓN MAYOREO: Ya no muestra tachado el precio público
+    h+='<span class="sel-precio">'+fmt(c.precio)+'</span>';
     h+='</span><span class="sel-bot"><span class="sel-stock '+s.cls+'"><span class="dot '+s.dot+'"></span>'+s.lbl+'</span><span class="sel-qty" data-action="qty"><button class="sel-qty-btn" data-action="minus">−</button><span class="sel-qty-num '+(cant>0?'activo':'cero')+'">'+cant+'</span><button class="sel-qty-btn" data-action="plus">+</button></span></span></span></div>';
   }
   h+='</div></div>';return h;
@@ -570,10 +575,26 @@ function crearCard(item,esAlt){
   h+='<div class="card-cod">'+esc(item.codigo)+' '+badge;
   if(item.linea)h+='<span class="linea-tag">'+esc(item.linea)+'</span>';
   h+='</div><div class="card-desc">'+esc(item.descripcion||'')+'</div><div class="card-datos">';
+  
+  // MODIFICACIÓN MAYOREO: Ya no muestra "Precio público", solo "TU PRECIO"
   if(c.esMayoreo){
-    h+='<div class="dato wide"><span class="dato-lbl">Precio público</span><span class="dato-val precio-publico">'+fmt(item.precio)+'</span><span class="dato-lbl precio-tuyo-lbl">TU PRECIO</span><span class="dato-val precio-tuyo">'+fmt(c.precio)+'</span></div>';
+    h+='<div class="dato wide"><span class="dato-lbl precio-tuyo-lbl">TU PRECIO</span><span class="dato-val precio-tuyo">'+fmt(c.precio)+'</span></div>';
   }else{h+='<div class="dato"><span class="dato-lbl">Precio</span><span class="dato-val precio">'+fmt(item.precio)+'</span></div>';}
-  h+='<div class="dato"><span class="dato-lbl">Stock</span><span class="dato-val '+s.cls+'"><span class="dot '+s.dot+'"></span>'+s.lbl+'</span></div></div>';
+  
+  // MODIFICACIÓN STOCK: Desglose de Matriz y Sucursales
+  var mtrz = item.stock_matriz || 0;
+  var surc = item.stock_otras_sucursales || 0;
+  var total = item.stock_total || 0;
+  
+  h += '<div class="dato"><span class="dato-lbl">Stock</span><span class="dato-val '+s.cls+'"><span class="dot '+s.dot+'"></span>'+s.lbl+'</span>';
+  if(total > 0){
+    h += '<div class="stock-det">';
+    h += '<div class="sm">📍 Matriz: '+mtrz+'</div>';
+    if(surc > 0){ h += '<div class="ss">🏪 Sucursales: '+surc+'</div>'; }
+    h += '</div>';
+  }
+  h += '</div></div>';
+  
   h+='<div class="card-add-row"><div class="card-qty" data-action="qty"><button class="card-qty-btn minus" data-action="minus">−</button><span class="card-qty-num '+(cant>0?'activo':'cero')+'">'+cant+'</span><button class="card-qty-btn" data-action="plus">+</button></div><span class="add-label '+(cant>0?'activo':'')+'">'+(cant>0?'En pedido':'Agregar al pedido')+'</span></div></div>';
   return h;
 }
@@ -652,7 +673,7 @@ function renderCarrito(){
   for(var i=0;i<carrito.length;i++){
     var it=carrito[i],c=calcPrecio(it.precio,it.linea||'');
     items+='<div class="cart-item"><div class="ci-info"><div class="ci-cod">'+it.cantidad+'x '+esc(it.codigo)+'</div><div class="ci-desc">'+esc(it.descripcion||'')+'</div><div class="ci-precios">';
-    if(c.esMayoreo)items+='<span class="ci-pub">'+fmt(it.precio)+'</span>';
+    // MODIFICACIÓN MAYOREO: Se quitó el precio tachado del carrito también
     items+='<span class="ci-precio">'+fmt(c.precio*it.cantidad)+'</span></div></div>';
     items+='<div class="ci-qty"><button class="qbtn" data-idx="'+i+'" data-d="-1">−</button><span class="qnum">'+it.cantidad+'</span><button class="qbtn" data-idx="'+i+'" data-d="1">+</button></div></div>';
   }
