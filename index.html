@@ -44,7 +44,19 @@
     .nota svg{width:13px;height:13px;flex-shrink:0}
     .nota-iva svg{stroke:#D97706;fill:none;stroke-width:2}
     .container{width:100%;max-width:780px;padding:1.25rem 1.25rem 2rem}
-    .search-box{background:#fff;border-radius:var(--r-xl);padding:1.15rem 1.2rem;box-shadow:0 4px 24px rgba(0,0,0,.07);border:1px solid var(--slate-200);margin-top:-.75rem;margin-bottom:1rem}
+    
+    /* BANNERS PROMOCIONES */
+    .promos-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1rem}
+    .promo-card{position:relative;border-radius:var(--r-lg);overflow:hidden;cursor:pointer;touch-action:manipulation;border:1px solid var(--slate-200);box-shadow:0 2px 8px rgba(0,0,0,.05);aspect-ratio:16/9;background:var(--slate-200);transition:transform .15s}
+    .promo-card:active{transform:scale(.97)}
+    .promo-card img{width:100%;height:100%;object-fit:cover;display:block}
+    .promo-overlay{position:absolute;bottom:0;left:0;right:0;padding:10px 14px;background:linear-gradient(to top,rgba(0,0,0,.75) 0%,transparent 100%);color:#fff}
+    .promo-titulo{font-family:'Outfit',sans-serif;font-size:14px;font-weight:700;line-height:1.2}
+    .promo-sub{font-size:11px;opacity:.85;margin-top:2px;font-weight:500}
+    .promo-tag{position:absolute;top:10px;right:10px;background:var(--rojo);color:#fff;font-size:9px;font-weight:700;padding:3px 8px;border-radius:100px;text-transform:uppercase;letter-spacing:.05px}
+    @media(max-width:480px){.promos-grid{gap:8px}.promo-titulo{font-size:12px}.promo-sub{font-size:10px}}
+
+    .search-box{background:#fff;border-radius:var(--r-xl);padding:1.15rem 1.2rem;box-shadow:0 4px 24px rgba(0,0,0,.07);border:1px solid var(--slate-200);margin-bottom:1rem}
     .search-tabs{display:flex;gap:4px;margin-bottom:10px;background:var(--slate-100);border-radius:var(--r-md);padding:3px}
     .stab{flex:1;padding:9px;text-align:center;font-size:13px;font-weight:600;color:var(--slate-500);border-radius:var(--r-sm);cursor:pointer;transition:all .15s;border:none;background:none;font-family:'DM Sans',sans-serif;touch-action:manipulation}
     .stab.active{background:#fff;color:var(--slate-900);box-shadow:0 1px 4px rgba(0,0,0,.08)}
@@ -64,7 +76,6 @@
     .chip{display:inline-flex;align-items:center;gap:3px;font-size:12px;color:var(--slate-400);background:var(--slate-50);border:1px solid var(--slate-200);padding:4px 10px;border-radius:100px;cursor:pointer;transition:all .15s;touch-action:manipulation}
     .chip:active{background:var(--slate-200)}
     .chip code{font-family:'Outfit',monospace;font-size:11px;font-weight:700;color:var(--slate-600);background:var(--slate-200);padding:1px 4px;border-radius:3px}
-
     .catalogos-container{display:none}
     .catalogos-container.show{display:block}
     .cat-header{font-family:'Outfit',sans-serif;font-size:16px;font-weight:700;color:var(--slate-800);margin-bottom:6px;display:flex;align-items:center;gap:8px}
@@ -87,7 +98,6 @@
     .cat-legend{display:flex;flex-wrap:wrap;gap:6px 12px;margin-top:12px;padding-top:10px;border-top:1px solid var(--slate-200)}
     .cat-legend-item{display:flex;align-items:center;gap:4px;font-size:9px;color:var(--slate-500);font-weight:600}
     .cat-legend-dot{width:8px;height:8px;border-radius:2px;flex-shrink:0}
-
     .spinner{display:none;text-align:center;padding:2.5rem}
     .dots{display:inline-flex;gap:5px;margin-bottom:10px}
     .dots span{width:8px;height:8px;border-radius:50%;background:var(--rojo);animation:dp 1.2s ease-in-out infinite}
@@ -240,28 +250,7 @@
     .toast{position:fixed;top:18px;left:50%;transform:translateX(-50%) translateY(-70px);background:var(--slate-900);color:#fff;padding:10px 20px;border-radius:var(--r-md);font-size:14px;font-weight:600;z-index:400;transition:transform .3s;pointer-events:none;white-space:nowrap}
     .toast.show{transform:translateX(-50%) translateY(0)}
     @media(max-width:480px){
-      .header-inner{padding:.85rem 1rem}
-      .logo-wrap img{width:80px}
-      .header-title{font-size:17px}
-      .header-sub{font-size:10px;margin-top:2px}
-      .mayoreo-link{padding:6px 8px;font-size:10px}
-      .mayoreo-link .link-text{display:none}
-      .container{padding:1rem 1rem 2rem}
-      .search-box{padding:1rem}
-      .btn-buscar .btn-text{display:none}
-      .dato-val{font-size:20px}
-      .precio-tuyo{font-size:20px!important}
-      .card{padding:1rem 1.05rem}
-      .card-desc{font-size:13px}
-      .card-cod{font-size:15px}
-      .cart-fab{bottom:16px;left:16px;width:54px;height:54px}
-      .wa-float{bottom:16px;right:16px;width:54px;height:54px}
-      .sel-row{grid-template-columns:minmax(75px,100px) 1fr auto;padding:12px 12px}
-      .modal{padding:1.25rem 1rem}
-      .login-modal{padding:1.5rem 1.25rem;max-width:360px}
-      .cat-grid{grid-template-columns:repeat(2,1fr);gap:6px}
-      .cat-card{padding:10px 11px;gap:8px}
-      .cat-card-name{font-size:12px}
+      .header-inner{padding:.85rem 1rem}.logo-wrap img{width:80px}.header-title{font-size:17px}.header-sub{font-size:10px;margin-top:2px}.mayoreo-link{padding:6px 8px;font-size:10px}.mayoreo-link .link-text{display:none}.container{padding:1rem 1rem 2rem}.search-box{padding:1rem}.btn-buscar .btn-text{display:none}.dato-val{font-size:20px}.precio-tuyo{font-size:20px!important}.card{padding:1rem 1.05rem}.card-desc{font-size:13px}.card-cod{font-size:15px}.cart-fab{bottom:16px;left:16px;width:54px;height:54px}.wa-float{bottom:16px;right:16px;width:54px;height:54px}.sel-row{grid-template-columns:minmax(75px,100px) 1fr auto;padding:12px 12px}.modal{padding:1.25rem 1rem}.login-modal{padding:1.5rem 1.25rem;max-width:360px}.cat-grid{grid-template-columns:repeat(2,1fr);gap:6px}.cat-card{padding:10px 11px;gap:8px}.cat-card-name{font-size:12px}
     }
     @media(min-width:600px){.cat-grid{grid-template-columns:repeat(3,1fr)}}
     @media(min-width:900px){.cat-grid{grid-template-columns:repeat(4,1fr)}}
@@ -301,6 +290,20 @@
 </div>
 
 <main class="container" id="mainContainer">
+  
+  <div class="promos-grid">
+    <div class="promo-card" onclick="triggerPromo('*GOODYEAR*', 'descripcion')">
+      <span class="promo-tag">Promoción</span>
+      <img src="https://placehold.co/800x450/1e293b/ffffff?text=PROMO+GOODYEAR+AQUI" alt="Promo Goodyear">
+      <div class="promo-overlay"><div class="promo-titulo">Aceites Goodyear</div><div class="promo-sub">Toca para ver los 10 productos en promoción</div></div>
+    </div>
+    <div class="promo-card" onclick="triggerPromo('*BALATAS WAGNER*', 'descripcion')">
+      <span class="promo-tag">Promoción</span>
+      <img src="https://placehold.co/800x450/1e293b/ffffff?text=PROMO+WAGNER+AQUI" alt="Promo Wagner">
+      <div class="promo-overlay"><div class="promo-titulo">Balatas Wagner</div><div class="promo-sub">Toca para ver los 10 productos en promoción</div></div>
+    </div>
+  </div>
+
   <div class="search-box">
     <div class="search-tabs">
       <button class="stab active" id="tabCodigo" onclick="cambiarTab('codigo')">Buscar por código</button>
@@ -389,56 +392,56 @@ var SUPA_URL='https://aetktfzewcrmetqyxbew.supabase.co';
 var SUPA_KEY='sb_publishable_QEHgCTmk9El1nJpMP-07Ig_Qbv4Wox5';
 var carrito=[],modoTab='codigo';
 var clienteActual=null;
+var lineasExcluidas=[]; // VARIABLE PARA LÍNEAS SIN DESCUENTO
 
-// === BASE DE DATOS DE CATÁLOGOS (CON PALABRAS CLAVE OCULTAS EN "t") ===
 var CATS=[
-  {n:'4Kar',c:'Multi-marca',clr:'#64748B',u:'https://www.4kar.com/#/',t:'tensores bandas bases soportes poleas'}, //Ejemplo de tags ocultos
-  {n:'Auto Value',c:'Multi-marca',clr:'#64748B',u:'https://mfr.activant.com/alliance/servlet',t:''}, //Cambiado de Parts Master
+  {n:'4Kar',c:'Multi-marca',clr:'#64748B',u:'https://www.4kar.com/#/',t:'tensores bandas poleas'},
+  {n:'Auto Value',c:'Multi-marca',clr:'#64748B',u:'https://mfr.activant.com/alliance/servlet',t:''},
   {n:'Amsoil',c:'Aceites',clr:'#F59E0B',u:'https://amsoil.lat/encuentre-su-aceite/',t:'aceite lubricantes sintetico'},
   {n:'Bendix',c:'Balatas',clr:'#EF4444',u:'https://www.bendix-brakes.com/product_catalog.php?origin=redirect',t:'balatas pastillas frenos discos'},
-  {n:'Bruck',c:'Multi-marca',clr:'#64748B',u:'https://catalogo.bruck.com.mx/',t:'suspension direccion motor electrico frenos sensores mangueras rotulas terminales vieletas soportes bases poleas tensores'},
-  {n:'Cauplas',c:'Enfriamiento',clr:'#06B6D4',u:'https://cauplas.com/catalogo',t:'mangueras enfriamiento toma'},
-  {n:'Continental',c:'Refrigeración',clr:'#06B6D4',u:'https://www.mycontiparts.com.mx/',t:'mangueras bandas poleas tensores refrigeracion'}, //Cambiado a Refrigeración
-  {n:'Cloyes',c:'Motor',clr:'#DC2626',u:'https://cloyes.mycarparts.net/',t:'cadenas de tiempo guias tensores engranes kits distribucion vvt distribucion motor'},
-  {n:'Corapsa',c:'Rodamientos',clr:'#6366F1',u:'http://www.corapsa.com.mx/',t:'rodamientos crucetas retenes baleros'},
-  {n:'DC Empaques',c:'Motor',clr:'#DC2626',u:'https://www.dcp.com.mx/varios/CatalogoElectronico.jsp',t:'empaques juntas motor cilindro'}, //Cambiado a Motor
-  {n:'Denso',c:'Eléctrico / Encendido',clr:'#F97316',u:'https://densoautopartes.com/files/Catalogo_Bujias-Mex.pdf',t:'bujias encendido sensores electrico'}, //Cambiado a Electrico
-  {n:'Dorman',c:'Multi-marca',clr:'#64748B',u:'https://www.dormanproducts.es/default.aspx',t:'deposito de anticongelante damper balanceador armonico manguera de calefaccion tomas de agua multiple de admision multiple de escape vvt solenoide'},
-  {n:'Nitro',c:'Químicos',clr:'#8B5CF6',u:'http://exeldemonterrey.com.mx/wp-content/uploads/2022/02/Catalogo-Exel-de-Monterrey.pdf',t:'limpiadores quimicos grasas solventes'}, //Nueva categoría
+  {n:'Bruck',c:'Multi-marca',clr:'#64748B',u:'https://catalogo.bruck.com.mx/',t:''},
+  {n:'Cauplas',c:'Enfriamiento',clr:'#06B6D4',u:'https://cauplas.com/catalogo',t:'mangueras enfriamiento radiator'},
+  {n:'Continental',c:'Refrigeración',clr:'#06B6D4',u:'https://www.mycontiparts.com.mx/',t:'mangueras refrigeracion'},
+  {n:'Cloyes',c:'Motor',clr:'#DC2626',u:'https://cloyes.mycarparts.net/',t:'cadenas de tiempo distribucion motor'},
+  {n:'Corapsa',c:'Rodamientos',clr:'#6366F1',u:'http://www.corapsa.com.mx/',t:'rodamientos chumaceras'},
+  {n:'DC Empaques',c:'Motor',clr:'#DC2626',u:'https://www.dcp.com.mx/varios/CatalogoElectronico.jsp',t:'empaques juntas motor cilindro'},
+  {n:'Denso',c:'Eléctrico / Encendido',clr:'#F97316',u:'https://densoautopartes.com/files/Catalogo_Bujias-Mex.pdf',t:'bujias encendido sensores electrico'},
+  {n:'Dorman',c:'Multi-marca',clr:'#64748B',u:'https://www.dormanproducts.es/default.aspx',t:''},
+  {n:'Exel de Monterrey',c:'Químicos',clr:'#8B5CF6',u:'http://exeldemonterrey.com.mx/wp-content/uploads/2022/02/Catalogo-Exel-de-Monterrey.pdf',t:'limpiadores quimicos grasas solventes'},
   {n:'FCS',c:'Amortiguadores',clr:'#3B82F6',u:'https://fcsautoparts.com/find-a-part/',t:'amortiguadores suspension'},
-  {n:'Gonher',c:'Filtros',clr:'#10B981',u:'https://catalogo.grupogonher.com/CatalogoGonher/',t:'filtros baterias aire aceite cabina gasolina'}, //Cambiado a Filtros
+  {n:'Gonher',c:'Filtros',clr:'#10B981',u:'https://catalogo.grupogonher.com/CatalogoGonher/',t:'filtros aire aceite gasolina'},
   {n:'GRC',c:'Amortiguadores',clr:'#3B82F6',u:'https://www.grcautopartes.com.mx/',t:'amortiguadores suspension'},
-  {n:'Grob',c:'Suspensión',clr:'#3B82F6',u:'https://www.grob.mx/',t:'terminales rotulas amortiguadores horquillas vieletas direccion bujes suspension'},
+  {n:'Grob',c:'Suspensión',clr:'#3B82F6',u:'https://www.grob.mx/',t:'terminales rótulas suspension'},
   {n:'Hastings',c:'Motor',clr:'#DC2626',u:'https://hastings.apacatalog.com/Home/applicationsearch',t:'anillos piston motor cilindro'},
-  {n:'Holbert',c:'Multi-marca',clr:'#64748B',u:'https://www.holbert.com.mx/',t:'frenos cremalleras suspension direccion rotulas horquillas bujes bombas de direccion vieletas'},
-  {n:'Interfil',c:'Filtros',clr:'#10B981',u:'https://interfil.com/',t:'filtros aire aceite cabina gasolina'},
-  {n:'Keep On Green',c:'Refrigeración',clr:'#06B6D4',u:'https://keepongreen.com/',t:'fan clutch bombas de agua tomas de agua mangueras kits de tiempo distribucion depositos de anticongelantes tensores'}, //Tags ocultos que pediste
-  {n:'Knadian',c:'Multi-marca',clr:'#64748B',u:'https://knadian.com/',t:'poleas tensores bombas de agua soportes de motor depositos de anticongelante'},
-  {n:'Lodi',c:'Multi-marca',clr:'#64748B',u:'https://www.showmetheparts.com/lodi-sp/',t:'damper balanceador armonico soportes cedazo transmision aro dentado filtros tapas de distribucion volantes horquilla clutch tuercas templadores tornillos arañas hules barra cardan'}, //Cambiado a Multi-marca
-  {n:'Moog',c:'Suspensión',clr:'#3B82F6',u:'https://www.moogparts.com/es-mx/find-my-part.html',t:'rotulas horquillas bujes direccion vieletas terminales suspension'},
+  {n:'Holbert',c:'Multi-marca',clr:'#64748B',u:'https://www.holbert.com.mx/',t:''},
+  {n:'Interfil',c:'Filtros',clr:'#10B981',u:'https://interfil.com/',t:'filtros'},
+  {n:'Keep On Green',c:'Refrigeración',clr:'#06B6D4',u:'https://keepongreen.com/',t:'fan clutch bombas de agua tomas de agua tensores'},
+  {n:'Knadian',c:'Multi-marca',clr:'#64748B',u:'https://knadian.com/',t:''},
+  {n:'Lodi',c:'Multi-marca',clr:'#64748B',u:'https://www.showmetheparts.com/lodi-sp/',t:''},
+  {n:'Moog',c:'Suspensión',clr:'#3B82F6',u:'https://www.moogparts.com/es-mx/find-my-part.html',t:'rotulas terminales suspension'},
   {n:'Monroe',c:'Amortiguadores',clr:'#3B82F6',u:'http://www.monroe.com.mx/',t:'amortiguadores'},
-  {n:'Motorad',c:'Refrigeración',clr:'#06B6D4',u:'https://motorad.com/es/',t:'termostatos tomas de agua tapones radiator'},
-  {n:'Nikko',c:'Multi-marca',clr:'#64748B',u:'https://nikkoauto.mx/index.php',t:'rotulas suspension tomas de agua damper cigueñal valvulas tapas de distribucion bombas de aceite cuerpos de aceleracion vvt direccion bobinas sensores cables de bujias modulos switch amortiguadores filtros aire aceite gasolina bombas de agua bombas de aceite tapas de distribucion'},
-  {n:'Perfection Clutch',c:'Embrague',clr:'#EC4899',u:'https://www.perfectionmexico.com.mx/',t:'embragues clutch kit plato disco collarin cilindro auxiliar'}, //Nueva categoría
-  {n:'Qualcast Valvulas',c:'Motor',clr:'#DC2626',u:'https://qualcast.net/Catalog',t:'valvulas motor'},
-  {n:'Rasa Radiadores',c:'Refrigeración',clr:'#06B6D4',u:'https://www.rasagdl.com.mx/',t:'radiadores'},
-  {n:'SPQ',c:'Multi-marca',clr:'#64748B',u:'https://tienda.spq.com.mx/',t:'motor valvulas vvt pistones anillos empaques bombas de aceite bombas de agua kit de tiempo distribucion tensores guias cadenas anillos metales arbol de levas'},
-  {n:'Standard',c:'Eléctrico / Encendido',clr:'#F97316',u:'https://www.standardbrand.com/es/ecatalog',t:'modulo bobinas cables de bujias switch oxigeno relays sensores electrico'},
-  {n:'ShowMeTheParts',c:'Multi-marca',clr:'#64748B',u:'https://www.showmetheparts.com/',t:'bandas mangueras suspension direccion frenos electrico enfriamiento bombas de agua'}, //Nueva categoría
-  {n:'SYD',c:'Suspensión',clr:'#3B82F6',u:'https://syd.com.mx/Catalogo/welcome',t:'suspension amortiguadores direccion rotulas horquillas bujes terminales vieletas'}, //Cambiado a Suspensión
-  {n:'Tim Impulsores',c:'Eléctrico / Encendido',clr:'#F97316',u:'https://timmexico.com.mx/buscar',t:'impulsores arranque bendix electrico alternadores'}, //Nueva categoría
-  {n:'Timken',c:'Rodamientos',clr:'#6366F1',u:'https://www.showmetheparts.com/timken/',t:'rodamientos retenes crucetas'},
-  {n:'US Motor Works',c:'Refrigeracion',clr:'#06B6D4',u:'https://www.usmotorworks.com/catalog/',t:'bombas de agua'},
-  {n:'Vazlo',c:'Suspensión',clr:'#3B82F6',u:'https://www.vazloautoparts.com/',t:'suspension soportes rotulas horquillas bases amortiguadores vieletas bujes direccion'}, //Cambiado a Suspensión
-  {n:'Wagner',c:'Balatas',clr:'#EF4444',u:'https://www.wagnerbrake.mx/find-my-part.html',t:'balatas pastillas frenos'},
-  {n:'Wix',c:'Filtros',clr:'#10B981',u:'https://www.wixfilters.com/es-mx/filter-finder.html',t:'filtros aire aceite cabina gasolina'}
+  {n:'Motorad',c:'Refrigeración',clr:'#06B6D4',u:'https://motorad.com/es/',t:'termostatos tapas radiator'},
+  {n:'Nikko',c:'Multi-marca',clr:'#64748B',u:'https://nikkoauto.mx/index.php',t:''},
+  {n:'Perfection Clutch',c:'Embrague',clr:'#EC4899',u:'https://www.perfectionmexico.com.mx/',t:'embragues kit plato disco balero'},
+  {n:'Qualcast',c:'Motor',clr:'#DC2626',u:'https://qualcast.net/Catalog',t:'valvulas motor'},
+  {n:'Rasa',c:'Refrigeración',clr:'#06B6D4',u:'https://www.rasagdl.com.mx/',t:'radiadores'},
+  {n:'SPQ',c:'Multi-marca',clr:'#64748B',u:'https://tienda.spq.com.mx/',t:''},
+  {n:'Standard',c:'Eléctrico / Encendido',clr:'#F97316',u:'https://www.standardbrand.com/es/ecatalog',t:'modulo bobinas sensores electrico'},
+  {n:'ShowMeTheParts',c:'Multi-marca',clr:'#64748B',u:'https://www.showmetheparts.com/',t:''},
+  {n:'SYD',c:'Suspensión',clr:'#3B82F6',u:'https://syd.com.mx/Catalogo/welcome',t:'suspension'},
+  {n:'Tim Impulsores',c:'Eléctrico / Encendido',clr:'#F97316',u:'https://timmexico.com.mx/buscar',t:'impulsores arranque electrico alternadores'},
+  {n:'Timken',c:'Rodamientos',clr:'#6366F1',u:'https://www.showmetheparts.com/timken/',t:'rodamientos'},
+  {n:'US Motor Works',c:'Multi-marca',clr:'#64748B',u:'https://www.usmotorworks.com/catalog/',t:''},
+  {n:'Vazlo',c:'Suspensión',clr:'#3B82F6',u:'https://www.vazloautoparts.com/',t:'suspension'},
+  {n:'Wagner',c:'Balatas',clr:'#EF4444',u:'https://www.wagnerbrake.mx/find-my-part.html',t:'balatas frenos'},
+  {n:'Wix',c:'Filtros',clr:'#10B981',u:'https://www.wixfilters.com/es-mx/filter-finder.html',t:'filtros aire aceite'}
 ];
 var CAT_LEYENDA=[
   {l:'Suspensión / Amortiguadores',clr:'#3B82F6'},
-  {l:'Frenos',clr:'#EF4444'},
+  {l:'Balatas / Frenos',clr:'#EF4444'},
   {l:'Filtros',clr:'#10B981'},
   {l:'Refrigeración / Radiadores',clr:'#06B6D4'},
-  {l:'Motor',clr:'#DC2626'},
+  {l:'Motor (Cadenas/Anillos/Valvulas)',clr:'#DC2626'},
   {l:'Eléctrico / Encendido',clr:'#F97316'},
   {l:'Embragues',clr:'#EC4899'},
   {l:'Rodamientos',clr:'#6366F1'},
@@ -463,7 +466,6 @@ function renderCatalogos(){
   h+='<div class="cat-grid">';
   for(var i=0;i<CATS.length;i++){
     var c=CATS[i];
-    // Se pasan las tags ocultas al atributo data-tags
     h+='<a class="cat-card" href="'+c.u+'" target="_blank" rel="noopener" data-name="'+c.n.toLowerCase()+'" data-cat="'+c.c.toLowerCase()+'" data-tags="'+(c.t||'').toLowerCase()+'" style="border-left-color:'+c.clr+'">';
     h+='<div class="cat-card-info"><div class="cat-card-name">'+c.n+'</div><div class="cat-card-cat">'+c.c+'</div></div>';
     h+='<svg class="cat-card-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"/></svg>';
@@ -478,15 +480,19 @@ function renderCatalogos(){
   document.getElementById('catalogosContainer').innerHTML=h;
 }
 
-// Función actualizada para leer las palabras clave ocultas
 function filtrarCat(q){
   q=q.toLowerCase().trim();
   var cards=document.querySelectorAll('.cat-card');
   for(var i=0;i<cards.length;i++){
     var n=cards[i].getAttribute('data-name'),c=cards[i].getAttribute('data-cat'),t=cards[i].getAttribute('data-tags')||'';
-    // Si no hay búsqueda, o si la búsqueda coincide con el nombre, la categoría, o las TAGS OCULTAS
     cards[i].style.display=(!q||n.indexOf(q)!==-1||c.indexOf(q)!==-1||t.indexOf(q)!==-1)?'':'none';
   }
+}
+
+function triggerPromo(keyword, tab){
+  cambiarTab(tab);
+  document.getElementById('codigoInput').value = keyword;
+  buscar();
 }
 
 function abrirLoginModal(){
@@ -515,6 +521,13 @@ async function loginMayoreo(){
     var desc=await api('/rest/v1/descuentos_linea?cliente_id=eq.'+c.id+'&activo=eq.true&select=linea,descuento_adicional');
     clienteActual={id:c.id,numero_cliente:c.numero_cliente,nombre:c.nombre,descuento_general:c.descuento_general,descuentos_linea:desc||[]};
     sessionStorage.setItem('mosar_cliente',JSON.stringify(clienteActual));
+    
+    // NUEVA REGLA: TRAER LÍNEAS EXACTAS QUE NO LLEVAN DESCUENTO
+    try{
+        var excluir = await api('/rest/v1/lineas_sin_descuento?select=linea');
+        lineasExcluidas = (excluir||[]).map(function(r){ return (r.linea||'').toUpperCase().trim(); });
+    }catch(e){}
+    
     actualizarUIMayoreo();cerrarLoginModal();
     toast('Bienvenido, '+c.nombre);
   }catch(e){document.getElementById('loginErr').style.display='block';}
@@ -523,6 +536,7 @@ async function loginMayoreo(){
 
 function logoutMayoreo(){
   clienteActual=null;sessionStorage.removeItem('mosar_cliente');
+  lineasExcluidas=[]; // LIMPIAR LÍNEAS EXCLUIDAS AL CERRAR SESIÓN
   actualizarUIMayoreo();toast('Sesión cerrada');
 }
 
@@ -543,6 +557,18 @@ function actualizarUIMayoreo(){
 
 function calcPrecio(precioPublico,linea){
   if(!clienteActual)return{precio:precioPublico,esMayoreo:false};
+  
+  // SEGURIDAD EXACTA: BLOQUEAR DESCUENTO SOLO SI LA LÍNEA COINCIDE AL 100%
+  if(linea){
+    var lineaUpper = (linea||'').toUpperCase().trim();
+    for(var i=0; i<lineasExcluidas.length; i++){
+      if(lineaUpper === lineasExcluidas[i]){
+        // Es exactamente esta línea de familia, se regresa precio público SIN decir "TU PRECIO"
+        return{precio:precioPublico,esMayoreo:false};
+      }
+    }
+  }
+
   var dg=clienteActual.descuento_general||0,adicional=0;
   if(linea&&clienteActual.descuentos_linea){
     for(var i=0;i<clienteActual.descuentos_linea.length;i++){
