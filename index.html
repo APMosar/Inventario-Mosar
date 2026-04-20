@@ -392,53 +392,53 @@ var clienteActual=null;
 
 // === BASE DE DATOS DE CATÁLOGOS (CON PALABRAS CLAVE OCULTAS EN "t") ===
 var CATS=[
-  {n:'4Kar',c:'Multi-marca',clr:'#64748B',u:'https://www.4kar.com/#/',t:'tensores bandas poleas'}, //Ejemplo de tags ocultos
+  {n:'4Kar',c:'Multi-marca',clr:'#64748B',u:'https://www.4kar.com/#/',t:'tensores bandas bases soportes poleas'}, //Ejemplo de tags ocultos
   {n:'Auto Value',c:'Multi-marca',clr:'#64748B',u:'https://mfr.activant.com/alliance/servlet',t:''}, //Cambiado de Parts Master
   {n:'Amsoil',c:'Aceites',clr:'#F59E0B',u:'https://amsoil.lat/encuentre-su-aceite/',t:'aceite lubricantes sintetico'},
   {n:'Bendix',c:'Balatas',clr:'#EF4444',u:'https://www.bendix-brakes.com/product_catalog.php?origin=redirect',t:'balatas pastillas frenos discos'},
-  {n:'Bruck',c:'Multi-marca',clr:'#64748B',u:'https://catalogo.bruck.com.mx/',t:''},
-  {n:'Cauplas',c:'Enfriamiento',clr:'#06B6D4',u:'https://cauplas.com/catalogo',t:'mangueras enfriamiento radiator'},
-  {n:'Continental',c:'Refrigeración',clr:'#06B6D4',u:'https://www.mycontiparts.com.mx/',t:'mangueras refrigeracion'}, //Cambiado a Refrigeración
-  {n:'Cloyes',c:'Motor',clr:'#DC2626',u:'https://cloyes.mycarparts.net/',t:'cadenas de tiempo distribucion motor'},
-  {n:'Corapsa',c:'Rodamientos',clr:'#6366F1',u:'http://www.corapsa.com.mx/',t:'rodamientos chumaceras'},
+  {n:'Bruck',c:'Multi-marca',clr:'#64748B',u:'https://catalogo.bruck.com.mx/',t:'suspension direccion motor electrico frenos sensores mangueras rotulas terminales vieletas soportes bases poleas tensores'},
+  {n:'Cauplas',c:'Enfriamiento',clr:'#06B6D4',u:'https://cauplas.com/catalogo',t:'mangueras enfriamiento toma'},
+  {n:'Continental',c:'Refrigeración',clr:'#06B6D4',u:'https://www.mycontiparts.com.mx/',t:'mangueras bandas poleas tensores refrigeracion'}, //Cambiado a Refrigeración
+  {n:'Cloyes',c:'Motor',clr:'#DC2626',u:'https://cloyes.mycarparts.net/',t:'cadenas de tiempo guias tensores engranes kits distribucion vvt distribucion motor'},
+  {n:'Corapsa',c:'Rodamientos',clr:'#6366F1',u:'http://www.corapsa.com.mx/',t:'rodamientos crucetas retenes baleros'},
   {n:'DC Empaques',c:'Motor',clr:'#DC2626',u:'https://www.dcp.com.mx/varios/CatalogoElectronico.jsp',t:'empaques juntas motor cilindro'}, //Cambiado a Motor
   {n:'Denso',c:'Eléctrico / Encendido',clr:'#F97316',u:'https://densoautopartes.com/files/Catalogo_Bujias-Mex.pdf',t:'bujias encendido sensores electrico'}, //Cambiado a Electrico
-  {n:'Dorman',c:'Multi-marca',clr:'#64748B',u:'https://www.dormanproducts.es/default.aspx',t:''},
+  {n:'Dorman',c:'Multi-marca',clr:'#64748B',u:'https://www.dormanproducts.es/default.aspx',t:'deposito de anticongelante damper balanceador armonico manguera de calefaccion tomas de agua multiple de admision multiple de escape vvt solenoide'},
   {n:'Exel de Monterrey',c:'Químicos',clr:'#8B5CF6',u:'http://exeldemonterrey.com.mx/wp-content/uploads/2022/02/Catalogo-Exel-de-Monterrey.pdf',t:'limpiadores quimicos grasas solventes'}, //Nueva categoría
   {n:'FCS',c:'Amortiguadores',clr:'#3B82F6',u:'https://fcsautoparts.com/find-a-part/',t:'amortiguadores suspension'},
-  {n:'Gonher',c:'Filtros',clr:'#10B981',u:'https://catalogo.grupogonher.com/CatalogoGonher/',t:'filtros aire aceite gasolina'}, //Cambiado a Filtros
+  {n:'Gonher',c:'Filtros',clr:'#10B981',u:'https://catalogo.grupogonher.com/CatalogoGonher/',t:'filtros baterias aire aceite cabina gasolina'}, //Cambiado a Filtros
   {n:'GRC',c:'Amortiguadores',clr:'#3B82F6',u:'https://www.grcautopartes.com.mx/',t:'amortiguadores suspension'},
-  {n:'Grob',c:'Suspensión',clr:'#3B82F6',u:'https://www.grob.mx/',t:'terminales rótulas suspension'},
+  {n:'Grob',c:'Suspensión',clr:'#3B82F6',u:'https://www.grob.mx/',t:'terminales rotulas amortiguadores horquillas vieletas direccion bujes suspension'},
   {n:'Hastings',c:'Motor',clr:'#DC2626',u:'https://hastings.apacatalog.com/Home/applicationsearch',t:'anillos piston motor cilindro'},
-  {n:'Holbert',c:'Multi-marca',clr:'#64748B',u:'https://www.holbert.com.mx/',t:''},
-  {n:'Interfil',c:'Filtros',clr:'#10B981',u:'https://interfil.com/',t:'filtros'},
-  {n:'Keep On Green',c:'Refrigeración',clr:'#06B6D4',u:'https://keepongreen.com/',t:'fan clutch bombas de agua tomas de agua tensores'}, //Tags ocultos que pediste
-  {n:'Knadian',c:'Multi-marca',clr:'#64748B',u:'https://knadian.com/',t:''},
-  {n:'Lodi',c:'Multi-marca',clr:'#64748B',u:'https://www.showmetheparts.com/lodi-sp/',t:''}, //Cambiado a Multi-marca
-  {n:'Moog',c:'Suspensión',clr:'#3B82F6',u:'https://www.moogparts.com/es-mx/find-my-part.html',t:'rotulas terminales suspension'},
+  {n:'Holbert',c:'Multi-marca',clr:'#64748B',u:'https://www.holbert.com.mx/',t:'frenos cremalleras suspension direccion rotulas horquillas bujes bombas de direccion vieletas'},
+  {n:'Interfil',c:'Filtros',clr:'#10B981',u:'https://interfil.com/',t:'filtros aire aceite cabina gasolina'},
+  {n:'Keep On Green',c:'Refrigeración',clr:'#06B6D4',u:'https://keepongreen.com/',t:'fan clutch bombas de agua tomas de agua mangueras kits de tiempo distribucion depositos de anticongelantes tensores'}, //Tags ocultos que pediste
+  {n:'Knadian',c:'Multi-marca',clr:'#64748B',u:'https://knadian.com/',t:'poleas tensores bombas de agua soportes de motor depositos de anticongelante'},
+  {n:'Lodi',c:'Multi-marca',clr:'#64748B',u:'https://www.showmetheparts.com/lodi-sp/',t:'damper balanceador armonico soportes cedazo transmision aro dentado filtros tapas de distribucion volantes horquilla clutch tuercas templadores tornillos arañas hules barra cardan'}, //Cambiado a Multi-marca
+  {n:'Moog',c:'Suspensión',clr:'#3B82F6',u:'https://www.moogparts.com/es-mx/find-my-part.html',t:'rotulas horquillas bujes direccion vieletas terminales suspension'},
   {n:'Monroe',c:'Amortiguadores',clr:'#3B82F6',u:'http://www.monroe.com.mx/',t:'amortiguadores'},
-  {n:'Motorad',c:'Refrigeración',clr:'#06B6D4',u:'https://motorad.com/es/',t:'termostatos tapas radiator'},
-  {n:'Nikko',c:'Multi-marca',clr:'#64748B',u:'https://nikkoauto.mx/index.php',t:''},
-  {n:'Perfection Clutch',c:'Embrague',clr:'#EC4899',u:'https://www.perfectionmexico.com.mx/',t:'embragues kit plato disco balero'}, //Nueva categoría
+  {n:'Motorad',c:'Refrigeración',clr:'#06B6D4',u:'https://motorad.com/es/',t:'termostatos tomas de agua tapones radiator'},
+  {n:'Nikko',c:'Multi-marca',clr:'#64748B',u:'https://nikkoauto.mx/index.php',t:'rotulas suspension tomas de agua damper cigueñal valvulas tapas de distribucion bombas de aceite cuerpos de aceleracion vvt direccion bobinas sensores cables de bujias modulos switch amortiguadores filtros aire aceite gasolina bombas de agua bombas de aceite tapas de distribucion'},
+  {n:'Perfection Clutch',c:'Embrague',clr:'#EC4899',u:'https://www.perfectionmexico.com.mx/',t:'embragues clutch kit plato disco collarin cilindro auxiliar'}, //Nueva categoría
   {n:'Qualcast',c:'Motor',clr:'#DC2626',u:'https://qualcast.net/Catalog',t:'valvulas motor'},
   {n:'Rasa',c:'Refrigeración',clr:'#06B6D4',u:'https://www.rasagdl.com.mx/',t:'radiadores'},
-  {n:'SPQ',c:'Multi-marca',clr:'#64748B',u:'https://tienda.spq.com.mx/',t:''},
-  {n:'Standard',c:'Eléctrico / Encendido',clr:'#F97316',u:'https://www.standardbrand.com/es/ecatalog',t:'modulo bobinas sensores electrico'},
-  {n:'ShowMeTheParts',c:'Multi-marca',clr:'#64748B',u:'https://www.showmetheparts.com/',t:''}, //Nueva categoría
-  {n:'SYD',c:'Suspensión',clr:'#3B82F6',u:'https://syd.com.mx/Catalogo/welcome',t:'suspension'}, //Cambiado a Suspensión
-  {n:'Tim Impulsores',c:'Eléctrico / Encendido',clr:'#F97316',u:'https://timmexico.com.mx/buscar',t:'impulsores arranque electrico alternadores'}, //Nueva categoría
-  {n:'Timken',c:'Rodamientos',clr:'#6366F1',u:'https://www.showmetheparts.com/timken/',t:'rodamientos'},
-  {n:'US Motor Works',c:'Multi-marca',clr:'#64748B',u:'https://www.usmotorworks.com/catalog/',t:''},
-  {n:'Vazlo',c:'Suspensión',clr:'#3B82F6',u:'https://www.vazloautoparts.com/',t:'suspension'}, //Cambiado a Suspensión
-  {n:'Wagner',c:'Balatas',clr:'#EF4444',u:'https://www.wagnerbrake.mx/find-my-part.html',t:'balatas frenos'},
-  {n:'Wix',c:'Filtros',clr:'#10B981',u:'https://www.wixfilters.com/es-mx/filter-finder.html',t:'filtros aire aceite'}
+  {n:'SPQ',c:'Multi-marca',clr:'#64748B',u:'https://tienda.spq.com.mx/',t:'motor valvulas vvt pistones anillos empaques bombas de aceite bombas de agua kit de tiempo distribucion tensores guias cadenas anillos metales arbol de levas'},
+  {n:'Standard',c:'Eléctrico / Encendido',clr:'#F97316',u:'https://www.standardbrand.com/es/ecatalog',t:'modulo bobinas cables de bujias switch oxigeno relays sensores electrico'},
+  {n:'ShowMeTheParts',c:'Multi-marca',clr:'#64748B',u:'https://www.showmetheparts.com/',t:'bandas mangueras suspension direccion frenos electrico enfriamiento bombas de agua'}, //Nueva categoría
+  {n:'SYD',c:'Suspensión',clr:'#3B82F6',u:'https://syd.com.mx/Catalogo/welcome',t:'suspension amortiguadores direccion rotulas horquillas bujes terminales vieletas'}, //Cambiado a Suspensión
+  {n:'Tim Impulsores',c:'Eléctrico / Encendido',clr:'#F97316',u:'https://timmexico.com.mx/buscar',t:'impulsores arranque bendix electrico alternadores'}, //Nueva categoría
+  {n:'Timken',c:'Rodamientos',clr:'#6366F1',u:'https://www.showmetheparts.com/timken/',t:'rodamientos retenes crucetas'},
+  {n:'US Motor Works',c:'Refrigeracion',clr:'#06B6D4',u:'https://www.usmotorworks.com/catalog/',t:'bombas de agua'},
+  {n:'Vazlo',c:'Suspensión',clr:'#3B82F6',u:'https://www.vazloautoparts.com/',t:'suspension soportes rotulas horquillas bases amortiguadores vieletas bujes direccion'}, //Cambiado a Suspensión
+  {n:'Wagner',c:'Balatas',clr:'#EF4444',u:'https://www.wagnerbrake.mx/find-my-part.html',t:'balatas pastillas frenos'},
+  {n:'Wix',c:'Filtros',clr:'#10B981',u:'https://www.wixfilters.com/es-mx/filter-finder.html',t:'filtros aire aceite cabina gasolina'}
 ];
 var CAT_LEYENDA=[
   {l:'Suspensión / Amortiguadores',clr:'#3B82F6'},
-  {l:'Balatas / Frenos',clr:'#EF4444'},
+  {l:'Frenos',clr:'#EF4444'},
   {l:'Filtros',clr:'#10B981'},
   {l:'Refrigeración / Radiadores',clr:'#06B6D4'},
-  {l:'Motor (Cadenas/Anillos/Valvulas)',clr:'#DC2626'},
+  {l:'Motor',clr:'#DC2626'},
   {l:'Eléctrico / Encendido',clr:'#F97316'},
   {l:'Embragues',clr:'#EC4899'},
   {l:'Rodamientos',clr:'#6366F1'},
