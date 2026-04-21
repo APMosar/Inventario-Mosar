@@ -411,9 +411,38 @@ function filtrarCat(q){q=q.toLowerCase().trim();var cards=document.querySelector
 function extraerCodigosDePromo(promo){var texto=(promo.titulo||'')+' '+(promo.descripcion||'');var codigos=[],seen={};var regex=/([A-Za-z0-9]+)\s*-\s*([A-Za-z0-9]+)/g,m;while((m=regex.exec(texto))!==null){var code=(m[1]+'-'+m[2]).toUpperCase().trim();if(code.length>=2&&code.length<=20&&!seen[code]){seen[code]=1;codigos.push(code);}}return codigos;}
 function tienePromo(codigo){var codUpper=(codigo||'').toUpperCase().trim();for(var i=0;i<promoData.length;i++){for(var j=0;j<promoData[i].codigos.length;j++){if(promoData[i].codigos[j]===codUpper)return promoData[i];}}return null;}
 async function cargarPromociones(){try{var promos=await api('/rest/v1/promociones?activo=eq.true&select=*');var container=document.getElementById('promoChipsContainer');var linkBar=document.getElementById('promoLinkBar');if(!promos||!promos.length){container.style.display='none';linkBar.classList.remove('show');promoData=[];promoVolumen=[];return;}promoData=[];promoVolumen=[];container.style.display='flex';var html='';for(var i=0;i<promos.length;i++){var p=promos[i];var cods=(p.codigos||'').split(',').map(function(c){return c.trim().toUpperCase();}).filter(function(c){return c.length>0;});var promoObj={titulo:p.titulo,descripcion:p.descripcion,codigos:cods,cantidad_minima:p.cantidad_minima||0,descuento_adicional:p.descuento_adicional||0};promoData.push(promoObj);if(p.cantidad_minima>0&&p.descuento_adicional>0&&cods.length>0){promoVolumen.push({codigos:cods,min:p.cantidad_minima,desc:p.descuento_adicional});}html+='<div class="promo-chip" onclick="mostrarPromoPorIndice('+i+')"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15.362 5.214A8.252 8.252 0 0 1 12 21 8.25 8.25 0 0 1 6.038 7.047 8.287 8.287 0 0 0 9 9.601a8.983 8.983 0 0 1 3.361-6.867 8.21 8.21 0 0 0 3 2.48z"/></svg>'+esc(p.titulo)+'</div>';}container.innerHTML=html;if(promoData.length>0)linkBar.classList.add('show');}catch(e){document.getElementById('promoChipsContainer').style.display='none';document.getElementById('promoLinkBar').classList.remove('show');}}
-function mostrarPromoPorIndice(i){var p=promoData[i];promoCodigosActual=(p.codigos||'').split(',').map(function(c){return c.trim().toUpperCase();}).filter(function(c){return c.length>0;});document.getElementById('promoTitulo').textContent=p.titulo;document.getElementById('promoTexto').innerHTML=p.descripcion;document.getElementById('promoModalBg').classList.add('open');}
+function function mostrarPromoPorIndice(i){
+  var p=promoData[i];
+  promoCodigosActual=p.codigos.slice();
+  document.getElementById('promoTitulo').textContent=p.titulo;
+  document.getElementById('promoTexto').innerHTML=p.descripcion;
+  document.getElementById('promoModalBg').classList.add('open');
+}
 function cerrarPromo(){document.getElementById('promoModalBg').classList.remove('open');}
-function verPromociones(){if(promoData.length>0&&promoData[0].codigos.length>0){var code=promoData[0].codigos[0];document.getElementById('codigoInput').value=code;cambiarTab('codigo');window.scrollTo({top:0,behavior:'smooth'});buscar();}}
+function function verPromociones(){
+  if(!promoData.length)return;
+  var todosCodigos=[],seen={};
+  for(var i=0;i<promoData.length;i++){
+    for(var j=0;j<promoData[i].codigos.length;j++){
+      var c=promoData[i].codigos[j];
+      if(c&&!seen[c]){seen[c]=1;todosCodigos.push(c);}
+    }
+  }
+  if(!todosCodigos.length){showErr('No hay códigos de promoción.');return;}
+  document.getElementById('spinner').style.display='block';
+  document.getElementById('resultados').style.display='none';
+  document.getElementById('errBox').style.display='none';
+  cambiarTab('codigo');
+  window.scrollTo({top:0,behavior:'smooth'});
+  try{
+    var codsEnc=todosCodigos.map(function(c){return encodeURIComponent(c);}).join(',');
+    api('/rest/v1/inventario?codigo=in.('+codsEnc+')&select=codigo,descripcion,precio,stock_total,stock_matriz,stock_otras_sucursales,linea&limit=500').then(function(rows){
+      document.getElementById('spinner').style.display='none';
+      if(!rows||!rows.length){showErr('No se encontraron productos con promoción.');return;}
+      mostrar(crearSelector(rows));
+    }).catch(function(){document.getElementById('spinner').style.display='none';showErr('Error de conexión.');});
+  }catch(e){document.getElementById('spinner').style.display='none';showErr('Error de conexión.');}
+}
 async function ejecutarPromo(){cerrarPromo();if(!promoCodigosActual.length){showErr('No se identificaron códigos.');return;}document.getElementById('spinner').style.display='block';document.getElementById('resultados').style.display='none';try{var codsEnc=promoCodigosActual.map(function(c){return encodeURIComponent(c);}).join(',');var rows=await api('/rest/v1/inventario?codigo=in.('+codsEnc+')&select=codigo,descripcion,precio,stock_total,stock_matriz,stock_otras_sucursales,linea&limit=200');document.getElementById('spinner').style.display='none';if(!rows||!rows.length){showErr('No se encontraron productos.');return;}cambiarTab('codigo');mostrar(crearSelector(rows));}catch(e){document.getElementById('spinner').style.display='none';showErr('Error de conexión.');}}
 function abrirLoginModal(){document.getElementById('loginModalBg').classList.add('open');document.getElementById('loginErr').style.display='none';document.getElementById('loginNum').value='';document.getElementById('loginPin').value='';setTimeout(function(){document.getElementById('loginNum').focus();},100);}
 function cerrarLoginModal(){document.getElementById('loginModalBg').classList.remove('open');}
