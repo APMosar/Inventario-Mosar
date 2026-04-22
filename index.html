@@ -554,28 +554,76 @@ async function loginMayoreo(){
   var pin=document.getElementById('loginPin').value.trim();
   var btn=document.getElementById('btnLogin');
   if(!num||!pin)return;
-  btn.disabled=true;btn.textContent='VERIFICANDO...';
+
+  btn.disabled=true;
+  btn.textContent='VERIFICANDO...';
   document.getElementById('loginErr').style.display='none';
+
   try{
-    var loginRes=await rpc('fn_login_mayoreo',{p_numero_cliente:num,p_pin:pin});
-    var c=Array.isArray(loginRes)?loginRes[0]:loginRes;
-    if(!c||!c.id||!c.numero_cliente){
+    var intentos=[
+      {p_numero_cliente:num,p_pin:pin},
+      {numero_cliente:num,pin:pin},
+      {cliente:num,pin:pin},
+      {num:num,pin:pin}
+    ];
+
+    var loginRes=null;
+
+    for(var x=0;x<intentos.length;x++){
+      try{
+        var r=await rpc('fn_login_mayoreo',intentos[x]);
+        if(Array.isArray(r) && r.length){loginRes=r[0];break;}
+        if(r && typeof r==='object'){loginRes=r;break;}
+      }catch(err){}
+    }
+
+    var c=loginRes;
+
+    if(c && c.data && Array.isArray(c.data) && c.data.length)c=c.data[0];
+    if(c && c.data && !Array.isArray(c.data))c=c.data;
+    if(c && c.cliente)c=c.cliente;
+
+    var clienteId=c&&(c.id||c.cliente_id||c.uid||c.clienteid);
+    var numeroCliente=c&&(c.numero_cliente||c.numero||c.cliente_numero);
+    var nombreCliente=c&&(c.nombre||c.nombre_cliente||c.razon_social);
+    var descuentoGeneral=Number(c&&(c.descuento_general||c.descuento||0))||0;
+
+    if(!clienteId || !numeroCliente){
       document.getElementById('loginErr').style.display='block';
-      btn.disabled=false;btn.textContent='INGRESAR';
+      btn.disabled=false;
+      btn.textContent='INGRESAR';
       return;
     }
-    var desc=await api('/rest/v1/descuentos_linea?cliente_id=eq.'+encodeURIComponent(c.id)+'&activo=eq.true&select=linea,descuento_adicional');
-    clienteActual={id:c.id,numero_cliente:c.numero_cliente,nombre:c.nombre,descuento_general:c.descuento_general||0,descuentos_linea:desc||[]};
+
+    var desc=await api('/rest/v1/descuentos_linea?cliente_id=eq.'+encodeURIComponent(clienteId)+'&activo=eq.true&select=linea,descuento_adicional');
+
+    clienteActual={
+      id:clienteId,
+      numero_cliente:numeroCliente,
+      nombre:nombreCliente||'CLIENTE MAYOREO',
+      descuento_general:descuentoGeneral,
+      descuentos_linea:desc||[]
+    };
+
     localStorage.setItem('mosar_cliente',JSON.stringify(clienteActual));
-    try{var excluir=await api('/rest/v1/lineas_sin_descuento?select=linea');lineasExcluidas=(excluir||[]).map(function(r){return(r.linea||'').toUpperCase().trim();});}catch(e2){}
+
+    try{
+      var excluir=await api('/rest/v1/lineas_sin_descuento?select=linea');
+      lineasExcluidas=(excluir||[]).map(function(r){
+        return (r.linea||'').toUpperCase().trim();
+      });
+    }catch(e2){}
+
     actualizarUIMayoreo();
     cerrarLoginModal();
-    toast('Bienvenido, '+c.nombre);
+    toast('Bienvenido, '+clienteActual.nombre);
     await cargarCarritoSupabase();
   }catch(e){
     document.getElementById('loginErr').style.display='block';
   }
-  btn.disabled=false;btn.textContent='INGRESAR';
+
+  btn.disabled=false;
+  btn.textContent='INGRESAR';
 }
 
 function logoutMayoreo(){carrito=[];clienteActual=null;localStorage.removeItem('mosar_cliente');lineasExcluidas=[];actualizarUIMayoreo();actualizarContadores();actualizarUI();toast('Sesión cerrada');}
