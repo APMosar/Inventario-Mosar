@@ -271,7 +271,6 @@
     .wa-float svg{width:28px;height:28px;fill:#fff}
     .toast{position:fixed;top:18px;left:50%;transform:translateX(-50%) translateY(-70px);background:var(--slate-900);color:#fff;padding:10px 20px;border-radius:var(--r-md);font-size:14px;font-weight:600;z-index:400;transition:transform .3s;pointer-events:none;white-space:nowrap}
     .toast.show{transform:translateX(-50%) translateY(0)}
-    /* Historial de pedidos */
     .hist-panel{position:fixed;bottom:0;left:0;right:0;max-height:90vh;background:#fff;border-radius:var(--r-xl) var(--r-xl) 0 0;z-index:201;transform:translateY(100%);transition:transform .3s ease;display:flex;flex-direction:column;box-shadow:0 -8px 40px rgba(0,0,0,.15)}
     .hist-panel.open{transform:translateY(0)}
     .hist-hdr{padding:14px 18px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--slate-200);flex-shrink:0}
@@ -330,14 +329,7 @@
 <button class="cart-fab" id="cartFab" onclick="abrirCarrito()"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 1 0-7.5 0v4.5m11.356-1.993 1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 0 1-1.12-1.243l1.264-12A1.125 1.125 0 0 1 5.513 7.5h12.974c.576 0 1.059.435 1.119 1.007ZM8.625 10.5a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm7.5 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z"/></svg><span class="cart-n" id="cartN" style="display:none">0</span></button>
 <div class="overlay" id="overlay" onclick="cerrarTodo()"></div>
 <div class="cart-panel" id="cartPanel"><div class="cart-handle"></div><div class="cart-hdr"><h3>Tu pedido</h3><button class="cart-cls" onclick="cerrarCarrito()"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M6 18 18 6M6 6l12 12"/></svg></button></div><div class="cart-body" id="cartBody"></div><div class="cart-ftr" id="cartFtr" style="display:none"><div class="cart-totals" id="cartTotals"></div><button class="btn-wa-send" onclick="abrirModal()"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg> Enviar pedido por WhatsApp</button></div></div>
-
-<!-- Panel historial de pedidos -->
-<div class="hist-panel" id="histPanel">
-  <div class="cart-handle"></div>
-  <div class="hist-hdr"><h3>📋 Mis pedidos</h3><button class="cart-cls" onclick="cerrarHistorial()"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M6 18 18 6M6 6l12 12"/></svg></button></div>
-  <div class="hist-body" id="histBody"></div>
-</div>
-
+<div class="hist-panel" id="histPanel"><div class="cart-handle"></div><div class="hist-hdr"><h3>📋 Mis pedidos</h3><button class="cart-cls" onclick="cerrarHistorial()"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M6 18 18 6M6 6l12 12"/></svg></button></div><div class="hist-body" id="histBody"></div></div>
 <div class="modal-bg" id="modalBg"><div class="modal"><h3>Datos del pedido</h3><p>Ingresa tus datos para enviar el pedido por WhatsApp</p><div class="modal-field"><label>Nombre / Razón social</label><input type="text" id="clienteNombre" placeholder="Ej: Taller Mecánico García" autocomplete="name"/></div><div class="modal-field"><label>Número de cliente <span style="font-weight:400;text-transform:none">(opcional)</span></label><input type="text" id="clienteTel" placeholder="Ej: C03267, C10672" inputmode="text" autocomplete="off"/></div><div class="modal-btns"><button class="btn-cancelar" onclick="cerrarModal()">Cancelar</button><button class="btn-enviar" onclick="enviarWA()"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg> Enviar por WhatsApp</button></div></div></div>
 <div class="login-modal-bg" id="loginModalBg"><div class="login-modal"><img src="https://z-cdn-media.chatglm.cn/files/1f0bebc7-607f-471b-9f67-9cbad505bfe4.jpg?auth_key=1876446715-de281d6e63594f8b9392382201575411-0-8bc0a77cbdb48a2db7bcadaafba44641" alt="Mosar" class="login-modal-logo"><h3>Acceso Mayoreo</h3><p>Ingresa tu número de cliente y PIN para ver tus precios exclusivos</p><div class="login-err" id="loginErr">Número de cliente o PIN incorrecto</div><div class="modal-field"><label>Número de cliente</label><input type="text" id="loginNum" placeholder="Ej: C11173" autocomplete="off"/></div><div class="modal-field"><label>PIN de acceso</label><input type="password" id="loginPin" placeholder="Tu PIN" inputmode="numeric" autocomplete="off"/></div><button class="btn-login" id="btnLogin" onclick="loginMayoreo()">INGRESAR</button><div class="login-cerrar" onclick="cerrarLoginModal()">Cancelar</div></div></div>
 <div class="promo-modal-bg" id="promoModalBg"><div class="promo-modal"><div class="promo-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.362 5.214A8.252 8.252 0 0 1 12 21 8.25 8.25 0 0 1 6.038 7.047 8.287 8.287 0 0 0 9 9.601a8.983 8.983 0 0 1 3.361-6.867 8.21 8.21 0 0 0 3 2.48z"/></svg></div><h3 id="promoTitulo"></h3><p id="promoTexto"></p><button class="btn-ver-prods" onclick="ejecutarPromo()"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/></svg> Ver productos de esta promoción</button><button class="promo-cerrar" onclick="cerrarPromo()">Cerrar</button></div></div>
@@ -354,7 +346,58 @@ var promoCodigosActual=[];
 var promoData=[];
 var guardandoCarrito=false;
 
-var CATS=[{n:'4Kar',c:'Multi-marca',clr:'#64748B',u:'https://www.4kar.com/#/',t:'tensores bandas poleas'},{n:'Auto Value',c:'Multi-marca',clr:'#64748B',u:'https://mfr.activant.com/alliance/servlet',t:''},{n:'Amsoil',c:'Aceites',clr:'#F59E0B',u:'https://amsoil.lat/encuentre-su-aceite/',t:'aceite lubricantes sintetico'},{n:'Bendix',c:'Balatas',clr:'#EF4444',u:'https://www.bendix-brakes.com/product_catalog.php?origin=redirect',t:'balatas pastillas frenos discos'},{n:'Bruck',c:'Multi-marca',clr:'#64748B',u:'https://catalogo.bruck.com.mx/',t:''},{n:'Cauplas',c:'Enfriamiento',clr:'#06B6D4',u:'https://cauplas.com/catalogo',t:'mangueras enfriamiento radiator'},{n:'Continental',c:'Refrigeración',clr:'#06B6D4',u:'https://www.mycontiparts.com.mx/',t:'mangueras refrigeracion'},{n:'Cloyes',c:'Motor',clr:'#DC2626',u:'https://cloyes.mycarparts.net/',t:'cadenas de tiempo distribucion motor'},{n:'Corapsa',c:'Rodamientos',clr:'#6366F1',u:'http://www.corapsa.com.mx/',t:'rodamientos chumaceras'},{n:'DC Empaques',c:'Motor',clr:'#DC2626',u:'https://www.dcp.com.mx/varios/CatalogoElectronico.jsp',t:'empaques juntas motor cilindro'},{n:'Denso',c:'Eléctrico / Encendido',clr:'#F97316',u:'https://densoautopartes.com/files/Catalogo_Bujias-Mex.pdf',t:'bujias encendido sensores electrico'},{n:'Dorman',c:'Multi-marca',clr:'#64748B',u:'https://www.dormanproducts.es/default.aspx',t:''},{n:'Exel de Monterrey',c:'Químicos',clr:'#8B5CF6',u:'http://exeldemonterrey.com.mx/wp-content/uploads/2022/02/Catalogo-Exel-de-Monterrey.pdf',t:'limpiadores quimicos grasas solventes'},{n:'FCS',c:'Amortiguadores',clr:'#3B82F6',u:'https://fcsautoparts.com/find-a-part/',t:'amortiguadores suspension'},{n:'Gonher',c:'Filtros',clr:'#10B981',u:'https://catalogo.grupogonher.com/CatalogoGonher/',t:'filtros aire aceite gasolina'},{n:'GRC',c:'Amortiguadores',clr:'#3B82F6',u:'https://www.grcautopartes.com.mx/',t:'amortiguadores suspension'},{n:'Grob',c:'Suspensión',clr:'#3B82F6',u:'https://www.grob.mx/',t:'terminales rotulas suspension'},{n:'Hastings',c:'Motor',clr:'#DC2626',u:'https://hastings.apacatalog.com/Home/applicationsearch',t:'anillos piston motor cilindro'},{n:'Holbert',c:'Multi-marca',clr:'#64748B',u:'https://www.holbert.com.mx/',t:''},{n:'Interfil',c:'Filtros',clr:'#10B981',u:'https://interfil.com/',t:'filtros'},{n:'Keep On Green',c:'Refrigeración',clr:'#06B6D4',u:'https://keepongreen.com/',t:'fan clutch bombas de agua tomas de agua tensores'},{n:'Knadian',c:'Multi-marca',clr:'#64748B',u:'https://knadian.com/',t:''},{n:'Lodi',c:'Multi-marca',clr:'#64748B',u:'https://www.showmetheparts.com/lodi-sp/',t:''},{n:'Moog',c:'Suspensión',clr:'#3B82F6',u:'https://www.moogparts.com/es-mx/find-my-part.html',t:'rotulas terminales suspension'},{n:'Monroe',c:'Amortiguadores',clr:'#3B82F6',u:'http://www.monroe.com.mx/',t:'amortiguadores'},{n:'Motorad',c:'Refrigeración',clr:'#06B6D4',u:'https://motorad.com/es/',t:'termostatos tapas radiator'},{n:'Nikko',c:'Multi-marca',clr:'#64748B',u:'https://nikkoauto.mx/index.php',t:''},{n:'Perfection Clutch',c:'Embrague',clr:'#EC4899',u:'https://www.perfectionmexico.com.mx/',t:'embragues kit plato disco balero'},{n:'Qualcast',c:'Motor',clr:'#DC2626',u:'https://qualcast.net/Catalog',t:'valvulas motor'},{n:'Rasa',c:'Refrigeración',clr:'#06B6D4',u:'https://www.rasagdl.com.mx/',t:'radiadores'},{n:'SPQ',c:'Multi-marca',clr:'#64748B',u:'https://tienda.spq.com.mx/',t:''},{n:'Standard',c:'Eléctrico / Encendido',clr:'#F97316',u:'https://www.standardbrand.com/es/ecatalog',t:'modulo bobinas sensores electrico'},{n:'ShowMeTheParts',c:'Multi-marca',clr:'#64748B',u:'https://www.showmetheparts.com/',t:''},{n:'SYD',c:'Suspensión',clr:'#3B82F6',u:'https://syd.com.mx/Catalogo/welcome',t:'suspension'},{n:'Tim Impulsores',c:'Eléctrico / Encendido',clr:'#F97316',u:'https://timmexico.com.mx/buscar',t:'impulsores arranque electrico alternadores'},{n:'Timken',c:'Rodamientos',clr:'#6366F1',u:'https://www.showmetheparts.com/timken/',t:'rodamientos'},{n:'US Motor Works',c:'Multi-marca',clr:'#64748B',u:'https://www.usmotorworks.com/catalog/',t:''},{n:'Vazlo',c:'Suspensión',clr:'#3B82F6',u:'https://www.vazloautoparts.com/',t:'suspension'},{n:'Wagner',c:'Balatas',clr:'#EF4444',u:'https://www.wagnerbrake.mx/find-my-part.html',t:'balatas frenos'},{n:'Wix',c:'Filtros',clr:'#10B981',u:'https://www.wixfilters.com/es-mx/filter-finder.html',t:'filtros aire aceite'}];
+/* 
+  =========================================================
+  🔒 SISTEMA DE CATÁLOGOS Y PALABRAS CLAVE INVISIBLES
+  =========================================================
+  El campo "t" son las PALABRAS CLAVE INVISIBLES. 
+  El cliente no las ve en la pantalla, pero si escribe "bomba" 
+  en el filtro de catálogos, le aparecerán las marcas que tengan 
+  esa palabra clave aquí. Separa las palabras con espacios.
+  =========================================================
+*/
+var CATS=[
+  {n:'4Kar',c:'Multi-marca',clr:'#64748B',u:'https://www.4kar.com/#/',t:'tensores bandas poleas correas mordazas'},
+  {n:'Auto Value',c:'Multi-marca',clr:'#64748B',u:'https://mfr.activant.com/alliance/servlet',t:''},
+  {n:'Amsoil',c:'Aceites',clr:'#F59E0B',u:'https://amsoil.lat/encuentre-su-aceite/',t:'aceite lubricantes sintetico'},
+  {n:'Bendix',c:'Balatas',clr:'#EF4444',u:'https://www.bendix-brakes.com/product_catalog.php?origin=redirect',t:'balatas pastillas frenos discos'},
+  {n:'Bruck',c:'Multi-marca',clr:'#64748B',u:'https://catalogo.bruck.com.mx/',t:''},
+  {n:'Cauplas',c:'Enfriamiento',clr:'#06B6D4',u:'https://cauplas.com/catalogo',t:'mangueras enfriamiento radiator bombas de agua'},
+  {n:'Continental',c:'Refrigeración',clr:'#06B6D4',u:'https://www.mycontiparts.com.mx/',t:'mangueras refrigeracion mangueras de agua'},
+  {n:'Cloyes',c:'Motor',clr:'#DC2626',u:'https://cloyes.mycarparts.net/',t:'cadenas de tiempo distribucion motor timing'},
+  {n:'Corapsa',c:'Rodamientos',clr:'#6366F1',u:'http://www.corapsa.com.mx/',t:'rodamientos chumaceras baleros'},
+  {n:'DC Empaques',c:'Motor',clr:'#DC2626',u:'https://www.dcp.com.mx/varios/CatalogoElectronico.jsp',t:'empaques juntas motor cilindro culatas'},
+  {n:'Denso',c:'Eléctrico / Encendido',clr:'#F97316',u:'https://densoautopartes.com/files/Catalogo_Bujias-Mex.pdf',t:'bujias encendido sensores electrico bobinas'},
+  {n:'Dorman',c:'Multi-marca',clr:'#64748B',u:'https://www.dormanproducts.es/default.aspx',t:''},
+  {n:'Exel de Monterrey',c:'Químicos',clr:'#8B5CF6',u:'http://exeldemonterrey.com.mx/wp-content/uploads/2022/02/Catalogo-Exel-de-Monterrey.pdf',t:'limpiadores quimicos grasas solventes'},
+  {n:'FCS',c:'Amortiguadores',clr:'#3B82F6',u:'https://fcsautoparts.com/find-a-part/',t:'amortiguadores suspension struts'},
+  {n:'Gonher',c:'Filtros',clr:'#10B981',u:'https://catalogo.grupogonher.com/CatalogoGonher/',t:'filtros aire aceite gasolina diesel'},
+  {n:'GRC',c:'Amortiguadores',clr:'#3B82F6',u:'https://www.grcautopartes.com.mx/',t:'amortiguadores suspension'},
+  {n:'Grob',c:'Suspensión',clr:'#3B82F6',u:'https://www.grob.mx/',t:'terminales rotulas suspension bujes'},
+  {n:'Hastings',c:'Motor',clr:'#DC2626',u:'https://hastings.apacatalog.com/Home/applicationsearch',t:'anillos piston motor cilindro segmentos'},
+  {n:'Holbert',c:'Multi-marca',clr:'#64748B',u:'https://www.holbert.com.mx/',t:''},
+  {n:'Interfil',c:'Filtros',clr:'#10B981',u:'https://interfil.com/',t:'filtros aire aceite separadores'},
+  {n:'Keep On Green',c:'Refrigeración',clr:'#06B6D4',u:'https://keepongreen.com/',t:'fan clutch bombas de agua tomas de agua tensores accesorios'},
+  {n:'Knadian',c:'Multi-marca',clr:'#64748B',u:'https://knadian.com/',t:''},
+  {n:'Lodi',c:'Multi-marca',clr:'#64748B',u:'https://www.showmetheparts.com/lodi-sp/',t:''},
+  {n:'Moog',c:'Suspensión',clr:'#3B82F6',u:'https://www.moogparts.com/es-mx/find-my-part.html',t:'rotulas terminales suspension bujes'},
+  {n:'Monroe',c:'Amortiguadores',clr:'#3B82F6',u:'http://www.monroe.com.mx/',t:'amortiguadores suspension'},
+  {n:'Motorad',c:'Refrigeración',clr:'#06B6D4',u:'https://motorad.com/es/',t:'termostatos tapas radiator valvulas'},
+  {n:'Nikko',c:'Multi-marca',clr:'#64748B',u:'https://nikkoauto.mx/index.php',t:''},
+  {n:'Perfection Clutch',c:'Embrague',clr:'#EC4899',u:'https://www.perfectionmexico.com.mx/',t:'embragues kit plato disco balero clutch'},
+  {n:'Qualcast',c:'Motor',clr:'#DC2626',u:'https://qualcast.net/Catalog',t:'valvulas motor guias valvulas asientos'},
+  {n:'Rasa',c:'Refrigeración',clr:'#06B6D4',u:'https://www.rasagdl.com.mx/',t:'radiadores tanques depositos refrigeracion'},
+  {n:'SPQ',c:'Multi-marca',clr:'#64748B',u:'https://tienda.spq.com.mx/',t:''},
+  {n:'Standard',c:'Eléctrico / Encendido',clr:'#F97316',u:'https://www.standardbrand.com/es/ecatalog',t:'modulo bobinas sensores electrico'},
+  {n:'ShowMeTheParts',c:'Multi-marca',clr:'#64748B',u:'https://www.showmetheparts.com/',t:''},
+  {n:'SYD',c:'Suspensión',clr:'#3B82F6',u:'https://syd.com.mx/Catalogo/welcome',t:'suspension rótulas bujes'},
+  {n:'Tim Impulsores',c:'Eléctrico / Encendido',clr:'#F97316',u:'https://timmexico.com.mx/buscar',t:'impulsores arranque electrico alternadores reguladores'},
+  {n:'Timken',c:'Rodamientos',clr:'#6366F1',u:'https://www.showmetheparts.com/timken/',t:'rodamientos chumaceras baleros'},
+  {n:'US Motor Works',c:'Multi-marca',clr:'#64748B',u:'https://www.usmotorworks.com/catalog/',t:''},
+  {n:'Vazlo',c:'Suspensión',clr:'#3B82F6',u:'https://www.vazloautoparts.com/',t:'suspension rótulas bujes amortiguadores'},
+  {n:'Wagner',c:'Balatas',clr:'#EF4444',u:'https://www.wagnerbrake.mx/find-my-part.html',t:'balatas frenos pastillas discos'},
+  {n:'Wix',c:'Filtros',clr:'#10B981',u:'https://www.wixfilters.com/es-mx/filter-finder.html',t:'filtros aire aceite separadores'}
+];
 var CAT_LEYENDA=[{l:'Suspensión / Amortiguadores',clr:'#3B82F6'},{l:'Balatas / Frenos',clr:'#EF4444'},{l:'Filtros',clr:'#10B981'},{l:'Refrigeración / Radiadores',clr:'#06B6D4'},{l:'Motor',clr:'#DC2626'},{l:'Eléctrico / Encendido',clr:'#F97316'},{l:'Embragues',clr:'#EC4899'},{l:'Rodamientos',clr:'#6366F1'},{l:'Químicos',clr:'#8B5CF6'},{l:'Multi-marca',clr:'#64748B'}];
 
 (function(){
@@ -362,7 +405,6 @@ var CAT_LEYENDA=[{l:'Suspensión / Amortiguadores',clr:'#3B82F6'},{l:'Balatas / 
   var dias=['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
   var meses=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
   document.getElementById('fechaActual').textContent='Precios y stock al '+dias[d.getDay()]+' '+d.getDate()+' de '+meses[d.getMonth()]+' '+d.getFullYear();
-  // ← CAMBIO 1: localStorage en lugar de sessionStorage
   var saved=localStorage.getItem('mosar_cliente');
   if(saved){try{clienteActual=JSON.parse(saved);actualizarUIMayoreo();cargarCarritoSupabase();}catch(e){localStorage.removeItem('mosar_cliente');}}
   renderCatalogos();
@@ -406,39 +448,38 @@ async function abrirHistorial(){
   var body=document.getElementById('histBody');
   body.innerHTML='<div class="hist-empty">Cargando...</div>';
   try{
-    var r=await fetch(SUPA_URL+'/rest/v1/pedidos_historial?cliente_id=eq.'+encodeURIComponent(clienteActual.numero_cliente)+'&order=creado_at.desc&limit=30',{headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY}});
+    // CAMBIO: Apuntar a la tabla correcta 'historial_pedidos'
+    var r=await fetch(SUPA_URL+'/rest/v1/historial_pedidos?cliente_id=eq.'+encodeURIComponent(clienteActual.numero_cliente)+'&order=fecha.desc&limit=30',{headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY}});
     var data=await r.json();
     if(!data||!data.length){body.innerHTML='<div class="hist-empty">Aún no tienes pedidos enviados.<br>Cuando envíes un pedido por WhatsApp aparecerá aquí.</div>';return;}
     var h='';
     for(var i=0;i<data.length;i++){
       var p=data[i];
-      var items=typeof p.items==='string'?JSON.parse(p.items):p.items;
-      var fecha=new Date(p.creado_at);
+      var msg=p.mensaje || '';
+      var fecha=new Date(p.fecha);
       var fechaStr=fecha.toLocaleDateString('es-MX',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
-      h+='<div class="hist-item">';
-      h+='<div class="hist-item-hdr"><span class="hist-item-fecha">'+fechaStr+'</span><span class="hist-item-total">'+fmt(p.total)+'</span></div>';
-      h+='<div class="hist-item-prods">';
-      for(var j=0;j<items.length;j++){
-        h+='<div class="hist-item-prod"><span class="hist-item-prod-cod">'+esc(items[j].codigo)+'</span><span>x'+items[j].cantidad+' — '+esc(items[j].descripcion||'')+'</span></div>';
+      
+      // Extraer total del mensaje si existe
+      var totalMatch = msg.match(/\*Total:\* \$(.*)/);
+      var totalStr = totalMatch ? totalMatch[1] : '';
+      
+      // Extraer solo los productos (quitar encabezados)
+      var lineas = msg.split('\n');
+      var prodsHtml = '';
+      for(var j=0; j<lineas.length; j++) {
+        var linea = lineas[j].trim();
+        if(linea.match(/^\d+x\s/) || linea.match(/^\d+x/)) {
+          prodsHtml += '<div class="hist-item-prod"><span class="hist-item-prod-cod">'+linea+'</span></div>';
+        }
       }
-      h+='</div>';
-      h+='<div class="hist-btn-row"><button class="hist-btn verde" onclick="reordenarDesdeHistorial('+i+','+JSON.stringify(items).replace(/"/g,'&quot;')+')">🛒 Agregar al carrito</button></div>';
+      
+      h+='<div class="hist-item">';
+      h+='<div class="hist-item-hdr"><span class="hist-item-fecha">'+fechaStr+'</span><span class="hist-item-total">'+totalStr+'</span></div>';
+      h+='<div class="hist-item-prods">'+prodsHtml+'</div>';
       h+='</div>';
     }
     body.innerHTML=h;
   }catch(e){body.innerHTML='<div class="hist-empty">Error cargando historial. Intenta de nuevo.</div>';}
-}
-
-function reordenarDesdeHistorial(idx,items){
-  for(var i=0;i<items.length;i++){
-    var it=items[i];
-    var existe=false;
-    for(var j=0;j<carrito.length;j++){if(carrito[j].codigo===it.codigo){existe=true;break;}}
-    if(!existe)carrito.push({codigo:it.codigo,descripcion:it.descripcion,precio:it.precio,linea:it.linea||'',cantidad:it.cantidad});
-  }
-  actualizarContadores();actualizarUI();guardarCarritoSupabase();
-  cerrarHistorial();
-  toast('Productos agregados al carrito');
 }
 
 function cerrarHistorial(){
@@ -446,14 +487,14 @@ function cerrarHistorial(){
   document.getElementById('histPanel').classList.remove('open');
 }
 
-async function guardarPedidoHistorial(nombre,items,total){
+async function guardarPedidoHistorial(msg){
   if(!clienteActual)return;
   try{
-    await fetch(SUPA_URL+'/rest/v1/pedidos_historial',{method:'POST',headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify({cliente_id:clienteActual.numero_cliente,nombre_cliente:nombre,items:JSON.stringify(items),total:total,creado_at:new Date().toISOString()})});
+    await fetch(SUPA_URL+'/rest/v1/historial_pedidos',{method:'POST',headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify({cliente_id:clienteActual.numero_cliente,mensaje:msg,fecha:new Date().toISOString()})});
   }catch(e){}
 }
 
-/* ─── LOGIN / LOGOUT ─── */
+/* ─── LOGIN / LOGOUT SEGURO ─── */
 function renderCatalogos(){var h='<div class="cat-header"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25"/></svg> Catálogos de Proveedores</div>';h+='<div class="cat-tip">Busca la pieza, copia el <strong>número de parte</strong> y pégalo en la pestaña de búsqueda.</div>';h+='<div class="cat-filter"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/></svg><input type="text" id="catFilter" placeholder="Filtrar marca o pieza..." oninput="filtrarCat(this.value)"></div>';h+='<div class="cat-grid">';for(var i=0;i<CATS.length;i++){var c=CATS[i];h+='<a class="cat-card" href="'+c.u+'" target="_blank" rel="noopener" data-name="'+c.n.toLowerCase()+'" data-cat="'+c.c.toLowerCase()+'" data-tags="'+(c.t||'').toLowerCase()+'" style="border-left-color:'+c.clr+'"><div class="cat-card-info"><div class="cat-card-name">'+c.n+'</div><div class="cat-card-cat">'+c.c+'</div></div><svg class="cat-card-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"/></svg></a>';}h+='</div><div class="cat-legend">';for(var j=0;j<CAT_LEYENDA.length;j++){h+='<span class="cat-legend-item"><span class="cat-legend-dot" style="background:'+CAT_LEYENDA[j].clr+'"></span>'+CAT_LEYENDA[j].l+'</span>';}h+='</div>';document.getElementById('catalogosContainer').innerHTML=h;}
 function filtrarCat(q){q=q.toLowerCase().trim();var cards=document.querySelectorAll('.cat-card');for(var i=0;i<cards.length;i++){var n=cards[i].getAttribute('data-name'),c=cards[i].getAttribute('data-cat'),t=cards[i].getAttribute('data-tags')||'';cards[i].style.display=(!q||n.indexOf(q)!==-1||c.indexOf(q)!==-1||t.indexOf(q)!==-1)?'':'none';}}
 function tienePromo(codigo){var codUpper=(codigo||'').toUpperCase().trim();for(var i=0;i<promoData.length;i++){for(var j=0;j<promoData[i].codigos.length;j++){if(promoData[i].codigos[j]===codUpper)return promoData[i];}}return null;}
@@ -467,6 +508,8 @@ function cerrarLoginModal(){document.getElementById('loginModalBg').classList.re
 document.getElementById('loginPin').addEventListener('keydown',function(e){if(e.key==='Enter')loginMayoreo();});
 document.getElementById('loginNum').addEventListener('input',function(){this.value=this.value.toUpperCase();});
 document.getElementById('loginNum').addEventListener('keydown',function(e){if(e.key==='Enter')document.getElementById('loginPin').focus();});
+
+// CAMBIO PRINCIPAL: LOGIN TOTALMENTE SEGURO CONTRA HACKERS
 async function loginMayoreo(){
   var num=document.getElementById('loginNum').value.trim().toUpperCase();
   var pin=document.getElementById('loginPin').value.trim();
@@ -475,18 +518,32 @@ async function loginMayoreo(){
   btn.disabled=true;btn.textContent='VERIFICANDO...';
   document.getElementById('loginErr').style.display='none';
   try{
-    var rows=await api('/rest/v1/clientes_mayoreo?numero_cliente=eq.'+encodeURIComponent(num)+'&pin=eq.'+encodeURIComponent(pin)+'&activo=eq.true&select=*');
-    if(!rows||!rows.length){document.getElementById('loginErr').style.display='block';btn.disabled=false;btn.textContent='INGRESAR';return;}
-    var c=rows[0];
+    // Ya no leemos la tabla directamente, usamos la función "Puerta Trasera" de Supabase
+    var rows = await fetch(SUPA_URL + '/rest/v1/rpc/fn_login_mayoreo', {
+      method: 'POST',
+      headers: {
+        'apikey': SUPA_KEY,
+        'Authorization': 'Bearer ' + SUPA_KEY,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=representation'
+      },
+      body: JSON.stringify({ p_num: num, p_pin: pin })
+    }).then(r => r.json());
+
+    if(!rows || rows.length === 0){
+      document.getElementById('loginErr').style.display='block';
+      btn.disabled=false;btn.textContent='INGRESAR';
+      return;
+    }
+    
+    var c = rows[0];
     var desc=await api('/rest/v1/descuentos_linea?cliente_id=eq.'+c.id+'&activo=eq.true&select=linea,descuento_adicional');
     clienteActual={id:c.id,numero_cliente:c.numero_cliente,nombre:c.nombre,descuento_general:c.descuento_general,descuentos_linea:desc||[]};
-    // ← CAMBIO 2: localStorage para que persista al cerrar el navegador
     localStorage.setItem('mosar_cliente',JSON.stringify(clienteActual));
     try{var excluir=await api('/rest/v1/lineas_sin_descuento?select=linea');lineasExcluidas=(excluir||[]).map(function(r){return(r.linea||'').toUpperCase().trim();});}catch(e2){}
     actualizarUIMayoreo();
     cerrarLoginModal();
     toast('Bienvenido, '+c.nombre);
-    // Cargar carrito guardado de Supabase
     await cargarCarritoSupabase();
   }catch(e){document.getElementById('loginErr').style.display='block';}
   btn.disabled=false;btn.textContent='INGRESAR';
@@ -494,7 +551,6 @@ async function loginMayoreo(){
 function logoutMayoreo(){
   carrito=[];
   clienteActual=null;
-  // ← CAMBIO 3: localStorage
   localStorage.removeItem('mosar_cliente');
   lineasExcluidas=[];
   actualizarUIMayoreo();
@@ -522,7 +578,7 @@ function mostrarPromoPorCod(cod){var p=tienePromo(cod);if(p){promoCodigosActual=
 function crearSelector(rows){var h='<div class="sel-panel"><div class="sel-head"><h3>Selecciona un producto</h3><span class="sel-count">'+rows.length+'</span></div><div class="sel-list">';for(var i=0;i<rows.length;i++){var r=rows[i],s=stk(r.stock_total),cant=getCant(r.codigo),c=calcPrecio(r.precio,r.linea||'',cant,r.codigo);h+='<div class="sel-row" data-cod="'+esc(r.codigo)+'" data-desc="'+esc(r.descripcion)+'" data-precio="'+(r.precio||0)+'" data-linea="'+esc(r.linea||'')+'" data-action="abrir">';h+='<span class="sel-cod">'+esc(r.codigo)+promoBadgeHTML(r.codigo,true)+'</span>';h+='<span class="sel-desc">'+esc(r.descripcion||'')+'</span>';h+='<span class="sel-right"><span class="sel-top"><span class="sel-precio">'+fmt(c.precio)+'</span></span>';h+='<span class="sel-bot"><span class="sel-stock '+s.cls+'"><span class="dot '+s.dot+'"></span>'+s.lbl+'</span>';h+='<span class="sel-qty" data-action="qty" data-cod="'+esc(r.codigo)+'" data-desc="'+esc(r.descripcion)+'" data-precio="'+(r.precio||0)+'" data-linea="'+esc(r.linea||'')+'"><button class="sel-qty-btn" data-action="minus">−</button><span class="sel-qty-num '+(cant>0?'activo':'cero')+'" data-action="editqty">'+cant+'</span><button class="sel-qty-btn" data-action="plus">+</button></span>';h+='</span></span></div>';}h+='</div></div>';return h;}
 function crearCard(item,esAlt){var cod=item.codigo;var s=stk(item.stock_total),cant=getCant(cod),c=calcPrecio(item.precio,item.linea||'',cant,cod);var badge=item.esPrincipal?'<span class="badge badge-p">Seleccionado</span>':'<span class="badge badge-a">Alternativo</span>';var cls=item.esPrincipal?'card principal':'card alt-click';var hint=esAlt?'<span class="click-hint"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"/></svg> Ver alternativos</span>':'';var mtrz=item.stock_matriz||0,surc=item.stock_otras_sucursales||0,total=item.stock_total||0;var promo=tienePromo(cod);var h='<div class="'+cls+'" data-cod="'+esc(cod)+'" data-desc="'+esc(item.descripcion)+'" data-precio="'+(item.precio||0)+'" data-linea="'+esc(item.linea||'')+'" '+(esAlt?'data-action="abrir"':'')+'>'+hint;h+='<div class="card-cod">'+esc(cod)+' '+badge+promoBadgeHTML(cod,false);if(item.linea)h+='<span class="linea-tag">'+esc(item.linea)+'</span>';h+='</div>';h+='<div class="card-desc">'+esc(item.descripcion||'')+'</div>';if(promo){h+='<div class="promo-info-banner" onclick="event.stopPropagation();mostrarPromoPorCod(\''+esc(cod).replace(/'/g,"\\'")+'\')" style="cursor:pointer"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z"/></svg><div><strong>'+esc(promo.titulo)+'</strong><br>'+esc(promo.descripcion)+'</div></div>';}h+='<div class="card-datos">';if(c.esMayoreo){h+='<div class="dato wide"><span class="dato-lbl precio-tuyo-lbl">TU PRECIO</span><span class="dato-val precio-tuyo">'+fmt(c.precio)+'</span></div>';}else{h+='<div class="dato"><span class="dato-lbl">Precio</span><span class="dato-val precio">'+fmt(item.precio)+'</span></div>';}h+='<div class="dato"><span class="dato-lbl">Stock</span><span class="dato-val '+s.cls+'"><span class="dot '+s.dot+'"></span>'+s.lbl+'</span>';if(total>0){h+='<div class="stock-det"><div class="sm">📍 Matriz: '+mtrz+'</div>';if(surc>0)h+='<div class="ss">🏪 Sucursales: '+surc+'</div>';h+='</div>';}h+='</div></div>';h+='<div class="card-add-row">';h+='<div class="card-qty" data-cod="'+esc(cod)+'" data-desc="'+esc(item.descripcion)+'" data-precio="'+(item.precio||0)+'" data-linea="'+esc(item.linea||'')+'"><button class="card-qty-btn minus" data-action="minus">−</button><span class="card-qty-num '+(cant>0?'activo':'cero')+'" data-action="editqty">'+cant+'</span><button class="card-qty-btn" data-action="plus">+</button></div>';h+='<span class="add-label '+(cant>0?'activo':'')+'">'+(cant>0?'En pedido':'Toca el número para editar')+'</span>';h+='</div></div>';return h;}
 function activarInputCantidad(el,cod,desc,precio,linea,esCarrito,idx){var cant=getCant(cod);var parent=el.parentNode;var oldW=el.offsetWidth,oldH=el.offsetHeight;var input=document.createElement('input');input.type='number';input.className='qty-input';input.value=cant||'';input.min='0';input.max='9999';input.style.width=oldW+'px';input.style.height=oldH+'px';input.style.fontSize=window.getComputedStyle(el).fontSize;input.style.lineHeight=oldH+'px';el.style.display='none';parent.insertBefore(input,el);input.focus();input.select();function finalizar(){var val=parseInt(input.value)||0;if(val>0){if(esCarrito){carrito[idx].cantidad=val;}else{setCantidadItem(cod,desc,parseFloat(precio)||0,linea,val);}}else{if(esCarrito){carrito.splice(idx,1);}else{setCantidadItem(cod,desc,parseFloat(precio)||0,linea,0);}}if(input.parentNode){input.remove();}el.style.display='';actualizarContadores();actualizarUI();guardarCarritoSupabase();}input.addEventListener('blur',finalizar);input.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();input.blur();}if(e.key==='Escape'){input.value='';input.blur();}});}
-function setCantidadItem(cod,desc,precio,linea,nuevaCant){if(nuevaCant<=0){carrito=carrito.filter(function(x){return x.codigo!==cod;});}else{var idx=-1;for(var i=0;i<carrito.length;i++){if(carrito[i].codigo===cod){idx=i;break;}}if(idx>=0){carrito[idx].cantidad=nuevaCant;}else{carrito.push({codigo:cod,descripcion:desc,precio:precio,linea:linea,cantidad:nuevaCant});toast(cod+' — x'+nuevaCant);}}actualizarContadores();actualizarUI();guardarCarritoSupabase();}
+function setCantidadItem(cod,desc,precio,linea,nuevaCant){if(nuevaCant<=0){carrito=carrito.filter(function(x){return x.codigo!==cod;});}else{var idx=-1;for(var i=0;i<carrito.length;i++){if(carrito[i].codigo===cod){idx=i;break;}}if(idx>=0){carrito[idx].cantidad=nuevaCant;}else{carrito.push({codigo:cod,descripcion:desc,precio:precio,linea:linea,cantidad:nuevaCant);toast(cod+' — x'+nuevaCant);}}actualizarContadores();actualizarUI();guardarCarritoSupabase();}
 document.getElementById('mainContainer').addEventListener('click',function(e){var actionEl=e.target.closest('[data-action]');if(!actionEl)return;var action=actionEl.getAttribute('data-action');if(action==='plus'||action==='minus'){e.preventDefault();e.stopPropagation();var row=actionEl.closest('[data-cod]');if(!row)return;cambiarCantidadItem(row.getAttribute('data-cod'),row.getAttribute('data-desc'),parseFloat(row.getAttribute('data-precio'))||0,row.getAttribute('data-linea')||'',action==='plus'?1:-1);return;}if(action==='editqty'){e.preventDefault();e.stopPropagation();var row=actionEl.closest('[data-cod]');if(!row)return;activarInputCantidad(actionEl,row.getAttribute('data-cod'),row.getAttribute('data-desc'),row.getAttribute('data-precio'),row.getAttribute('data-linea'),false,-1);return;}if(action==='abrir'){e.preventDefault();var row=actionEl.closest('[data-cod]');if(!row)return;document.getElementById('codigoInput').value=row.getAttribute('data-cod');modoTab='codigo';document.getElementById('tabCodigo').className='stab active';document.getElementById('tabDesc').className='stab';document.getElementById('tabCatalogos').className='stab';document.getElementById('searchRow').style.display='flex';document.getElementById('catalogosContainer').classList.remove('show');document.getElementById('searchChips').style.display='flex';document.getElementById('codigoInput').style.textTransform='uppercase';buscar();}});
 function cambiarCantidadItem(cod,desc,precio,linea,delta){var idx=-1;for(var i=0;i<carrito.length;i++){if(carrito[i].codigo===cod){idx=i;break;}}if(idx>=0){carrito[idx].cantidad+=delta;if(carrito[idx].cantidad<=0)carrito.splice(idx,1);}else if(delta>0){carrito.push({codigo:cod,descripcion:desc,precio:precio,linea:linea,cantidad:1});toast(cod+' — agregado');}actualizarContadores();actualizarUI();guardarCarritoSupabase();}
 function actualizarContadores(){var todos=document.querySelectorAll('#resultados [data-cod]');for(var i=0;i<todos.length;i++){var el=todos[i],cod=el.getAttribute('data-cod'),cant=getCant(cod);var sn=el.querySelector('.sel-qty-num');if(sn){sn.textContent=cant;sn.className='sel-qty-num '+(cant>0?'activo':'cero');}var cn=el.querySelector('.card-qty-num');if(cn){cn.textContent=cant;cn.className='card-qty-num '+(cant>0?'activo':'cero');}var lbl=el.querySelector('.add-label');if(lbl){lbl.className='add-label '+(cant>0?'activo':'');lbl.textContent=cant>0?'En pedido':'Toca el número para editar';}}}
@@ -546,10 +602,10 @@ async function enviarWA(){
   msg+='\n*Artículos:*\n';
   for(var i=0;i<carrito.length;i++){var it=carrito[i],c=calcPrecio(it.precio,it.linea||'',it.cantidad,it.codigo);msg+=it.cantidad+'x '+it.codigo+' — '+it.descripcion+'\n  '+fmt(c.precio)+' c/u = '+fmt(c.precio*it.cantidad)+'\n';}
   msg+='\n*Subtotal:* '+fmt(t.subtotal)+'\n*IVA (16%):* '+fmt(t.iva)+'\n*Total:* '+fmt(t.total)+'\n\nGracias.';
+  
   // Guardar en historial si es cliente mayoreo
   if(clienteActual){
-    await guardarPedidoHistorial(nombre,carrito,t.total);
-    // Limpiar carrito en Supabase después de enviar
+    await guardarPedidoHistorial(msg);
     await limpiarCarritoSupabase();
   }
   // Limpiar carrito local
