@@ -3,20 +3,25 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Panel Secreto - MOSAR</title>
+  <title>Panel Secreto MOSAR</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     body { font-family: 'Segoe UI', sans-serif; background: #0f172a; color: #e2e8f0; padding: 2rem; margin: 0; }
     h1 { color: #22c55e; font-size: 24px; border-bottom: 1px solid #334155; padding-bottom: 10px; }
     .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px; }
     .card { background: #1e293b; padding: 20px; border-radius: 12px; border: 1px solid #334155; }
-    .card-title { color: #94a3b8; font-size: 14px; text-transform: uppercase; margin-bottom: 15px; font-weight: bold; }
-    .user-row { display: flex; justify-content: space-between; padding: 10px; background: #0f172a; margin-bottom: 8px; border-radius: 6px; }
+    .card-title { color: #94a3b8; font-size: 14px; text-transform: uppercase; margin-bottom: 15px; font-weight: bold; display: flex; align-items: center; gap: 8px; }
+    .user-row { display: flex; justify-content: space-between; padding: 12px; background: #0f172a; margin-bottom: 8px; border-radius: 8px; border-left: 4px solid #22c55e; }
     .user-name { font-weight: bold; color: #fff; }
-    .user-time { color: #22c55e; font-family: monospace; }
-    .log-row { font-size: 13px; padding: 8px; border-bottom: 1px solid #334155; color: #cbd5e1; }
-    .log-time { color: #64748b; font-family: monospace; margin-right: 10px; }
-    .log-action { color: #f59e0b; font-weight: bold; margin-right: 10px; }
+    .user-time { color: #22c55e; font-family: monospace; font-size: 13px; }
+    .log-row { font-size: 13px; padding: 10px 0; border-bottom: 1px solid #334155; color: #cbd5e1; display: flex; gap: 10px; }
+    .log-time { color: #64748b; font-family: monospace; min-width: 70px; }
+    .log-action { font-weight: bold; min-width: 110px; }
+    .log-busqueda { color: #f59e0b; background: rgba(245,158,11,0.1); padding: 2px 6px; border-radius: 4px; }
+    .log-login { color: #22c55e; background: rgba(34,197,94,0.1); padding: 2px 6px; border-radius: 4px; }
+    .empty { color: #475569; font-style: italic; padding: 20px 0; text-align: center; }
+    .live-dot { width: 8px; height: 8px; background: #22c55e; border-radius: 50%; display: inline-block; animation: blink 1s infinite; }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
     @media (max-width: 768px) { .grid { grid-template-columns: 1fr; } }
   </style>
 </head>
@@ -25,29 +30,29 @@
   <h1>🕵️ Panel de Vigilancia MOSAR</h1>
   
   <div class="grid">
-    <!-- TARJETA 1: QUIÉNES ESTÁN AHORA -->
+    <!-- TARJETA 1: EN VIVO -->
     <div class="card">
-      <div class="card-title">🟢 En línea ahora mismo</div>
-      <div id="usersOnline"><span style="color:#64748b">Cargando...</span></div>
+      <div class="card-title"><span class="live-dot"></span> Clientes en línea AHORA</div>
+      <div id="liveUsers"><div class="empty">Cargando conexión...</div></div>
     </div>
 
-    <!-- TARJETA 2: QUÉ BUSCARON -->
+    <!-- TARJETA 2: HISTORIAL -->
     <div class="card">
-      <div class="card-title">🔍 Últimas búsquedas (Historial)</div>
-      <div id="searchLogs"><span style="color:#64748b">Cargando...</span></div>
+      <div class="card-title">📊 Últimas acciones (Búsquedas / Logins)</div>
+      <div id="historialAcciones"><div class="empty">Cargando base de datos...</div></div>
     </div>
   </div>
 
   <script>
-    // PON TUS MISMAS CREDENCIALES DE INDEX.HTML AQUÍ
-    var SUPA_URL = 'https://aetktfzewcrmetqyxbew.supabase.co';
-    var SUPA_KEY = 'sb_publishable_QEHgCTmk9El1nJpMP-07Ig_Qbv4Wox5';
+    // TUS MISMAS CREDENCIALES
+    const SUPA_URL = 'https://aetktfzewcrmetqyxbew.supabase.co';
+    const SUPA_KEY = 'sb_publishable_QEHgCTmk9El1nJpMP-07Ig_Qbv4Wox5';
     const supabase = window.supabase.createClient(SUPA_URL, SUPA_KEY);
 
-    const divUsers = document.getElementById('usersOnline');
-    const divLogs = document.getElementById('searchLogs');
+    const divUsers = document.getElementById('liveUsers');
+    const divLogs = document.getElementById('historialAcciones');
 
-    // 1. SISTEMA DE PRESENCIA (TIEMPO REAL)
+    // 1. SISTEMA EN VIVO (PRESENCIA)
     const canal = supabase.channel('mosar-online');
     
     canal.on('presence', { event: 'sync' }, () => {
@@ -55,7 +60,7 @@
       const users = Object.values(state);
       
       if(users.length === 0) {
-        divUsers.innerHTML = '<span style="color:#64748b">Nadie conectado</span>';
+        divUsers.innerHTML = '<div class="empty">Nadie conectado ahora mismo</div>';
         return;
       }
 
@@ -63,11 +68,14 @@
       users.forEach(u => {
         const id = u[0].user_id || 'Desconocido';
         const horaEntrada = u[0].hora_entrada || Date.now();
-        // Calcula los minutos que lleva
         const minutos = Math.floor((Date.now() - horaEntrada) / 60000);
+        const segundos = Math.floor(((Date.now() - horaEntrada) % 60000) / 1000);
+        
+        let tiempoTexto = minutos > 0 ? `${minutos} min` : `${segundos} seg`;
+        
         html += `<div class="user-row">
-          <span class="user-name">👤 ${id}</span>
-          <span class="user-time">⏱ ${minutos} min conectado</span>
+          <span class="user-name">🟢 ${id}</span>
+          <span class="user-time">⏱ Lleva ${tiempoTexto} activo</span>
         </div>`;
       });
       divUsers.innerHTML = html;
@@ -75,42 +83,46 @@
 
     canal.subscribe();
 
-    // Actualiza el reloj de minutos cada 60 segundos
-    setInterval(() => canal.emit('presence', { event: 'sync' }), 60000);
+    // Actualiza el reloj cada segundo
+    setInterval(() => canal.emit('presence', { event: 'sync' }), 1000);
 
 
-    // 2. SISTEMA DE HISTORIAL (LO QUE BUSCARON)
+    // 2. HISTORIAL DE ACCIONES (BASE DE DATOS)
     async function cargarHistorial() {
       try {
-        const res = await fetch(SUPA_URL + '/rest/v1/log_spy?select=*&order=fecha.desc&limit=20', {
+        const res = await fetch(SUPA_URL + '/rest/v1/log_spy?select=*&order=fecha.desc&limit=50', {
           headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
         });
         const data = await res.json();
         
         if(!data.length) {
-          divLogs.innerHTML = '<span style="color:#64748b">Sin búsquedas aún</span>';
+          divLogs.innerHTML = '<div class="empty">Aún no hay movimientos registrados</div>';
           return;
         }
 
         let html = '';
         data.forEach(log => {
-          const fecha = new Date(log.fecha).toLocaleTimeString('es-MX', {hour: '2-digit', minute:'2-digit'});
+          const fecha = new Date(log.fecha).toLocaleTimeString('es-MX', {hour: '2-digit', minute:'2-digit', second:'2-digit'});
+          const esBusqueda = log.accion === 'busqueda';
+          const claseAccion = esBusqueda ? 'log-busqueda' : 'log-login';
+          const textoAccion = esBusqueda ? '🔍 Buscó:' : '🔑 Entró:';
+          
           html += `<div class="log-row">
             <span class="log-time">${fecha}</span>
-            <span class="log-action">[${log.cliente_id || 'Invitado'}]</span>
-            Buscó: <strong>${log.detalle}</strong>
+            <span class="${claseAccion}">${textoAccion}</span>
+            <span style="color:#fff;font-weight:bold;">${log.cliente_id || 'Invitado'}</span>
+            <span style="color:#94a3b8">${log.detalle}</span>
           </div>`;
         });
         divLogs.innerHTML = html;
       } catch(e) {
-        divLogs.innerHTML = 'Error cargando historial';
+        divLogs.innerHTML = '<div class="empty">Error al cargar historial</div>';
       }
     }
 
     cargarHistorial();
-    // Refresca el historial cada 30 segundos por si hacen búsquedas nuevas
-    setInterval(cargarHistorial, 30000);
-
+    // Refresca el historial cada 15 segundos
+    setInterval(cargarHistorial, 15000);
   </script>
 </body>
 </html>
