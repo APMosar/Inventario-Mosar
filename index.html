@@ -926,7 +926,7 @@ async function buscar(){
   if(!raw)return;
   
   /* --- INICIO ESPÍA: LOG DE BÚSQUEDA --- */
-  if(clienteActual && raw){fetch(SUPA_URL+'/rest/v1/log_spy',{method:'POST',headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify({cliente_id:clienteActual.numero_cliente,accion:'busqueda',detalle:raw})}).catch(()=>{});}
+  if(clienteActual && raw){fetch(SUPA_URL+'/rest/v1/log_spy',{method:'POST',headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify({cliente_id:clienteActual.numero_cliente,accion:'busqueda',detalle:raw})}).catch(e => alert('ERROR AL BUSCAR: ' + JSON.stringify(e.message)));}
   /* --- FIN ESPÍA --- */
 
   var btn=document.getElementById('btnBuscar');
