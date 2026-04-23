@@ -1342,14 +1342,32 @@ async function enviarWA(){
   }
 
   var t=getTotales();
-  var msg='*Pedido MOSAR Refaccionarias*\\n\\n*Cliente:* '+nombre+'\\n';
-  if(tel)msg+='*No. de cliente:* '+tel+'\\n';
-  msg+='\\n*Artículos:*\\n';
+  var lineas=[];
+  lineas.push('📦 *PEDIDO MOSAR Refaccionarias*');
+  lineas.push('');
+  lineas.push('👤 *Cliente:* '+nombre);
+  if(tel) lineas.push('🔖 *No. cliente:* '+tel);
+  lineas.push('');
+  lineas.push('─────────────────────');
+  lineas.push('*ARTÍCULOS*');
+  lineas.push('─────────────────────');
+
   for(var i=0;i<carrito.length;i++){
-    var it=carrito[i],c=calcPrecio(it.precio,it.linea||'',it.cantidad,it.codigo);
-    msg+=it.cantidad+'x '+it.codigo+' — '+it.descripcion+'\\n  '+fmt(c.precio)+' c/u = '+fmt(c.precio*it.cantidad)+'\\n';
+    var it=carrito[i];
+    var c=calcPrecio(it.precio,it.linea||'',it.cantidad,it.codigo);
+    var totalLinea=c.precio*it.cantidad;
+    var cantStr=String(it.cantidad).padStart(2,' ');
+    lineas.push(cantStr+'x  '+it.codigo+'   →  '+fmt(totalLinea));
   }
-  msg+='\\n*Subtotal:* '+fmt(t.subtotal)+'\\n*IVA (16%):* '+fmt(t.iva)+'\\n*Total:* '+fmt(t.total)+'\\n\\nGracias.';
+
+  lineas.push('─────────────────────');
+  lineas.push('📋 *Subtotal:*   '+fmt(t.subtotal));
+  lineas.push('🧾 *IVA (16%):*   '+fmt(t.iva));
+  lineas.push('✅ *TOTAL:*   '+fmt(t.total));
+  lineas.push('─────────────────────');
+  lineas.push('_Precios sin IVA incluido_');
+
+  var msg=lineas.join('\n');
 
   if(clienteActual){
     await guardarPedidoHistorial(msg);
