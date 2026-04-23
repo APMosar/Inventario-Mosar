@@ -7,6 +7,9 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="theme-color" content="#020617">
   <title>MOSAR Refaccionarias</title>
+  <!-- --- INICIO ESPÍA: LIBRERÍA DE TIEMPO REAL --- -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- --- FIN ESPÍA --- -->
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="icon" type="image/png" href="logo_empresa.png">
   <style>
@@ -298,7 +301,9 @@
   </div>
   <div class="mayoreo-bar" id="mayoreoBar">
     <div class="mayoreo-bar-check"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg></div>
-    <div class="mayoreo-bar-info"><div class="mayoreo-bar-nombre" id="mayoreoNombre"></div><div class="mayoreo-bar-desc">Precios exclusivos activos</div></div>
+    <!-- --- INICIO ESPÍA: PUNTITO VERDE --- -->
+    <div class="mayoreo-bar-info"><span id="punto-presencia" style="font-size:12px;">🔴</span><div class="mayoreo-bar-nombre" id="mayoreoNombre"></div><div class="mayoreo-bar-desc">Precios exclusivos activos</div></div>
+    <!-- --- FIN ESPÍA --- -->
     <button class="mayoreo-bar-pedidos" id="btnHistorial" onclick="abrirHistorial()">📋 Mis pedidos</button>
     <button class="mayoreo-bar-salir" onclick="logoutMayoreo()">SALIR</button>
   </div>
@@ -794,6 +799,11 @@ async function loginMayoreo(){
     actualizarUIMayoreo();
     cerrarLoginModal();
     toast('Bienvenido, '+c.nombre);
+    
+    /* --- INICIO ESPÍA: LOG DE LOGIN --- */
+    fetch(SUPA_URL+'/rest/v1/log_spy',{method:'POST',headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify({cliente_id:clienteActual.numero_cliente,accion:'inicio_sesion',detalle:'Inicio de sesión exitoso'})}).catch(()=>{});
+    /* --- FIN ESPÍA --- */
+
     await cargarCarritoSupabase();
   }catch(e){
     document.getElementById('loginErr').style.display='block';
@@ -914,6 +924,11 @@ window.addEventListener('scroll',function(){document.getElementById('waFloat').s
 async function buscar(){
   var raw=document.getElementById('codigoInput').value.trim();
   if(!raw)return;
+  
+  /* --- INICIO ESPÍA: LOG DE BÚSQUEDA --- */
+  if(clienteActual && raw){fetch(SUPA_URL+'/rest/v1/log_spy',{method:'POST',headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify({cliente_id:clienteActual.numero_cliente,accion:'busqueda',detalle:raw})}).catch(()=>{});}
+  /* --- FIN ESPÍA --- */
+
   var btn=document.getElementById('btnBuscar');
   btn.disabled=true;
   document.getElementById('spinner').style.display='block';
@@ -1316,8 +1331,7 @@ function abrirModal(){
   }
   document.getElementById('modalBg').classList.add('open');
 }
-
-function cerrarModal(){document.getElementById('modalBg').classList.remove('open');}
+  function cerrarModal(){document.getElementById('modalBg').classList.remove('open');}
 
 async function enviarWA(){
   var nombre=document.getElementById('clienteNombre').value.trim(),tel=document.getElementById('clienteTel').value.trim();
@@ -1348,6 +1362,40 @@ async function enviarWA(){
   cerrarModal();
   window.open('https://wa.me/528123986039?text='+encodeURIComponent(msg),'_blank');
 }
+
+/* --- INICIO ESPÍA: PRESENCIA EN TIEMPO REAL --- */
+(function(){
+  const supaRT = window.supabase.createClient(SUPA_URL, SUPA_KEY);
+  let canal = null;
+  let currentId = null;
+  
+  function initPresence(id) {
+    if(canal) supaRT.removeChannel(canal);
+    currentId = id;
+    canal = supaRT.channel('mosar-online', {
+      config: { presence: { key: id } }
+    });
+    canal.on('presence', { event: 'sync' }, () => {
+      const dot = document.getElementById('punto-presencia');
+      if(dot) dot.innerText = (id in canal.presenceState()) ? '🟢' : '🔴';
+    });
+    canal.subscribe(async (status) => {
+      if (status === 'SUBSCRIBED') await canal.track({ user_id: id, hora_entrada: Date.now() });
+    });
+  }
+
+  setInterval(() => {
+    if (clienteActual && clienteActual.id) {
+      if (currentId !== clienteActual.id) initPresence(clienteActual.numero_cliente);
+    } else if (currentId !== null) {
+      if(canal) supaRT.removeChannel(canal);
+      canal = null; currentId = null;
+      const dot = document.getElementById('punto-presencia');
+      if(dot) dot.innerText = '🔴';
+    }
+  }, 1000);
+})();
+/* --- FIN ESPÍA --- */
 </script>
 </body>
 </html>
