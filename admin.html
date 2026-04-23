@@ -14,11 +14,11 @@
     .user-row { display: flex; justify-content: space-between; padding: 12px; background: #0f172a; margin-bottom: 8px; border-radius: 8px; border-left: 4px solid #22c55e; }
     .user-name { font-weight: bold; color: #fff; }
     .user-time { color: #22c55e; font-family: monospace; font-size: 13px; }
-    .log-row { font-size: 13px; padding: 10px 0; border-bottom: 1px solid #334155; color: #cbd5e1; display: flex; gap: 10px; }
+    .log-row { font-size: 13px; padding: 10px 0; border-bottom: 1px solid #334155; color: #cbd5e1; display: flex; gap: 10px; flex-wrap: wrap; }
     .log-time { color: #64748b; font-family: monospace; min-width: 70px; }
-    .log-action { font-weight: bold; min-width: 110px; }
     .log-busqueda { color: #f59e0b; background: rgba(245,158,11,0.1); padding: 2px 6px; border-radius: 4px; }
     .log-login { color: #22c55e; background: rgba(34,197,94,0.1); padding: 2px 6px; border-radius: 4px; }
+    .error-box { color: #fca5a5; background: rgba(185,28,28,0.1); padding: 15px; border-radius: 8px; border: 1px solid #7f1d1d; font-family: monospace; font-size: 12px; word-break: break-all; margin-top: 10px; }
     .empty { color: #475569; font-style: italic; padding: 20px 0; text-align: center; }
     .live-dot { width: 8px; height: 8px; background: #22c55e; border-radius: 50%; display: inline-block; animation: blink 1s infinite; }
     @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
@@ -28,101 +28,112 @@
 <body>
 
   <h1>🕵️ Panel de Vigilancia MOSAR</h1>
+  <div id="erroresGenerales" class="error-box" style="display:none;"></div>
   
   <div class="grid">
-    <!-- TARJETA 1: EN VIVO -->
     <div class="card">
       <div class="card-title"><span class="live-dot"></span> Clientes en línea AHORA</div>
-      <div id="liveUsers"><div class="empty">Cargando conexión...</div></div>
+      <div id="liveUsers"><div class="empty">Conectando...</div></div>
     </div>
 
-    <!-- TARJETA 2: HISTORIAL -->
     <div class="card">
-      <div class="card-title">📊 Últimas acciones (Búsquedas / Logins)</div>
-      <div id="historialAcciones"><div class="empty">Cargando base de datos...</div></div>
+      <div class="card-title">📊 Últimas acciones</div>
+      <div id="historialAcciones"><div class="empty">Conectando a base de datos...</div></div>
     </div>
   </div>
 
   <script>
-    // TUS MISMAS CREDENCIALES
     const SUPA_URL = 'https://aetktfzewcrmetqyxbew.supabase.co';
     const SUPA_KEY = 'sb_publishable_QEHgCTmk9El1nJpMP-07Ig_Qbv4Wox5';
-    const supabase = window.supabase.createClient(SUPA_URL, SUPA_KEY);
-
     const divUsers = document.getElementById('liveUsers');
     const divLogs = document.getElementById('historialAcciones');
+    const divErrores = document.getElementById('erroresGenerales');
 
-    // 1. SISTEMA EN VIVO (PRESENCIA)
-    const canal = supabase.channel('mosar-online');
-    
-    canal.on('presence', { event: 'sync' }, () => {
-      const state = canal.presenceState();
-      const users = Object.values(state);
+    function mostrarError(titulo, mensaje) {
+      console.error(titulo, mensaje);
+      divErrores.style.display = 'block';
+      divErrores.innerHTML += `<b>${titulo}:</b> ${mensaje}<br>`;
+    }
+
+    try {
+      const supabase = window.supabase.createClient(SUPA_URL, SUPA_KEY);
+
+      // 1. PRESENCIA EN VIVO
+      const canal = supabase.channel('mosar-online');
       
-      if(users.length === 0) {
-        divUsers.innerHTML = '<div class="empty">Nadie conectado ahora mismo</div>';
-        return;
-      }
-
-      let html = '';
-      users.forEach(u => {
-        const id = u[0].user_id || 'Desconocido';
-        const horaEntrada = u[0].hora_entrada || Date.now();
-        const minutos = Math.floor((Date.now() - horaEntrada) / 60000);
-        const segundos = Math.floor(((Date.now() - horaEntrada) % 60000) / 1000);
+      canal.on('presence', { event: 'sync' }, () => {
+        const state = canal.presenceState();
+        const users = Object.values(state);
         
-        let tiempoTexto = minutos > 0 ? `${minutos} min` : `${segundos} seg`;
-        
-        html += `<div class="user-row">
-          <span class="user-name">🟢 ${id}</span>
-          <span class="user-time">⏱ Lleva ${tiempoTexto} activo</span>
-        </div>`;
-      });
-      divUsers.innerHTML = html;
-    });
-
-    canal.subscribe();
-
-    // Actualiza el reloj cada segundo
-    setInterval(() => canal.emit('presence', { event: 'sync' }), 1000);
-
-
-    // 2. HISTORIAL DE ACCIONES (BASE DE DATOS)
-    async function cargarHistorial() {
-      try {
-        const res = await fetch(SUPA_URL + '/rest/v1/log_spy?select=*&order=fecha.desc&limit=50', {
-          headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
-        });
-        const data = await res.json();
-        
-        if(!data.length) {
-          divLogs.innerHTML = '<div class="empty">Aún no hay movimientos registrados</div>';
+        if(users.length === 0) {
+          divUsers.innerHTML = '<div class="empty">Nadie conectado ahora mismo</div>';
           return;
         }
 
         let html = '';
-        data.forEach(log => {
-          const fecha = new Date(log.fecha).toLocaleTimeString('es-MX', {hour: '2-digit', minute:'2-digit', second:'2-digit'});
-          const esBusqueda = log.accion === 'busqueda';
-          const claseAccion = esBusqueda ? 'log-busqueda' : 'log-login';
-          const textoAccion = esBusqueda ? '🔍 Buscó:' : '🔑 Entró:';
+        users.forEach(u => {
+          const id = u[0].user_id || 'Desconocido';
+          const horaEntrada = u[0].hora_entrada || Date.now();
+          const minutos = Math.floor((Date.now() - horaEntrada) / 60000);
+          const segundos = Math.floor(((Date.now() - horaEntrada) % 60000) / 1000);
+          let tiempoTexto = minutos > 0 ? `${minutos} min` : `${segundos} seg`;
           
-          html += `<div class="log-row">
-            <span class="log-time">${fecha}</span>
-            <span class="${claseAccion}">${textoAccion}</span>
-            <span style="color:#fff;font-weight:bold;">${log.cliente_id || 'Invitado'}</span>
-            <span style="color:#94a3b8">${log.detalle}</span>
+          html += `<div class="user-row">
+            <span class="user-name">🟢 ${id}</span>
+            <span class="user-time">⏱ ${tiempoTexto} activo</span>
           </div>`;
         });
-        divLogs.innerHTML = html;
-      } catch(e) {
-        divLogs.innerHTML = '<div class="empty">Error al cargar historial</div>';
-      }
-    }
+        divUsers.innerHTML = html;
+      });
 
-    cargarHistorial();
-    // Refresca el historial cada 15 segundos
-    setInterval(cargarHistorial, 15000);
+      canal.subscribe((status, err) => {
+        if(err) mostrarError('Error de Presencia', err.message);
+        if(status === 'SUBSCRIBED') divUsers.innerHTML = '<div class="empty">Esperando que los clientes se conecten...</div>';
+      });
+
+      setInterval(() => canal.emit('presence', { event: 'sync' }), 1000);
+
+      // 2. HISTORIAL
+      async function cargarHistorial() {
+        try {
+          const res = await fetch(SUPA_URL + '/rest/v1/log_spy?select=*&order=fecha.desc&limit=50', {
+            headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
+          });
+          
+          if(!res.ok) throw new Error(`Status ${res.status}: ${await res.text()}`);
+          const data = await res.json();
+          
+          if(!data.length) {
+            divLogs.innerHTML = '<div class="empty">Tabla vacía. Aún no hay movimientos.</div>';
+            return;
+          }
+
+          let html = '';
+          data.forEach(log => {
+            const fecha = new Date(log.fecha).toLocaleTimeString('es-MX', {hour: '2-digit', minute:'2-digit', second:'2-digit'});
+            const esBusqueda = log.accion === 'busqueda';
+            const claseAccion = esBusqueda ? 'log-busqueda' : 'log-login';
+            const textoAccion = esBusqueda ? '🔍 Buscó:' : '🔑 Entró:';
+            
+            html += `<div class="log-row">
+              <span class="log-time">${fecha}</span>
+              <span class="${claseAccion}">${textoAccion}</span>
+              <span style="color:#fff;font-weight:bold;">${log.cliente_id || 'Invitado'}</span>
+              <span style="color:#94a3b8">${log.detalle}</span>
+            </div>`;
+          });
+          divLogs.innerHTML = html;
+        } catch(e) {
+          divLogs.innerHTML = `<div class="error-box" style="margin:0;">Error al cargar historial:<br>${e.message}<br><br><b>¿Ya creaste la tabla 'log_spy' en Supabase?</b></div>`;
+        }
+      }
+
+      cargarHistorial();
+      setInterval(cargarHistorial, 15000);
+
+    } catch(e) {
+      mostrarError('Error Fatal de conexión', 'No se pudo inicializar Supabase. ' + e.message);
+    }
   </script>
 </body>
 </html>
