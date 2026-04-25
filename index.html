@@ -573,6 +573,7 @@ var promoCodigosActual = [];
 var promoData = [];
 var guardandoCarrito = false;
 var pedidoDetalleActual = null;
+var historialPedidos = [];
 
 /* ============================================================
    CATÁLOGOS
@@ -705,10 +706,8 @@ async function abrirHistorial(){
   body.innerHTML='<div class="hist-empty">Cargando...</div>';
   try{
     var data=await api('/rest/v1/historial_pedidos?cliente_id=eq.'+encodeURIComponent(clienteActual.id)+'&select=id,folio,fecha,productos_json,subtotal,iva,total&order=fecha.desc&limit=50');
-    if(!data||!data.length){
-      body.innerHTML='<div class="hist-empty">Aún no tienes pedidos confirmados.<br><br>Cuando generes un pedido aparecerá aquí.</div>';
-      return;
-    }
+    if(!data||!data.length){body.innerHTML='<div class="hist-empty">Aún no tienes pedidos confirmados.<br><br>Cuando generes un pedido aparecerá aquí.</div>';return;}
+    historialPedidos=data;
     var h='';
     for(var i=0;i<data.length;i++){
       var p=data[i];
@@ -718,8 +717,7 @@ async function abrirHistorial(){
       try{prods=JSON.parse(p.productos_json||'[]');}catch(e){prods=[];}
       var preview=prods.slice(0,3).map(function(x){return x.cantidad+'x '+x.codigo;}).join(' · ');
       if(prods.length>3)preview+=' · +'+(prods.length-3)+' más';
-      var dataEsc=esc(JSON.stringify(p)).replace(/'/g,"&#39;");
-      h+='<div class="hist-card" onclick="abrirDetallePedido(\''+dataEsc+'\')">';
+      h+='<div class="hist-card" onclick="abrirDetallePedido('+i+')">';
       h+='<div class="hist-card-top">';
       h+='<div class="hist-folio"><span class="hist-folio-badge">Folio</span>'+(p.folio||'—')+'</div>';
       h+='<div class="hist-fecha">'+fechaStr+'</div>';
@@ -731,19 +729,12 @@ async function abrirHistorial(){
       h+='</div></div>';
     }
     body.innerHTML=h;
-  }catch(e){
-    body.innerHTML='<div class="hist-empty">Error cargando historial. Intenta de nuevo.</div>';
-  }
+  }catch(e){body.innerHTML='<div class="hist-empty">Error cargando historial. Intenta de nuevo.</div>';}
 }
 
-function cerrarHistorial(){
-  document.getElementById('overlay').classList.remove('open');
-  document.getElementById('histPanel').classList.remove('open');
-}
-
-function abrirDetallePedido(jsonEscaped){
-  var p;
-  try{p=JSON.parse(jsonEscaped);}catch(e){return;}
+function abrirDetallePedido(idx){
+  var p=historialPedidos[idx];
+  if(!p)return;
   pedidoDetalleActual=p;
   var prods=[];
   try{prods=JSON.parse(p.productos_json||'[]');}catch(e){prods=[];}
@@ -756,22 +747,16 @@ function abrirDetallePedido(jsonEscaped){
     var it=prods[i];
     var enCarrito=getCant(it.codigo)>0;
     var addedCls=enCarrito?' added':'';
-    var iconSvg=enCarrito
-      ?'<path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/>'
-      :'<path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>';
+    var iconSvg=enCarrito?'<path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/>':'<path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>';
     itemsH+='<div class="ped-item-row">';
     itemsH+='<div class="ped-item-info"><div class="ped-item-cod">'+esc(it.codigo)+'</div><div class="ped-item-desc">'+esc(it.descripcion||'')+'</div></div>';
     itemsH+='<div class="ped-item-nums"><div class="ped-item-precio">'+fmt((it.precioUnitario||it.precio||0)*it.cantidad)+'</div><div class="ped-item-cant">'+it.cantidad+' × '+fmt(it.precioUnitario||it.precio||0)+'</div></div>';
-    itemsH+='<button class="ped-item-add'+addedCls+'" onclick="agregarDelPedido(\''+esc(it.codigo)+'\',\''+esc((it.descripcion||'').replace(/'/g,"\\'")+'\',')+(it.precio||0)+',\''+esc((it.linea||'').replace(/'/g,"\\'"))+'\','+it.cantidad+',this)" title="Agregar al carrito">';
+    itemsH+='<button class="ped-item-add'+addedCls+'" onclick="agregarDelPedido(\''+esc(it.codigo)+'\',\''+esc((it.descripcion||'').replace(/'/g,"\\'"))+'\','+(it.precio||0)+',\''+esc((it.linea||'').replace(/'/g,"\\'"))+'\','+it.cantidad+',this)" title="Agregar al carrito">';
     itemsH+='<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">'+iconSvg+'</svg>';
     itemsH+='</button></div>';
   }
   document.getElementById('pedDetalleItems').innerHTML=itemsH||'<div class="hist-empty">Sin detalle de productos</div>';
-  document.getElementById('pedDetalleTotals').innerHTML=
-    '<div class="ped-tot-row"><span>Subtotal</span><span>'+fmt(p.subtotal||0)+'</span></div>'+
-    '<div class="ped-tot-row"><span>IVA 16%</span><span>'+fmt(p.iva||0)+'</span></div>'+
-    '<div class="ped-tot-row final"><span>Total</span><span>'+fmt(p.total||0)+'</span></div>';
-  // Reset botón reagregar
+  document.getElementById('pedDetalleTotals').innerHTML='<div class="ped-tot-row"><span>Subtotal</span><span>'+fmt(p.subtotal||0)+'</span></div><div class="ped-tot-row"><span>IVA 16%</span><span>'+fmt(p.iva||0)+'</span></div><div class="ped-tot-row final"><span>Total</span><span>'+fmt(p.total||0)+'</span></div>';
   var btnRe=document.getElementById('btnReagregarTodo');
   btnRe.className='btn-reagregar-todo';
   btnRe.innerHTML='<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 1 0-7.5 0v4.5m11.356-1.993 1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 0 1-1.12-1.243l1.264-12A1.125 1.125 0 0 1 5.513 7.5h12.974c.576 0 1.059.435 1.119 1.007ZM8.625 10.5a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm7.5 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z"/></svg> Agregar todo al carrito';
