@@ -350,6 +350,10 @@
     .mayoreo-bar-pedidos{color:#A7F3D0;cursor:pointer;font-size:12px;font-weight:700;background:rgba(16,185,129,.2);padding:4px 10px;border-radius:var(--r-sm);flex-shrink:0;touch-action:manipulation;border:none;font-family:'DM Sans',sans-serif;margin-right:4px}
     .mayoreo-bar-pedidos:active{background:rgba(16,185,129,.4)}
     /* RESPONSIVE */
+    .modal-field.quien-field{background:linear-gradient(135deg,#FFF7ED,#FFFBEB);border:1px solid #FDE68A;border-radius:var(--r-md);padding:12px 14px;margin-bottom:14px}
+.modal-field.quien-field label{color:#B45309;margin-bottom:6px}
+.modal-field.quien-field input{border-color:#FDE68A;background:#fff}
+.modal-field.quien-field input:focus{border-color:#F59E0B;box-shadow:0 0 0 3px rgba(245,158,11,.12)}
     @media(max-width:480px){.header-inner{padding:.85rem 1rem}.logo-wrap img{width:80px}.header-title{font-size:17px}.header-sub{font-size:10px;margin-top:2px}.mayoreo-link{padding:6px 8px;font-size:10px}.mayoreo-link .link-text{display:none}.container{padding:1rem 1rem 2rem}.search-box{padding:1rem}.btn-buscar .btn-text{display:none}.dato-val{font-size:20px}.precio-tuyo{font-size:20px!important}.card{padding:1rem 1.05rem}.card-desc{font-size:13px}.card-cod{font-size:15px}.cart-fab{bottom:16px;left:16px;width:54px;height:54px}.wa-float{bottom:16px;right:16px;width:54px;height:54px}.sel-row{grid-template-columns:minmax(75px,100px) 1fr auto;padding:12px 12px}.modal{padding:1.25rem 1rem}.login-modal{padding:1.5rem 1.25rem;max-width:360px}.cat-grid{grid-template-columns:repeat(2,1fr);gap:6px}.confirm-modal{padding:2rem 1.25rem}}
     @media(min-width:600px){.cat-grid{grid-template-columns:repeat(3,1fr)}}
     @media(min-width:900px){.cat-grid{grid-template-columns:repeat(4,1fr)}}
@@ -477,6 +481,10 @@
     <p>Verifica tus datos antes de enviar</p>
     <div class="modal-field"><label>Nombre / Razón social</label><input type="text" id="clienteNombre" placeholder="Ej: Taller Mecánico García" autocomplete="name"/></div>
     <div class="modal-field"><label>Número de cliente <span style="font-weight:400;text-transform:none">(opcional)</span></label><input type="text" id="clienteTel" placeholder="Ej: C03267, C10672" inputmode="text" autocomplete="off"/></div>
+        <div class="modal-field quien-field">
+      <label>&#9998; ¿Quién pasó el pedido? <span style="font-weight:400;text-transform:none;letter-spacing:normal">(nombre de la persona)</span></label>
+      <input type="text" id="quienPaso" placeholder="Ej: Juan Pérez, Roberto..." autocomplete="off"/>
+    </div>
     <div class="modal-btns">
       <button class="btn-cancelar" onclick="cerrarModal()">Cancelar</button>
       <button class="btn-enviar" id="btnEnviarPedido" onclick="enviarPedido()">
@@ -1280,39 +1288,25 @@ async function enviarPedido(){
   var folio=clienteActual ? await generarFolio() : ('PED-'+Date.now());
 
   // Construir tabla HTML para el email
-  var tablaHTML='<table border="1" cellpadding="6" cellspacing="0" style="border-collapse:collapse;width:100%;font-family:Arial,sans-serif;font-size:13px;">';
-  tablaHTML+='<thead style="background:#0F172A;color:#fff;"><tr><th>Código</th><th>Descripción</th><th>Cant.</th><th>P. Unit.</th><th>Total</th></tr></thead><tbody>';
+    var tablaHTML='<table class="products-table"><thead><tr><th>Producto</th><th>Cant.</th><th>P. Unitario</th><th>Total</th></tr></thead><tbody>';
   var productosJson=[];
   var lineasTexto=[];
-
   for(var i=0;i<carrito.length;i++){
     var it=carrito[i];
     var c=calcPrecio(it.precio,it.linea||'',it.cantidad,it.codigo);
     var totalLinea=Math.round(c.precio*it.cantidad*100)/100;
-    var bgColor=i%2===0?'#f8fafc':'#ffffff';
-    tablaHTML+='<tr style="background:'+bgColor+'"><td><b>'+it.codigo+'</b></td><td>'+esc(it.descripcion||'')+'</td><td style="text-align:center">'+it.cantidad+'</td><td style="text-align:right">'+fmt(c.precio)+'</td><td style="text-align:right"><b>'+fmt(totalLinea)+'</b></td></tr>';
+    tablaHTML+='<tr><td><div class="cod">'+esc(it.codigo)+'</div><div class="desc">'+esc(it.descripcion||'')+'</div></td><td><span class="qty-badge">'+it.cantidad+'</span></td><td style="text-align:right">'+fmt(c.precio)+'</td><td style="text-align:right">'+fmt(totalLinea)+'</td></tr>';
     productosJson.push({codigo:it.codigo,descripcion:it.descripcion||'',precio:it.precio,precioUnitario:c.precio,linea:it.linea||'',cantidad:it.cantidad,totalLinea:totalLinea});
     lineasTexto.push(it.cantidad+'x '+it.codigo+' → '+fmt(totalLinea));
   }
-  tablaHTML+='<tr style="background:#F1F5F9"><td colspan="4" style="text-align:right"><b>Subtotal</b></td><td style="text-align:right">'+fmt(t.subtotal)+'</td></tr>';
-  tablaHTML+='<tr style="background:#F1F5F9"><td colspan="4" style="text-align:right"><b>IVA 16%</b></td><td style="text-align:right">'+fmt(t.iva)+'</td></tr>';
-  tablaHTML+='<tr style="background:#ECFDF5"><td colspan="4" style="text-align:right"><b>TOTAL</b></td><td style="text-align:right;color:#059669;font-weight:bold;font-size:15px">'+fmt(t.total)+'</td></tr>';
   tablaHTML+='</tbody></table>';
-
   var fechaStr=new Date().toLocaleDateString('es-MX',{weekday:'long',day:'2-digit',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'});
-
-  // Params para EmailJS — estos son los variables que usas en tu template
+  var quienPasoVal=document.getElementById('quienPaso').value.trim()||'No especificado';
   var templateParams={
-    folio: folio,
-    cliente_nombre: nombre,
-    cliente_numero: numCliente||'—',
-    fecha: fechaStr,
-    tabla_productos: tablaHTML,
-    subtotal: fmt(t.subtotal),
-    iva: fmt(t.iva),
-    total: fmt(t.total),
-    num_articulos: carrito.length,
-    resumen_texto: lineasTexto.join('\n')
+    folio:folio,cliente_nombre:nombre,cliente_numero:numCliente||'—',fecha:fechaStr,
+    quien_paso:quienPasoVal,
+    tabla_productos:tablaHTML,subtotal:fmt(t.subtotal),iva:fmt(t.iva),total:fmt(t.total),
+    num_articulos:carrito.length,resumen_texto:lineasTexto.join('\n')
   };
 
   try{
