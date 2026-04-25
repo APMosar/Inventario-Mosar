@@ -1288,7 +1288,9 @@ async function enviarPedido(){
   var folio=clienteActual ? await generarFolio() : ('PED-'+Date.now());
 
   // Construir tabla HTML para el email
-       var tablaTexto='';
+        var tablaTexto='';
+  var productosJson=[];
+  var lineasTexto=[];
   for(var i=0;i<carrito.length;i++){
     var it=carrito[i];
     var c=calcPrecio(it.precio,it.linea||'',it.cantidad,it.codigo);
@@ -1297,6 +1299,8 @@ async function enviarPedido(){
     tablaTexto+=it.codigo+'\n';
     tablaTexto+=(it.descripcion||'').substring(0,60)+'\n';
     tablaTexto+='Cant: '+it.cantidad+'  |  P. Unitario: '+fmt(c.precio)+'  |  Total: '+fmt(totalLinea);
+    productosJson.push({codigo:it.codigo,descripcion:it.descripcion||'',precio:it.precio,precioUnitario:c.precio,linea:it.linea||'',cantidad:it.cantidad,totalLinea:totalLinea});
+    lineasTexto.push(it.cantidad+'x '+it.codigo+' → '+fmt(totalLinea));
   }
   var fechaStr=new Date().toLocaleDateString('es-MX',{weekday:'long',day:'2-digit',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'});
   var quienPasoVal=document.getElementById('quienPaso').value.trim()||'No especificado';
