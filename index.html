@@ -1288,14 +1288,21 @@ async function enviarPedido(){
   var folio=clienteActual ? await generarFolio() : ('PED-'+Date.now());
 
   // Construir tabla HTML para el email
-    var tablaHTML='<table class="products-table"><thead><tr><th>Producto</th><th>Cant.</th><th>P. Unitario</th><th>Total</th></tr></thead><tbody>';
+      var tablaHTML='<table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;font-family:Arial,Helvetica,sans-serif;font-size:13px;margin-bottom:16px;">';
+  tablaHTML+='<thead><tr style="background-color:#0F172A;"><th style="padding:10px 12px;text-align:left;color:#94A3B8;font-size:10px;text-transform:uppercase;letter-spacing:0.08em;font-weight:700;">Producto</th><th style="padding:10px 12px;text-align:left;color:#94A3B8;font-size:10px;text-transform:uppercase;letter-spacing:0.08em;font-weight:700;">Cant.</th><th style="padding:10px 12px;text-align:right;color:#94A3B8;font-size:10px;text-transform:uppercase;letter-spacing:0.08em;font-weight:700;">P. Unitario</th><th style="padding:10px 12px;text-align:right;color:#94A3B8;font-size:10px;text-transform:uppercase;letter-spacing:0.08em;font-weight:700;">Total</th></tr></thead><tbody>';
   var productosJson=[];
   var lineasTexto=[];
   for(var i=0;i<carrito.length;i++){
     var it=carrito[i];
     var c=calcPrecio(it.precio,it.linea||'',it.cantidad,it.codigo);
     var totalLinea=Math.round(c.precio*it.cantidad*100)/100;
-    tablaHTML+='<tr><td><div class="cod">'+esc(it.codigo)+'</div><div class="desc">'+esc(it.descripcion||'')+'</div></td><td><span class="qty-badge">'+it.cantidad+'</span></td><td style="text-align:right">'+fmt(c.precio)+'</td><td style="text-align:right">'+fmt(totalLinea)+'</td></tr>';
+    var bg=i%2===0?'background-color:#F8FAFC;':'background-color:#FFFFFF;';
+    tablaHTML+='<tr style="'+bg+'">';
+    tablaHTML+='<td style="padding:11px 12px;border-bottom:1px solid #E2E8F0;vertical-align:middle;"><span style="font-family:Courier New,monospace;font-weight:700;color:#0F172A;font-size:13px;">'+esc(it.codigo)+'</span><br><span style="color:#64748B;font-size:12px;">'+esc(it.descripcion||'')+'</span></td>';
+    tablaHTML+='<td style="padding:11px 12px;border-bottom:1px solid #E2E8F0;text-align:center;vertical-align:middle;"><span style="display:inline-block;background-color:#E2E8F0;color:#475569;font-size:11px;font-weight:700;padding:2px 8px;border-radius:100px;">'+it.cantidad+'</span></td>';
+    tablaHTML+='<td style="padding:11px 12px;border-bottom:1px solid #E2E8F0;text-align:right;color:#94A3B8;font-size:13px;vertical-align:middle;">'+fmt(c.precio)+'</td>';
+    tablaHTML+='<td style="padding:11px 12px;border-bottom:1px solid #E2E8F0;text-align:right;font-weight:700;color:#059669;font-size:13px;vertical-align:middle;">'+fmt(totalLinea)+'</td>';
+    tablaHTML+='</tr>';
     productosJson.push({codigo:it.codigo,descripcion:it.descripcion||'',precio:it.precio,precioUnitario:c.precio,linea:it.linea||'',cantidad:it.cantidad,totalLinea:totalLinea});
     lineasTexto.push(it.cantidad+'x '+it.codigo+' → '+fmt(totalLinea));
   }
