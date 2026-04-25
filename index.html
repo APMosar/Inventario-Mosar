@@ -448,7 +448,7 @@
     <h3>📋 Mis pedidos</h3>
     <button class="cart-cls" onclick="cerrarHistorial()"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"/></svg></button>
   </div>
-  <div class="hist-body" id="histBody"></div>
+  <div class="hist-body" id="histBody" onclick="cerrarHistorial()"></div>
 </div>
 
 <!-- Panel detalle de un pedido -->
@@ -717,7 +717,7 @@ async function abrirHistorial(){
       try{prods=JSON.parse(p.productos_json||'[]');}catch(e){prods=[];}
       var preview=prods.slice(0,3).map(function(x){return x.cantidad+'x '+x.codigo;}).join(' · ');
       if(prods.length>3)preview+=' · +'+(prods.length-3)+' más';
-      h+='<div class="hist-card" onclick="abrirDetallePedido('+i+')">';
+      h+='<div class="hist-card" onclick="event.stopPropagation();abrirDetallePedido('+i+')">';
       h+='<div class="hist-card-top">';
       h+='<div class="hist-folio"><span class="hist-folio-badge">Folio</span>'+(p.folio||'—')+'</div>';
       h+='<div class="hist-fecha">'+fechaStr+'</div>';
@@ -732,7 +732,11 @@ async function abrirHistorial(){
   }catch(e){body.innerHTML='<div class="hist-empty">Error cargando historial. Intenta de nuevo.</div>';}
 }
 
-function abrirDetallePedido(idx){
+function cerrarHistorial(){
+  document.getElementById('overlay').classList.remove('open');
+  document.getElementById('histPanel').classList.remove('open');
+}
+  function abrirDetallePedido(idx){
   var p=historialPedidos[idx];
   if(!p)return;
   pedidoDetalleActual=p;
