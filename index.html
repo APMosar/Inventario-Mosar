@@ -9,6 +9,7 @@
   <title>MOSAR Refaccionarias</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+  <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="icon" type="image/png" href="logo_empresa.png">
   <style>
@@ -271,6 +272,9 @@
     .confirm-total-val{font-family:'Outfit',sans-serif;font-size:28px;font-weight:900;color:var(--verde)}
     .btn-confirm-ok{width:100%;padding:14px;background:linear-gradient(135deg,#059669,#10B981);border:none;border-radius:var(--r-md);font-size:15px;font-weight:700;color:#fff;cursor:pointer;font-family:'DM Sans',sans-serif;touch-action:manipulation}
     .btn-confirm-ok:active{transform:scale(.98)}
+    .btn-excel-sap{width:100%;padding:13px;background:linear-gradient(135deg,#1e3a5f,#2563EB);border:none;border-radius:var(--r-md);font-size:14px;font-weight:700;color:#fff;cursor:pointer;font-family:'DM Sans',sans-serif;touch-action:manipulation;display:flex;align-items:center;justify-content:center;gap:7px;margin-bottom:10px;box-shadow:0 2px 10px rgba(37,99,235,.25)}
+    .btn-excel-sap:active{transform:scale(.98)}
+    .btn-excel-sap svg{width:17px;height:17px;fill:none;stroke:#fff;stroke-width:2;flex-shrink:0}
     /* LOGIN */
     .login-modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:350;display:none;align-items:center;justify-content:center;padding:1rem}
     .login-modal-bg.open{display:flex}
@@ -508,6 +512,10 @@
       <div class="confirm-total-lbl">Total del pedido</div>
       <div class="confirm-total-val" id="confirmTotal">—</div>
     </div>
+    <button class="btn-excel-sap" id="btnDescargarSAP" onclick="descargarExcelSAP()">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg>
+      Descargar Excel para SAP
+    </button>
     <button class="btn-confirm-ok" onclick="cerrarConfirmacion()">¡Listo, gracias!</button>
   </div>
 </div>
@@ -556,6 +564,10 @@
 var EMAILJS_PUBLIC_KEY  = 'QlFpi_DKdsNMrGZWs';   // ← reemplaza
 var EMAILJS_SERVICE_ID  = 'service_uf1ckun';   // ← reemplaza
 var EMAILJS_TEMPLATE_ID = 'template_aa3fqkn';  // ← reemplaza
+// ⚠️ EMAILJS: En tu template, el campo {{tabla_productos}} debe tener
+//    desactivado el "Auto Escape" para que se renderice como tabla HTML.
+//    En emailjs.com → Email Templates → edita el template →
+//    clic en el campo {{tabla_productos}} → desactiva "Auto Escape"
 
 var SUPA_URL = 'https://aetktfzewcrmetqyxbew.supabase.co';
 var SUPA_KEY = 'sb_publishable_QEHgCTmk9El1nJpMP-07Ig_Qbv4Wox5';
@@ -1264,6 +1276,14 @@ function abrirModal(){
 }
 function cerrarModal(){document.getElementById('modalBg').classList.remove('open');}
 
+/* ============================================================
+   VARIABLES GLOBALES PARA EL EXCEL SAP
+============================================================ */
+var _sapFolioActual='';
+var _sapProductosActual=[];
+var _sapClienteActual=null;
+var _sapTotalesActual={};
+
 async function enviarPedido(){
   var nombre=document.getElementById('clienteNombre').value.trim();
   var numCliente=document.getElementById('clienteTel').value.trim();
@@ -1276,27 +1296,52 @@ async function enviarPedido(){
   var t=getTotales();
   var folio=clienteActual ? await generarFolio() : ('PED-'+Date.now());
 
-  // Construir tabla HTML para el email
-        var tablaTexto='';
+  /* ── Construir datos de productos ── */
   var productosJson=[];
   var lineasTexto=[];
+  var filasTabla='';
+
   for(var i=0;i<carrito.length;i++){
     var it=carrito[i];
     var c=calcPrecio(it.precio,it.linea||'',it.cantidad,it.codigo);
     var totalLinea=Math.round(c.precio*it.cantidad*100)/100;
-    if(i>0)tablaTexto+='\n';
-    tablaTexto+=it.codigo+'\n';
-    tablaTexto+=(it.descripcion||'').substring(0,60)+'\n';
-    tablaTexto+='Cant: '+it.cantidad+'  |  P. Unitario: '+fmt(c.precio)+'  |  Total: '+fmt(totalLinea);
+    var bgFila=i%2===0?'#f0f4ff':'#ffffff';
+    filasTabla+='<tr style="background:'+bgFila+'">'
+      +'<td style="padding:9px 12px;border:1px solid #dde3f0;font-family:monospace;font-weight:700;font-size:13px;color:#1e3a5f;">'+esc(it.codigo)+'</td>'
+      +'<td style="padding:9px 12px;border:1px solid #dde3f0;font-size:13px;color:#334155;">'+esc((it.descripcion||'').substring(0,65))+'</td>'
+      +'<td style="padding:9px 12px;border:1px solid #dde3f0;text-align:center;font-weight:700;font-size:13px;">'+it.cantidad+'</td>'
+      +'<td style="padding:9px 12px;border:1px solid #dde3f0;text-align:right;font-size:13px;">'+fmt(c.precio)+'</td>'
+      +'<td style="padding:9px 12px;border:1px solid #dde3f0;text-align:right;font-weight:700;font-size:13px;color:#059669;">'+fmt(totalLinea)+'</td>'
+      +'</tr>';
     productosJson.push({codigo:it.codigo,descripcion:it.descripcion||'',precio:it.precio,precioUnitario:c.precio,linea:it.linea||'',cantidad:it.cantidad,totalLinea:totalLinea});
     lineasTexto.push(it.cantidad+'x '+it.codigo+' → '+fmt(totalLinea));
   }
+
+  /* ── Tabla HTML profesional para el email ── */
+  var tablaHTML=''
+    +'<table style="width:100%;border-collapse:collapse;font-family:Arial,sans-serif;font-size:13px;margin-top:8px;">'
+    +'<thead><tr style="background:#1e3a5f;">'
+    +'<th style="padding:10px 12px;border:1px solid #1e3a5f;color:#fff;text-align:left;">Código</th>'
+    +'<th style="padding:10px 12px;border:1px solid #1e3a5f;color:#fff;text-align:left;">Descripción</th>'
+    +'<th style="padding:10px 12px;border:1px solid #1e3a5f;color:#fff;text-align:center;">Cant.</th>'
+    +'<th style="padding:10px 12px;border:1px solid #1e3a5f;color:#fff;text-align:right;">P. Unitario</th>'
+    +'<th style="padding:10px 12px;border:1px solid #1e3a5f;color:#fff;text-align:right;">Total</th>'
+    +'</tr></thead>'
+    +'<tbody>'+filasTabla+'</tbody>'
+    +'</table>';
+
+  /* ── Guardar para el Excel SAP ── */
+  _sapFolioActual=folio;
+  _sapProductosActual=productosJson;
+  _sapClienteActual={nombre:nombre,numero_cliente:numCliente||''};
+  _sapTotalesActual=t;
+
   var fechaStr=new Date().toLocaleDateString('es-MX',{weekday:'long',day:'2-digit',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'});
   var quienPasoVal=document.getElementById('quienPaso').value.trim()||'No especificado';
   var templateParams={
     folio:folio,cliente_nombre:nombre,cliente_numero:numCliente||'—',fecha:fechaStr,
     quien_paso:quienPasoVal,
-    tabla_productos:tablaTexto,subtotal:fmt(t.subtotal),iva:fmt(t.iva),total:fmt(t.total),
+    tabla_productos:tablaHTML,subtotal:fmt(t.subtotal),iva:fmt(t.iva),total:fmt(t.total),
     num_articulos:carrito.length,resumen_texto:lineasTexto.join('\n')
   };
 
@@ -1304,10 +1349,9 @@ async function enviarPedido(){
     await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams);
   }catch(emailErr){
     console.warn('EmailJS error (no crítico):', emailErr);
-    // El pedido se guarda igualmente aunque falle el email
   }
 
-  // Guardar en Supabase historial
+  /* ── Guardar en Supabase historial ── */
   if(clienteActual){
     await guardarPedidoHistorial(folio, productosJson, t.subtotal, t.iva, t.total, lineasTexto.join('\n'));
     await limpiarCarritoSupabase();
@@ -1319,10 +1363,64 @@ async function enviarPedido(){
   btn.disabled=false;
   btn.innerHTML='<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg> Confirmar pedido';
 
-  // Mostrar pantalla de confirmación
+  /* ── Mostrar pantalla de confirmación ── */
   document.getElementById('confirmFolio').textContent='Folio '+folio;
   document.getElementById('confirmTotal').textContent=fmt(t.total);
   document.getElementById('confirmBg').classList.add('open');
+}
+
+/* ============================================================
+   EXCEL PARA SAP — Solo Código, Cantidad y Precio Unitario
+   Compatible con Data Transfer Workbench (DTW) de SAP B1
+============================================================ */
+function descargarExcelSAP(){
+  if(!_sapProductosActual.length){return;}
+
+  var WB=XLSX.utils.book_new();
+  var fecha=new Date().toLocaleDateString('es-MX');
+  var clienteNombre=_sapClienteActual?_sapClienteActual.nombre:'';
+  var clienteNum=_sapClienteActual?_sapClienteActual.numero_cliente:'';
+
+  /* ── Hoja 1: Resumen legible ── */
+  var resumenData=[
+    ['MOSAR REFACCIONARIAS — PEDIDO DE VENTA','','','',''],
+    ['Folio:',_sapFolioActual,'','Fecha:',fecha],
+    ['Cliente:',clienteNombre,'','Núm. Cliente:',clienteNum],
+    [],
+    ['#','Código','Cantidad','Precio Unitario','Total Línea']
+  ];
+  _sapProductosActual.forEach(function(p,i){
+    resumenData.push([i+1, p.codigo, p.cantidad, p.precioUnitario, p.totalLinea]);
+  });
+  resumenData.push([]);
+  resumenData.push(['','','','Subtotal:',_sapTotalesActual.subtotal]);
+  resumenData.push(['','','','IVA (16%):',_sapTotalesActual.iva]);
+  resumenData.push(['','','','TOTAL:',_sapTotalesActual.total]);
+
+  var wsResumen=XLSX.utils.aoa_to_sheet(resumenData);
+  wsResumen['!cols']=[{wch:4},{wch:18},{wch:12},{wch:16},{wch:16}];
+  XLSX.utils.book_append_sheet(WB,wsResumen,'Pedido');
+
+  /* ── Hoja 2: Para SAP (DTW-ready) ── */
+  // Nombres de campo exactos del DTW para Órdenes de Venta
+  var sapHeaders=['DocNum','CardCode','CardName','ItemCode','Quantity','Price'];
+  var sapFilas=_sapProductosActual.map(function(p){
+    return[
+      _sapFolioActual,           // DocNum  — folio del pedido
+      clienteNum||'',            // CardCode — número de cliente en SAP
+      clienteNombre||'',         // CardName — nombre del cliente
+      p.codigo,                  // ItemCode — código del artículo
+      p.cantidad,                // Quantity
+      p.precioUnitario           // Price
+    ];
+  });
+
+  var wsSAP=XLSX.utils.aoa_to_sheet([sapHeaders].concat(sapFilas));
+  wsSAP['!cols']=[{wch:16},{wch:14},{wch:28},{wch:18},{wch:10},{wch:14}];
+  XLSX.utils.book_append_sheet(WB,wsSAP,'Para_SAP');
+
+  XLSX.writeFile(WB,_sapFolioActual+'_pedido.xlsx');
+  toast('Excel descargado ✓');
 }
 
 function cerrarConfirmacion(){
