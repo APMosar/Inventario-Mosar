@@ -646,11 +646,17 @@
   <div class="admin-stats">
     <div class="admin-stat"><div class="admin-stat-lbl">Pedidos hoy</div><div class="admin-stat-val" id="statHoy">—</div></div>
     <div class="admin-stat"><div class="admin-stat-lbl">Total hoy</div><div class="admin-stat-val verde" id="statTotalHoy">—</div></div>
+    <div class="admin-stat"><div class="admin-stat-lbl">Pedidos ayer</div><div class="admin-stat-val" id="statAyer">—</div></div>
     <div class="admin-stat"><div class="admin-stat-lbl">Pedidos mes</div><div class="admin-stat-val" id="statMes">—</div></div>
     <div class="admin-stat"><div class="admin-stat-lbl">Total mes</div><div class="admin-stat-val verde" id="statTotalMes">—</div></div>
+    <div class="admin-stat"><div class="admin-stat-lbl">Total registros</div><div class="admin-stat-val" id="statTotal">—</div></div>
   </div>
   <div class="admin-toolbar">
     <input class="admin-search" type="text" id="adminSearch" placeholder="🔍  Buscar folio, cliente, código..." oninput="adminFiltrar()"/>
+    <button id="filtroTodos" class="admin-btn" onclick="adminAplicarFiltro('todos')" style="opacity:1;">Todos</button>
+    <button id="filtroHoy" class="admin-btn" onclick="adminAplicarFiltro('hoy')" style="opacity:.45;">Hoy</button>
+    <button id="filtroAyer" class="admin-btn" onclick="adminAplicarFiltro('ayer')" style="opacity:.45;">Ayer</button>
+    <button id="filtroSemana" class="admin-btn" onclick="adminAplicarFiltro('semana')" style="opacity:.45;">7 días</button>
     <button class="admin-btn verde" onclick="adminCargarPedidos()">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.990"/></svg>
       Actualizar
@@ -1564,9 +1570,10 @@ function cerrarConfirmacion(){
 /* ============================================================
    PANEL ADMIN — MOSAR Refaccionarias
 ============================================================ */
-var ADMIN_PWD = 'mosar2025';   // ← CAMBIA ESTA CONTRASEÑA
+var ADMIN_PWD = 'mosar2025';
 var _adminPedidos = [];
 var _adminFiltrados = [];
+var _adminFiltroActivo = 'todos';
 
 function abrirAdminLogin(){
   document.getElementById('adminLoginBg').classList.add('open');
@@ -1595,56 +1602,111 @@ function cerrarAdmin(){
 async function adminCargarPedidos(){
   document.getElementById('adminList').innerHTML='<div class="admin-loading">⏳ Cargando pedidos...</div>';
   try{
-    var res=await fetch(SUPA_URL+'/rest/v1/historial_pedidos?select=*&order=fecha.desc&limit=100',{
+    var res=await fetch(SUPA_URL+'/rest/v1/historial_pedidos?select=*&order=fecha.desc&limit=200',{
       headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY}
     });
+    if(!res.ok) throw new Error('HTTP '+res.status);
     var data=await res.json();
-    _adminPedidos=data||[];
+    _adminPedidos=Array.isArray(data)?data:[];
     adminCalcularStats();
-    adminFiltrar();
+    adminAplicarFiltro(_adminFiltroActivo);
   }catch(e){
-    document.getElementById('adminList').innerHTML='<div class="admin-empty">❌ Error al cargar pedidos. Intenta de nuevo.</div>';
+    document.getElementById('adminList').innerHTML='<div class="admin-empty">❌ Error al cargar. Verifica tu conexión e intenta de nuevo.</div>';
+    console.error('Admin error:',e);
   }
 }
 
+/* Convierte fecha UTC de Supabase a fecha local México YYYY-MM-DD */
+function fechaLocalMX(fechaStr){
+  if(!fechaStr) return '';
+  var d=new Date(fechaStr);
+  return d.toLocaleDateString('es-MX',{timeZone:'America/Monterrey',year:'numeric',month:'2-digit',day:'2-digit'})
+    .split('/').reverse().join('-'); // YYYY-MM-DD
+}
+
 function adminCalcularStats(){
-  var hoy=new Date().toISOString().slice(0,10);
-  var mes=new Date().toISOString().slice(0,7);
+  var hoyMX=new Date().toLocaleDateString('es-MX',{timeZone:'America/Monterrey',year:'numeric',month:'2-digit',day:'2-digit'}).split('/').reverse().join('-');
+  var mesMX=hoyMX.slice(0,7);
   var pedHoy=0,totalHoy=0,pedMes=0,totalMes=0;
   _adminPedidos.forEach(function(p){
-    var f=(p.fecha||'').slice(0,10);
-    if(f===hoy){pedHoy++;totalHoy+=parseFloat(p.total||0);}
-    if(f.slice(0,7)===mes){pedMes++;totalMes+=parseFloat(p.total||0);}
+    var f=fechaLocalMX(p.fecha);
+    var t=parseFloat(p.total)||0;
+    if(f===hoyMX){pedHoy++;totalHoy+=t;}
+    if(f.slice(0,7)===mesMX){pedMes++;totalMes+=t;}
   });
   document.getElementById('statHoy').textContent=pedHoy;
+  document.getElementById('statAyer').textContent=_adminPedidos.filter(function(p){
+    var ayer=new Date();ayer.setDate(ayer.getDate()-1);
+    var ayerStr=ayer.toLocaleDateString('es-MX',{timeZone:'America/Monterrey',year:'numeric',month:'2-digit',day:'2-digit'}).split('/').reverse().join('-');
+    return fechaLocalMX(p.fecha)===ayerStr;
+  }).length;
   document.getElementById('statTotalHoy').textContent='$'+totalHoy.toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2});
   document.getElementById('statMes').textContent=pedMes;
   document.getElementById('statTotalMes').textContent='$'+totalMes.toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2});
+  document.getElementById('statTotal').textContent=_adminPedidos.length;
+}
+
+function adminAplicarFiltro(filtro){
+  _adminFiltroActivo=filtro;
+  // Resaltar botón activo
+  ['filtroTodos','filtroHoy','filtroAyer','filtroSemana'].forEach(function(id){
+    var el=document.getElementById(id);
+    if(el){el.style.opacity=id==='filtro'+filtro.charAt(0).toUpperCase()+filtro.slice(1)?'1':'0.45';}
+  });
+  var hoyMX=new Date().toLocaleDateString('es-MX',{timeZone:'America/Monterrey',year:'numeric',month:'2-digit',day:'2-digit'}).split('/').reverse().join('-');
+  var ayer=new Date();ayer.setDate(ayer.getDate()-1);
+  var ayerMX=ayer.toLocaleDateString('es-MX',{timeZone:'America/Monterrey',year:'numeric',month:'2-digit',day:'2-digit'}).split('/').reverse().join('-');
+  var semana=new Date();semana.setDate(semana.getDate()-7);
+  _adminFiltrados=_adminPedidos.filter(function(p){
+    var f=fechaLocalMX(p.fecha);
+    if(filtro==='hoy') return f===hoyMX;
+    if(filtro==='ayer') return f===ayerMX;
+    if(filtro==='semana') return new Date(p.fecha)>=semana;
+    return true;
+  });
+  var q=(document.getElementById('adminSearch').value||'').toLowerCase().trim();
+  if(q){
+    _adminFiltrados=_adminFiltrados.filter(function(p){
+      return (p.folio||'').toLowerCase().includes(q)
+        ||(p.mensaje||'').toLowerCase().includes(q)
+        ||(p.cliente_id||'').toLowerCase().includes(q)
+        ||(JSON.stringify(p.productos_json||'')).toLowerCase().includes(q);
+    });
+  }
+  adminRenderizar();
 }
 
 function adminFiltrar(){
-  var q=(document.getElementById('adminSearch').value||'').toLowerCase().trim();
-  _adminFiltrados=q?_adminPedidos.filter(function(p){
-    return (p.folio||'').toLowerCase().includes(q)
-      ||(p.mensaje||'').toLowerCase().includes(q)
-      ||(p.cliente_id||'').toLowerCase().includes(q)
-      ||(JSON.stringify(p.productos_json||'')).toLowerCase().includes(q);
-  }):_adminPedidos;
-  adminRenderizar();
+  adminAplicarFiltro(_adminFiltroActivo);
 }
 
 function adminRenderizar(){
   var list=document.getElementById('adminList');
-  if(!_adminFiltrados.length){list.innerHTML='<div class="admin-empty">No se encontraron pedidos.</div>';return;}
+  if(!_adminFiltrados.length){
+    list.innerHTML='<div class="admin-empty">📭 No hay pedidos en este período.</div>';
+    return;
+  }
   list.innerHTML='';
   _adminFiltrados.forEach(function(p,idx){
     var prods=[];
-    try{prods=typeof p.productos_json==='string'?JSON.parse(p.productos_json):(p.productos_json||[]);}catch(e){}
-    var fecha=p.fecha?new Date(p.fecha).toLocaleString('es-MX',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}):'—';
+    try{prods=typeof p.productos_json==='string'?JSON.parse(p.productos_json):(Array.isArray(p.productos_json)?p.productos_json:[]);}catch(e){}
+    var fechaD=p.fecha?new Date(p.fecha):null;
+    var fechaStr=fechaD?fechaD.toLocaleString('es-MX',{timeZone:'America/Monterrey',day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}):'—';
     var total=parseFloat(p.total||0).toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2});
     var subtotal=parseFloat(p.subtotal||0).toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2});
     var iva=parseFloat(p.iva||0).toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2});
+    var numLineas=prods.length;
     var numArts=prods.reduce(function(a,b){return a+(parseInt(b.cantidad)||1);},0);
+    var clienteNombre=p.mensaje||p.cliente_id||'Cliente';
+    var clienteNum=p.cliente_id||'';
+
+    // Badge HOY / AYER
+    var hoyMX=new Date().toLocaleDateString('es-MX',{timeZone:'America/Monterrey',year:'numeric',month:'2-digit',day:'2-digit'}).split('/').reverse().join('-');
+    var ayerD=new Date();ayerD.setDate(ayerD.getDate()-1);
+    var ayerMX=ayerD.toLocaleDateString('es-MX',{timeZone:'America/Monterrey',year:'numeric',month:'2-digit',day:'2-digit'}).split('/').reverse().join('-');
+    var fLocal=fechaLocalMX(p.fecha);
+    var badge=fLocal===hoyMX?'<span style="background:#22c55e;color:#fff;font-size:9px;font-weight:800;padding:2px 7px;border-radius:20px;margin-left:6px;letter-spacing:.05em;">HOY</span>'
+      :fLocal===ayerMX?'<span style="background:#F59E0B;color:#fff;font-size:9px;font-weight:800;padding:2px 7px;border-radius:20px;margin-left:6px;">AYER</span>':'';
 
     // Filas de productos
     var filasProds='';
@@ -1652,42 +1714,56 @@ function adminRenderizar(){
       var pu=parseFloat(pr.precioUnitario||pr.precio||0).toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2});
       var tl=parseFloat(pr.totalLinea||0).toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2});
       filasProds+='<tr>'
-        +'<td>'+esc(pr.codigo||'')+'</td>'
-        +'<td style="color:#94A3B8;font-size:12px;max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+esc((pr.descripcion||'').substring(0,50))+'</td>'
-        +'<td class="num">'+( pr.cantidad||1)+'</td>'
-        +'<td class="money">$'+pu+'</td>'
-        +'<td class="money">$'+tl+'</td>'
+        +'<td style="padding:9px 10px;border-bottom:1px solid rgba(255,255,255,.05);font-family:monospace;font-weight:700;color:#60A5FA;font-size:13px;">'+esc(pr.codigo||'')+'</td>'
+        +'<td style="padding:9px 10px;border-bottom:1px solid rgba(255,255,255,.05);color:#94A3B8;font-size:12px;max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+esc((pr.descripcion||'').substring(0,55))+'</td>'
+        +'<td style="padding:9px 10px;border-bottom:1px solid rgba(255,255,255,.05);text-align:center;font-weight:700;color:#E2E8F0;">'+( pr.cantidad||1)+'</td>'
+        +'<td style="padding:9px 10px;border-bottom:1px solid rgba(255,255,255,.05);text-align:right;color:#CBD5E1;">$'+pu+'</td>'
+        +'<td style="padding:9px 10px;border-bottom:1px solid rgba(255,255,255,.05);text-align:right;font-weight:700;color:#34D399;">$'+tl+'</td>'
         +'</tr>';
     });
 
     var card=document.createElement('div');
     card.className='admin-card';
-    card.innerHTML=''
-      +'<div class="admin-card-top" onclick="adminToggleCard('+idx+')">'
-        +'<div class="admin-folio">'+(p.folio||'—')+'</div>'
-        +'<div class="admin-cliente">'
-          +'<div class="admin-cliente-nombre">'+(p.mensaje||p.cliente_id||'Cliente')+'</div>'
-          +'<div class="admin-cliente-fecha">'+fecha+' · '+numArts+' art.</div>'
+    card.innerHTML=
+      '<div class="admin-card-top" onclick="adminToggleCard('+idx+')">'
+        +'<div style="display:flex;flex-direction:column;min-width:0;">'
+          +'<div style="display:flex;align-items:center;flex-wrap:wrap;gap:4px;">'
+            +'<span class="admin-folio">'+(p.folio||'—')+'</span>'+badge
+          +'</div>'
+          +'<div class="admin-cliente-nombre">'+esc(clienteNombre)+(clienteNum&&clienteNum!==clienteNombre?' <span style="color:#475569;font-weight:400;font-size:12px;">· '+esc(clienteNum)+'</span>':'')+'</div>'
+          +'<div class="admin-cliente-fecha">'+fechaStr+' · '+numLineas+' art., '+numArts+' unid.</div>'
         +'</div>'
+        +'<div style="flex:1;"></div>'
         +'<div class="admin-total-badge">'
           +'<div class="admin-total-lbl">Total</div>'
           +'<div class="admin-total-val">$'+total+'</div>'
         +'</div>'
+        +'<div style="margin-left:8px;color:#334155;">'
+          +'<svg width="16" height="16" fill="none" stroke="#475569" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m19 9-7 7-7-7"/></svg>'
+        +'</div>'
       +'</div>'
       +'<div class="admin-card-body" id="adminBody'+idx+'">'
-        +'<table class="admin-prods-table">'
-          +'<thead><tr><th>Código</th><th>Descripción</th><th style="text-align:center">Cant.</th><th style="text-align:right">P. Unit.</th><th style="text-align:right">Total</th></tr></thead>'
-          +'<tbody>'+filasProds+'</tbody>'
-        +'</table>'
-        +'<div style="display:flex;gap:12px;justify-content:flex-end;font-size:12px;color:#64748B;margin-bottom:14px;flex-wrap:wrap;">'
-          +'<span>Subtotal: <strong style="color:#CBD5E1">$'+subtotal+'</strong></span>'
-          +'<span>IVA: <strong style="color:#CBD5E1">$'+iva+'</strong></span>'
-          +'<span>Total: <strong style="color:#34D399">$'+total+'</strong></span>'
+        +'<div style="overflow-x:auto;margin-bottom:14px;">'
+          +'<table style="width:100%;border-collapse:collapse;min-width:480px;">'
+            +'<thead><tr style="background:rgba(255,255,255,.05);">'
+              +'<th style="padding:8px 10px;font-size:10px;color:#64748B;text-transform:uppercase;letter-spacing:.08em;text-align:left;font-weight:700;">Código</th>'
+              +'<th style="padding:8px 10px;font-size:10px;color:#64748B;text-transform:uppercase;letter-spacing:.08em;text-align:left;font-weight:700;">Descripción</th>'
+              +'<th style="padding:8px 10px;font-size:10px;color:#64748B;text-transform:uppercase;letter-spacing:.08em;text-align:center;font-weight:700;">Cant.</th>'
+              +'<th style="padding:8px 10px;font-size:10px;color:#64748B;text-transform:uppercase;letter-spacing:.08em;text-align:right;font-weight:700;">P. Unit.</th>'
+              +'<th style="padding:8px 10px;font-size:10px;color:#64748B;text-transform:uppercase;letter-spacing:.08em;text-align:right;font-weight:700;">Total</th>'
+            +'</tr></thead>'
+            +'<tbody>'+filasProds+'</tbody>'
+          +'</table>'
         +'</div>'
-        +'<div class="admin-card-actions">'
-          +'<button class="admin-btn verde" onclick="adminDescargarExcel('+idx+')">'
+        +'<div style="display:flex;gap:16px;justify-content:flex-end;font-size:13px;color:#64748B;margin-bottom:14px;flex-wrap:wrap;padding-top:4px;border-top:1px solid rgba(255,255,255,.05);">'
+          +'<span>Subtotal: <strong style="color:#CBD5E1;">$'+subtotal+'</strong></span>'
+          +'<span>IVA 16%: <strong style="color:#CBD5E1;">$'+iva+'</strong></span>'
+          +'<span style="font-size:14px;">TOTAL: <strong style="color:#34D399;font-size:16px;">$'+total+'</strong></span>'
+        +'</div>'
+        +'<div style="display:flex;gap:8px;flex-wrap:wrap;">'
+          +'<button class="admin-btn verde" onclick="adminDescargarExcel('+idx+')" style="flex:1;min-width:160px;justify-content:center;">'
             +'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg>'
-            +'Descargar Excel SAP'
+            +'Excel para SAP'
           +'</button>'
         +'</div>'
       +'</div>';
@@ -1697,60 +1773,66 @@ function adminRenderizar(){
 
 function adminToggleCard(idx){
   var body=document.getElementById('adminBody'+idx);
-  if(body)body.classList.toggle('open');
+  if(!body)return;
+  var isOpen=body.classList.contains('open');
+  // Cerrar todos
+  document.querySelectorAll('.admin-card-body').forEach(function(b){b.classList.remove('open');});
+  if(!isOpen) body.classList.add('open');
 }
 
 function adminDescargarExcel(idx){
   var p=_adminFiltrados[idx];
   if(!p)return;
   var prods=[];
-  try{prods=typeof p.productos_json==='string'?JSON.parse(p.productos_json):(p.productos_json||[]);}catch(e){}
+  try{prods=typeof p.productos_json==='string'?JSON.parse(p.productos_json):(Array.isArray(p.productos_json)?p.productos_json:[]);}catch(e){}
 
   var WB=XLSX.utils.book_new();
   var folio=p.folio||('PED-'+p.id);
-  var fecha=p.fecha?new Date(p.fecha).toLocaleDateString('es-MX'):'';
+  var fecha=p.fecha?new Date(p.fecha).toLocaleDateString('es-MX',{timeZone:'America/Monterrey'}):'';
   var clienteNombre=p.mensaje||'';
   var clienteNum=p.cliente_id||'';
 
-  /* Hoja 1 — Resumen legible */
+  // Hoja 1 — Resumen legible
   var resumenData=[
-    ['MOSAR REFACCIONARIAS — PEDIDO DE VENTA','','','',''],
-    ['Folio:',folio,'','Fecha:',fecha],
-    ['Cliente:',clienteNombre,'','Núm. Cliente:',clienteNum],
+    ['MOSAR REFACCIONARIAS — PEDIDO DE VENTA','','','','',''],
+    ['Folio:',folio,'','Fecha:',fecha,''],
+    ['Cliente:',clienteNombre,'','Núm. Cliente:',clienteNum,''],
     [],
     ['#','Código','Descripción','Cantidad','Precio Unitario','Total Línea']
   ];
   prods.forEach(function(pr,i){
-    resumenData.push([i+1,pr.codigo,pr.descripcion||'',pr.cantidad,parseFloat(pr.precioUnitario||pr.precio||0),parseFloat(pr.totalLinea||0)]);
+    resumenData.push([i+1,pr.codigo,pr.descripcion||'',pr.cantidad,
+      parseFloat(pr.precioUnitario||pr.precio||0),parseFloat(pr.totalLinea||0)]);
   });
   resumenData.push([]);
   resumenData.push(['','','','','Subtotal:',parseFloat(p.subtotal||0)]);
   resumenData.push(['','','','','IVA (16%):',parseFloat(p.iva||0)]);
   resumenData.push(['','','','','TOTAL:',parseFloat(p.total||0)]);
-
   var wsR=XLSX.utils.aoa_to_sheet(resumenData);
   wsR['!cols']=[{wch:4},{wch:18},{wch:45},{wch:10},{wch:16},{wch:16}];
   XLSX.utils.book_append_sheet(WB,wsR,'Pedido');
 
-  /* Hoja 2 — Para SAP DTW: solo Código, Cantidad y Precio */
+  // Hoja 2 — Para SAP (solo Código, Cantidad, Precio)
   var sapHeaders=['DocNum','CardCode','CardName','ItemCode','Quantity','Price'];
   var sapFilas=prods.map(function(pr){
-    return[folio, clienteNum, clienteNombre, pr.codigo, pr.cantidad, parseFloat(pr.precioUnitario||pr.precio||0)];
+    return[folio,clienteNum,clienteNombre,pr.codigo,pr.cantidad,
+      parseFloat(pr.precioUnitario||pr.precio||0)];
   });
   var wsSAP=XLSX.utils.aoa_to_sheet([sapHeaders].concat(sapFilas));
   wsSAP['!cols']=[{wch:16},{wch:14},{wch:28},{wch:18},{wch:10},{wch:14}];
   XLSX.utils.book_append_sheet(WB,wsSAP,'Para_SAP');
 
   XLSX.writeFile(WB,folio+'_SAP.xlsx');
-  toast('Excel descargado ✓');
+  toast('✓ Excel descargado');
 }
 
-/* Acceso admin por URL: agrega ?admin al final de la URL */
+/* Acceso admin por URL ?admin */
 (function(){
   if(window.location.search.includes('admin')){
-    abrirAdminLogin();
+    setTimeout(abrirAdminLogin,400);
   }
 })();
+
 </script>
 </body>
 </html>
