@@ -276,93 +276,147 @@
     .btn-excel-sap:active{transform:scale(.98)}
     .btn-excel-sap svg{width:17px;height:17px;fill:none;stroke:#fff;stroke-width:2;flex-shrink:0}
     /* ============ PANEL ADMIN ============ */
-    .admin-bg{position:fixed;inset:0;background:#0F172A;z-index:600;display:none;flex-direction:column;overflow:hidden}
+    .admin-bg{position:fixed;inset:0;background:#070D1A;z-index:600;display:none;flex-direction:column;overflow:hidden}
     .admin-bg.open{display:flex}
-    .admin-topbar{background:linear-gradient(135deg,#0F172A,#1e3a5f);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,.08);flex-shrink:0}
-    .admin-topbar-left{display:flex;align-items:center;gap:12px}
-    .admin-logo-dot{width:10px;height:10px;border-radius:50%;background:#22c55e;animation:livepulse 2s infinite}
-    .admin-title{font-family:'Outfit',sans-serif;font-size:18px;font-weight:800;color:#fff}
+    /* Topbar */
+    .admin-topbar{background:linear-gradient(135deg,#0B1426,#0F2040);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,.07);flex-shrink:0;gap:12px}
+    .admin-topbar-left{display:flex;align-items:center;gap:10px}
+    .admin-logo-dot{width:9px;height:9px;border-radius:50%;background:#22c55e;animation:livepulse 2s infinite;flex-shrink:0}
+    .admin-title{font-family:'Outfit',sans-serif;font-size:17px;font-weight:800;color:#fff}
     .admin-title span{color:#60A5FA}
-    .admin-subtitle{font-size:11px;color:#64748B;margin-top:1px}
-    .admin-close{background:rgba(255,255,255,.07);border:none;border-radius:8px;padding:7px 14px;color:#94A3B8;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;display:flex;align-items:center;gap:6px}
-    .admin-close:hover{background:rgba(255,255,255,.12);color:#fff}
-    .admin-close svg{width:15px;height:15px;stroke:currentColor;stroke-width:2.5;fill:none}
-    .admin-stats{display:flex;gap:10px;padding:14px 20px;flex-shrink:0;overflow-x:auto}
-    .admin-stat{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:12px 16px;min-width:120px;flex-shrink:0}
-    .admin-stat-lbl{font-size:10px;color:#64748B;text-transform:uppercase;letter-spacing:.08em;font-weight:600}
-    .admin-stat-val{font-family:'Outfit',sans-serif;font-size:22px;font-weight:800;color:#fff;margin-top:3px}
-    .admin-stat-val.verde{color:#34D399}
-    .admin-toolbar{padding:0 20px 12px;display:flex;gap:8px;flex-shrink:0;flex-wrap:wrap;align-items:center}
-    .admin-search{flex:1;min-width:160px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:9px 14px;color:#fff;font-size:14px;font-family:'DM Sans',sans-serif;outline:none}
-    .admin-search::placeholder{color:#475569}
-    .admin-search:focus{border-color:#3B82F6;background:rgba(59,130,246,.1)}
-    .admin-btn{background:linear-gradient(135deg,#1e3a5f,#2563EB);border:none;border-radius:10px;padding:9px 16px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;display:flex;align-items:center;gap:6px;white-space:nowrap;flex-shrink:0}
+    .admin-topbar-tabs{display:flex;gap:4px;background:rgba(255,255,255,.06);border-radius:10px;padding:4px;flex-shrink:0}
+    .admin-tab{padding:6px 14px;border-radius:7px;font-size:12px;font-weight:700;cursor:pointer;color:#64748B;border:none;background:transparent;font-family:'DM Sans',sans-serif;transition:all .15s;white-space:nowrap}
+    .admin-tab.active{background:#1e3a5f;color:#fff;box-shadow:0 2px 8px rgba(0,0,0,.3)}
+    .admin-close{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:7px 13px;color:#64748B;font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;display:flex;align-items:center;gap:5px;flex-shrink:0}
+    .admin-close:hover{background:rgba(185,28,28,.2);color:#FCA5A5;border-color:rgba(185,28,28,.3)}
+    .admin-close svg{width:13px;height:13px;stroke:currentColor;stroke-width:2.5;fill:none}
+    /* Vistas */
+    .admin-view{display:none;flex:1;overflow:hidden;flex-direction:column}
+    .admin-view.active{display:flex}
+    /* === DASHBOARD === */
+    .dash-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:18px 20px;display:flex;flex-direction:column;gap:16px}
+    .dash-kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+    @media(min-width:600px){.dash-kpis{grid-template-columns:repeat(4,1fr)}}
+    .dash-kpi{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:14px 16px}
+    .dash-kpi-lbl{font-size:10px;color:#475569;text-transform:uppercase;letter-spacing:.09em;font-weight:700}
+    .dash-kpi-val{font-family:'Outfit',sans-serif;font-size:26px;font-weight:900;color:#fff;margin-top:4px;line-height:1}
+    .dash-kpi-val.verde{color:#34D399}
+    .dash-kpi-val.azul{color:#60A5FA}
+    .dash-kpi-val.amarillo{color:#FBBF24}
+    .dash-kpi-sub{font-size:11px;color:#334155;margin-top:4px}
+    .dash-section-title{font-size:11px;color:#475569;text-transform:uppercase;letter-spacing:.1em;font-weight:700;margin-bottom:8px}
+    .dash-pendientes-banner{background:linear-gradient(135deg,rgba(251,191,36,.12),rgba(245,158,11,.06));border:1px solid rgba(251,191,36,.25);border-radius:14px;padding:14px 18px;display:flex;align-items:center;gap:12px;cursor:pointer}
+    .dash-pendientes-banner:hover{border-color:rgba(251,191,36,.5)}
+    .dash-pendientes-icon{width:40px;height:40px;border-radius:10px;background:rgba(251,191,36,.15);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .dash-pendientes-icon svg{width:20px;height:20px;stroke:#FBBF24;stroke-width:2;fill:none}
+    .dash-pendientes-txt strong{font-size:16px;font-weight:800;color:#FBBF24;font-family:'Outfit',sans-serif}
+    .dash-pendientes-txt span{font-size:12px;color:#92400E;display:block;margin-top:2px}
+    .dash-recientes{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:14px;overflow:hidden}
+    .dash-rec-row{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid rgba(255,255,255,.05);cursor:pointer;transition:background .15s}
+    .dash-rec-row:last-child{border-bottom:none}
+    .dash-rec-row:hover{background:rgba(255,255,255,.04)}
+    .dash-rec-folio{font-family:'Outfit',sans-serif;font-weight:800;color:#60A5FA;font-size:14px;min-width:80px}
+    .dash-rec-info{flex:1;min-width:0}
+    .dash-rec-cliente{font-size:13px;font-weight:600;color:#E2E8F0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .dash-rec-fecha{font-size:11px;color:#475569;margin-top:1px}
+    .dash-rec-total{font-family:'Outfit',sans-serif;font-weight:800;color:#34D399;font-size:14px;white-space:nowrap}
+    .dash-rec-status{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+    .dash-rec-status.pendiente{background:#FBBF24}
+    .dash-rec-status.procesado{background:#22c55e}
+    /* === PEDIDOS === */
+    .admin-toolbar{padding:14px 20px 10px;display:flex;gap:8px;flex-shrink:0;flex-wrap:wrap;align-items:center;border-bottom:1px solid rgba(255,255,255,.06)}
+    .admin-search{flex:1;min-width:160px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.09);border-radius:10px;padding:9px 14px;color:#fff;font-size:14px;font-family:'DM Sans',sans-serif;outline:none}
+    .admin-search::placeholder{color:#334155}
+    .admin-search:focus{border-color:#3B82F6;background:rgba(59,130,246,.08)}
+    .admin-filtros{display:flex;gap:4px;flex-wrap:wrap}
+    .admin-fil{padding:6px 12px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;color:#475569;border:1px solid rgba(255,255,255,.08);background:transparent;font-family:'DM Sans',sans-serif;transition:all .15s}
+    .admin-fil.on{background:#1e3a5f;color:#fff;border-color:#2563EB}
+    .admin-fil.amarillo.on{background:rgba(251,191,36,.15);color:#FBBF24;border-color:rgba(251,191,36,.3)}
+    .admin-btn{background:linear-gradient(135deg,#1e3a5f,#2563EB);border:none;border-radius:9px;padding:8px 14px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;display:flex;align-items:center;gap:5px;white-space:nowrap;flex-shrink:0}
     .admin-btn:hover{opacity:.9}
-    .admin-btn svg{width:15px;height:15px;fill:none;stroke:#fff;stroke-width:2;flex-shrink:0}
     .admin-btn.verde{background:linear-gradient(135deg,#059669,#10B981)}
-    .admin-btn.rojo{background:linear-gradient(135deg,#B91C1C,#DC2626)}
-    .admin-list{flex:1;overflow-y:auto;padding:0 20px 20px;display:flex;flex-direction:column;gap:8px}
-    .admin-card{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:14px;overflow:hidden;transition:border-color .2s,background .2s;cursor:pointer}
-    .admin-card:hover{border-color:rgba(99,179,255,.5);background:rgba(255,255,255,.08)}
-    .admin-card:active{transform:scale(.995)}
-    .admin-card-top{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:14px;padding:15px 18px}
-    .admin-folio{font-family:'Outfit',sans-serif;font-size:16px;font-weight:800;color:#60A5FA;white-space:nowrap}
+    .admin-list{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:12px 20px;display:flex;flex-direction:column;gap:8px}
+    /* Cards */
+    .admin-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:14px;overflow:hidden;cursor:pointer;transition:all .15s}
+    .admin-card:hover{border-color:rgba(96,165,250,.4);background:rgba(255,255,255,.07);transform:translateY(-1px)}
+    .admin-card:active{transform:scale(.99)}
+    .admin-card.procesado{border-left:3px solid #22c55e}
+    .admin-card.pendiente{border-left:3px solid #FBBF24}
+    .admin-card-top{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:14px;padding:14px 16px}
+    .admin-folio-wrap{display:flex;flex-direction:column;gap:3px}
+    .admin-folio{font-family:'Outfit',sans-serif;font-size:15px;font-weight:800;color:#60A5FA;white-space:nowrap;line-height:1}
+    .admin-status-pill{font-size:9px;font-weight:800;padding:2px 7px;border-radius:20px;white-space:nowrap;letter-spacing:.04em}
+    .admin-status-pill.pendiente{background:rgba(251,191,36,.15);color:#FBBF24;border:1px solid rgba(251,191,36,.25)}
+    .admin-status-pill.procesado{background:rgba(34,197,94,.12);color:#22c55e;border:1px solid rgba(34,197,94,.25)}
     .admin-cliente{min-width:0}
     .admin-cliente-nombre{font-size:14px;font-weight:700;color:#E2E8F0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    .admin-cliente-fecha{font-size:11px;color:#64748B;margin-top:3px}
-    .admin-total-badge{background:rgba(52,211,153,.1);border:1px solid rgba(52,211,153,.25);border-radius:10px;padding:7px 14px;text-align:right;flex-shrink:0;white-space:nowrap}
-    .admin-total-lbl{font-size:9px;color:#34D399;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
-    .admin-total-val{font-family:'Outfit',sans-serif;font-size:17px;font-weight:800;color:#34D399;margin-top:1px}
-    /* MODAL DETALLE PEDIDO */
-    .admin-detalle-bg{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:650;display:none;align-items:flex-end;justify-content:center;padding:0}
+    .admin-cliente-sub{font-size:11px;color:#475569;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .admin-right{display:flex;flex-direction:column;align-items:flex-end;gap:4px}
+    .admin-total-val{font-family:'Outfit',sans-serif;font-size:16px;font-weight:800;color:#34D399;white-space:nowrap}
+    .admin-arts-badge{font-size:10px;color:#334155;white-space:nowrap;text-align:right}
+    /* MODAL DETALLE */
+    .admin-detalle-bg{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:650;display:none;align-items:flex-end;justify-content:center}
     .admin-detalle-bg.open{display:flex}
-    .admin-detalle-box{background:#0F172A;border:1px solid rgba(255,255,255,.1);border-radius:20px 20px 0 0;width:100%;max-width:900px;max-height:92vh;display:flex;flex-direction:column;animation:slideUp .25s ease}
-    @keyframes slideUp{from{transform:translateY(40px);opacity:0}to{transform:translateY(0);opacity:1}}
-    .admin-detalle-hdr{padding:18px 22px;border-bottom:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
-    .admin-detalle-hdr-left{display:flex;flex-direction:column;gap:3px}
-    .admin-detalle-folio{font-family:'Outfit',sans-serif;font-size:20px;font-weight:800;color:#60A5FA}
-    .admin-detalle-meta{font-size:12px;color:#64748B}
-    .admin-detalle-close{background:rgba(255,255,255,.07);border:none;border-radius:8px;padding:8px 14px;color:#94A3B8;font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;display:flex;align-items:center;gap:6px}
-    .admin-detalle-close:hover{background:rgba(255,255,255,.13);color:#fff}
-    .admin-detalle-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:20px 22px}
-    .admin-detalle-table{width:100%;border-collapse:collapse;font-size:14px;margin-bottom:20px}
-    .admin-detalle-table thead tr{background:rgba(255,255,255,.07);border-radius:8px}
-    .admin-detalle-table th{padding:10px 14px;font-size:11px;color:#64748B;text-transform:uppercase;letter-spacing:.08em;font-weight:700;white-space:nowrap;text-align:left}
+    .admin-detalle-box{background:#0B1426;border:1px solid rgba(255,255,255,.1);border-top:2px solid #2563EB;border-radius:20px 20px 0 0;width:100%;max-width:860px;max-height:94vh;display:flex;flex-direction:column;animation:slideUp .2s ease}
+    @keyframes slideUp{from{transform:translateY(30px);opacity:0}to{transform:translateY(0);opacity:1}}
+    .admin-detalle-hdr{padding:16px 20px;border-bottom:1px solid rgba(255,255,255,.07);display:flex;align-items:flex-start;justify-content:space-between;flex-shrink:0;gap:12px}
+    .admin-detalle-folio{font-family:'Outfit',sans-serif;font-size:18px;font-weight:800;color:#60A5FA;line-height:1}
+    .admin-detalle-meta{font-size:12px;color:#475569;margin-top:4px}
+    .admin-detalle-close{background:rgba(255,255,255,.07);border:none;border-radius:8px;padding:7px 12px;color:#64748B;font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;flex-shrink:0}
+    .admin-detalle-close:hover{color:#fff;background:rgba(255,255,255,.12)}
+    .admin-detalle-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:18px 20px;display:flex;flex-direction:column;gap:14px}
+    /* Status box en detalle */
+    .admin-status-box{border-radius:12px;padding:14px 16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+    .admin-status-box.pendiente{background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.2)}
+    .admin-status-box.procesado{background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2)}
+    .admin-status-box-info{flex:1;min-width:0}
+    .admin-status-box-lbl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+    .admin-status-box-lbl.pendiente{color:#FBBF24}
+    .admin-status-box-lbl.procesado{color:#22c55e}
+    .admin-status-box-folio{font-size:13px;color:#CBD5E1;margin-top:3px}
+    .admin-folio-sap-input{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:8px 12px;color:#fff;font-size:13px;font-family:monospace;outline:none;width:160px;flex-shrink:0}
+    .admin-folio-sap-input:focus{border-color:#3B82F6}
+    .admin-btn-procesar{background:linear-gradient(135deg,#065F46,#059669);border:none;border-radius:8px;padding:9px 16px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap;flex-shrink:0}
+    .admin-btn-procesar:hover{opacity:.9}
+    .admin-btn-desprocesar{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:9px 16px;color:#94A3B8;font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap;flex-shrink:0}
+    .admin-btn-desprocesar:hover{background:rgba(185,28,28,.15);color:#FCA5A5;border-color:rgba(185,28,28,.3)}
+    /* Tabla productos */
+    .admin-detalle-table{width:100%;border-collapse:collapse;font-size:13px}
+    .admin-detalle-table thead tr{background:rgba(255,255,255,.06)}
+    .admin-detalle-table th{padding:9px 12px;font-size:10px;color:#475569;text-transform:uppercase;letter-spacing:.08em;font-weight:700;text-align:left;white-space:nowrap}
     .admin-detalle-table th.r{text-align:right}
     .admin-detalle-table th.c{text-align:center}
-    .admin-detalle-table td{padding:12px 14px;border-bottom:1px solid rgba(255,255,255,.05);vertical-align:middle}
+    .admin-detalle-table td{padding:11px 12px;border-bottom:1px solid rgba(255,255,255,.04);vertical-align:middle}
     .admin-detalle-table tr:last-child td{border-bottom:none}
-    .admin-detalle-table .td-num{font-size:12px;color:#475569;text-align:center;width:32px}
-    .admin-detalle-table .td-cod{font-family:monospace;font-size:14px;font-weight:800;color:#60A5FA;white-space:nowrap}
-    .admin-detalle-table .td-desc{color:#94A3B8;font-size:13px}
-    .admin-detalle-table .td-cant{text-align:center;font-size:16px;font-weight:800;color:#E2E8F0}
-    .admin-detalle-table .td-pu{text-align:right;color:#CBD5E1;white-space:nowrap}
-    .admin-detalle-table .td-tot{text-align:right;font-weight:700;color:#34D399;white-space:nowrap;font-size:14px}
-    .admin-detalle-totales{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:16px 20px;margin-bottom:20px;display:flex;flex-direction:column;gap:8px;align-items:flex-end}
-    .admin-detalle-tot-row{display:flex;gap:16px;font-size:13px;color:#64748B}
-    .admin-detalle-tot-row strong{color:#CBD5E1;min-width:90px;text-align:right}
-    .admin-detalle-tot-final{font-size:18px;font-weight:800;color:#34D399;padding-top:8px;border-top:1px solid rgba(255,255,255,.08);margin-top:4px}
-    .admin-detalle-actions{display:flex;gap:10px;flex-wrap:wrap;padding-bottom:8px}
-    .admin-btn-copiar{background:linear-gradient(135deg,#7C3AED,#A855F7);border:none;border-radius:10px;padding:12px 20px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;display:flex;align-items:center;gap:8px;flex:1;justify-content:center;min-width:160px}
+    .td-num{color:#334155;text-align:center;font-size:12px;width:28px}
+    .td-cod{font-family:monospace;font-size:14px;font-weight:800;color:#60A5FA;white-space:nowrap}
+    .td-desc{color:#64748B;font-size:12px}
+    .td-cant{text-align:center;font-size:16px;font-weight:800;color:#E2E8F0}
+    .td-pu{text-align:right;color:#94A3B8;white-space:nowrap;font-size:13px}
+    .td-tot{text-align:right;font-weight:700;color:#34D399;white-space:nowrap}
+    .admin-totales-box{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:14px 18px;display:flex;justify-content:flex-end;gap:24px;flex-wrap:wrap}
+    .admin-totales-box span{font-size:13px;color:#475569}
+    .admin-totales-box span strong{color:#CBD5E1}
+    .admin-totales-box .gran-total{font-size:18px;font-weight:800;color:#34D399}
+    .admin-detalle-actions{display:flex;gap:8px;flex-wrap:wrap;padding-bottom:4px}
+    .admin-btn-copiar{background:linear-gradient(135deg,#5B21B6,#7C3AED);border:none;border-radius:9px;padding:11px 18px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;display:flex;align-items:center;gap:7px;flex:1;justify-content:center;min-width:140px}
     .admin-btn-copiar:hover{opacity:.9}
-    .admin-btn-copiar svg{width:16px;height:16px;fill:none;stroke:#fff;stroke-width:2;flex-shrink:0}
-    .admin-btn-excel{background:linear-gradient(135deg,#059669,#10B981);border:none;border-radius:10px;padding:12px 20px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;display:flex;align-items:center;gap:8px;flex:1;justify-content:center;min-width:160px}
+    .admin-btn-excel{background:linear-gradient(135deg,#064E3B,#059669);border:none;border-radius:9px;padding:11px 18px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;display:flex;align-items:center;gap:7px;flex:1;justify-content:center;min-width:140px}
     .admin-btn-excel:hover{opacity:.9}
-    .admin-btn-excel svg{width:16px;height:16px;fill:none;stroke:#fff;stroke-width:2;flex-shrink:0}
-    .admin-loading{text-align:center;padding:4rem 2rem;color:#475569;font-size:15px}
-    .admin-empty{text-align:center;padding:4rem 2rem;color:#475569;font-size:15px}
+    .admin-loading{text-align:center;padding:4rem 2rem;color:#334155;font-size:14px}
+    .admin-empty{text-align:center;padding:4rem 2rem;color:#334155;font-size:14px}
     /* LOGIN ADMIN */
-    .admin-login-bg{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:700;display:none;align-items:center;justify-content:center;padding:1rem}
+    .admin-login-bg{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:700;display:none;align-items:center;justify-content:center;padding:1rem}
     .admin-login-bg.open{display:flex}
-    .admin-login-box{background:#1e293b;border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:2.5rem 2rem;width:100%;max-width:360px;text-align:center}
-    .admin-login-icon{width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,#1e3a5f,#2563EB);display:flex;align-items:center;justify-content:center;margin:0 auto 1.25rem}
-    .admin-login-icon svg{width:28px;height:28px;stroke:#fff;stroke-width:2;fill:none}
-    .admin-login-box h3{font-family:'Outfit',sans-serif;font-size:22px;font-weight:800;color:#fff;margin-bottom:.4rem}
-    .admin-login-box p{font-size:13px;color:#64748B;margin-bottom:1.75rem}
-    .admin-login-input{width:100%;background:rgba(255,255,255,.06);border:1.5px solid rgba(255,255,255,.1);border-radius:10px;padding:13px 16px;color:#fff;font-size:17px;font-family:'DM Sans',sans-serif;outline:none;text-align:center;letter-spacing:.1em;margin-bottom:12px}
-    .admin-login-input:focus{border-color:#3B82F6}
-    .admin-login-err{background:rgba(185,28,28,.15);border:1px solid rgba(185,28,28,.3);color:#FCA5A5;font-size:13px;font-weight:600;padding:9px;border-radius:8px;margin-bottom:12px;display:none}
-    .admin-login-btn{width:100%;padding:14px;background:linear-gradient(135deg,#1e3a5f,#2563EB);border:none;border-radius:10px;font-size:15px;font-weight:700;color:#fff;cursor:pointer;font-family:'DM Sans',sans-serif}
+    .admin-login-box{background:#0F1F38;border:1px solid rgba(255,255,255,.1);border-top:2px solid #2563EB;border-radius:20px;padding:2.5rem 2rem;width:100%;max-width:340px;text-align:center}
+    .admin-login-icon{width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#1e3a5f,#2563EB);display:flex;align-items:center;justify-content:center;margin:0 auto 1.25rem;box-shadow:0 0 30px rgba(37,99,235,.3)}
+    .admin-login-icon svg{width:26px;height:26px;stroke:#fff;stroke-width:2;fill:none}
+    .admin-login-box h3{font-family:'Outfit',sans-serif;font-size:21px;font-weight:800;color:#fff;margin-bottom:.35rem}
+    .admin-login-box p{font-size:13px;color:#475569;margin-bottom:1.75rem}
+    .admin-login-err{background:rgba(185,28,28,.15);border:1px solid rgba(185,28,28,.3);color:#FCA5A5;font-size:13px;font-weight:600;padding:8px;border-radius:8px;margin-bottom:12px;display:none}
+    .admin-login-input{width:100%;background:rgba(255,255,255,.07);border:1.5px solid rgba(255,255,255,.1);border-radius:10px;padding:13px 16px;color:#fff;font-size:18px;font-family:'DM Sans',sans-serif;outline:none;text-align:center;letter-spacing:.15em;margin-bottom:12px}
+    .admin-login-input:focus{border-color:#3B82F6;background:rgba(59,130,246,.08)}
+    .admin-login-btn{width:100%;padding:13px;background:linear-gradient(135deg,#1e3a5f,#2563EB);border:none;border-radius:10px;font-size:15px;font-weight:700;color:#fff;cursor:pointer;font-family:'DM Sans',sans-serif;box-shadow:0 4px 14px rgba(37,99,235,.3)}
     .admin-login-btn:active{transform:scale(.98)}
     /* LOGIN */
     .login-modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:350;display:none;align-items:center;justify-content:center;padding:1rem}
@@ -645,18 +699,13 @@
 <div class="admin-detalle-bg" id="adminDetalleBg" onclick="adminCerrarDetalle(event)">
   <div class="admin-detalle-box" id="adminDetalleBox">
     <div class="admin-detalle-hdr">
-      <div class="admin-detalle-hdr-left">
+      <div>
         <div class="admin-detalle-folio" id="detalleForlio">—</div>
         <div class="admin-detalle-meta" id="detalleMeta">—</div>
       </div>
-      <button class="admin-detalle-close" onclick="document.getElementById('adminDetalleBg').classList.remove('open')">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;stroke-width:2.5;fill:none;"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"/></svg>
-        Cerrar
-      </button>
+      <button class="admin-detalle-close" onclick="document.getElementById('adminDetalleBg').classList.remove('open')">✕ Cerrar</button>
     </div>
-    <div class="admin-detalle-body" id="adminDetalleBody">
-      <!-- se llena dinámicamente -->
-    </div>
+    <div class="admin-detalle-body" id="adminDetalleBody"></div>
   </div>
 </div>
 
@@ -669,7 +718,7 @@
     <h3>Acceso Admin</h3>
     <p>Panel exclusivo MOSAR Refaccionarias</p>
     <div class="admin-login-err" id="adminLoginErr">Contraseña incorrecta</div>
-    <input class="admin-login-input" type="password" id="adminPwdInput" placeholder="••••••••" inputmode="numeric" autocomplete="off" onkeydown="if(event.key==='Enter')verificarAdminPwd()"/>
+    <input class="admin-login-input" type="password" id="adminPwdInput" placeholder="••••••••" autocomplete="off" onkeydown="if(event.key==='Enter')verificarAdminPwd()"/>
     <button class="admin-login-btn" onclick="verificarAdminPwd()">ENTRAR AL PANEL</button>
   </div>
 </div>
@@ -679,37 +728,41 @@
   <div class="admin-topbar">
     <div class="admin-topbar-left">
       <div class="admin-logo-dot"></div>
-      <div>
-        <div class="admin-title">MOSAR <span>Admin</span></div>
-        <div class="admin-subtitle">Panel de pedidos en tiempo real</div>
-      </div>
+      <div class="admin-title">MOSAR <span>Admin</span></div>
+    </div>
+    <div class="admin-topbar-tabs">
+      <button class="admin-tab active" id="tabDash" onclick="adminSwitchTab('dash')">📊 Dashboard</button>
+      <button class="admin-tab" id="tabPedidos" onclick="adminSwitchTab('pedidos')">📋 Pedidos</button>
     </div>
     <button class="admin-close" onclick="cerrarAdmin()">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"/></svg>
       Salir
     </button>
   </div>
-  <div class="admin-stats">
-    <div class="admin-stat"><div class="admin-stat-lbl">Pedidos hoy</div><div class="admin-stat-val" id="statHoy">—</div></div>
-    <div class="admin-stat"><div class="admin-stat-lbl">Total hoy</div><div class="admin-stat-val verde" id="statTotalHoy">—</div></div>
-    <div class="admin-stat"><div class="admin-stat-lbl">Pedidos ayer</div><div class="admin-stat-val" id="statAyer">—</div></div>
-    <div class="admin-stat"><div class="admin-stat-lbl">Pedidos mes</div><div class="admin-stat-val" id="statMes">—</div></div>
-    <div class="admin-stat"><div class="admin-stat-lbl">Total mes</div><div class="admin-stat-val verde" id="statTotalMes">—</div></div>
-    <div class="admin-stat"><div class="admin-stat-lbl">Total registros</div><div class="admin-stat-val" id="statTotal">—</div></div>
+
+  <!-- VISTA DASHBOARD -->
+  <div class="admin-view active" id="viewDash">
+    <div class="dash-body" id="dashBody">
+      <div class="admin-loading">⏳ Cargando dashboard...</div>
+    </div>
   </div>
-  <div class="admin-toolbar">
-    <input class="admin-search" type="text" id="adminSearch" placeholder="🔍  Buscar folio, cliente, código..." oninput="adminFiltrar()"/>
-    <button id="filtroTodos" class="admin-btn" onclick="adminAplicarFiltro('todos')" style="opacity:1;">Todos</button>
-    <button id="filtroHoy" class="admin-btn" onclick="adminAplicarFiltro('hoy')" style="opacity:.45;">Hoy</button>
-    <button id="filtroAyer" class="admin-btn" onclick="adminAplicarFiltro('ayer')" style="opacity:.45;">Ayer</button>
-    <button id="filtroSemana" class="admin-btn" onclick="adminAplicarFiltro('semana')" style="opacity:.45;">7 días</button>
-    <button class="admin-btn verde" onclick="adminCargarPedidos()">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.990"/></svg>
-      Actualizar
-    </button>
-  </div>
-  <div class="admin-list" id="adminList">
-    <div class="admin-loading">Cargando pedidos...</div>
+
+  <!-- VISTA PEDIDOS -->
+  <div class="admin-view" id="viewPedidos">
+    <div class="admin-toolbar">
+      <input class="admin-search" type="text" id="adminSearch" placeholder="🔍  Buscar folio, cliente, código..." oninput="adminFiltrar()"/>
+      <div class="admin-filtros">
+        <button class="admin-fil on" id="filTodos" onclick="adminAplicarFiltro('todos')">Todos</button>
+        <button class="admin-fil" id="filHoy" onclick="adminAplicarFiltro('hoy')">Hoy</button>
+        <button class="admin-fil" id="filAyer" onclick="adminAplicarFiltro('ayer')">Ayer</button>
+        <button class="admin-fil" id="filSemana" onclick="adminAplicarFiltro('semana')">7 días</button>
+        <button class="admin-fil amarillo" id="filPendientes" onclick="adminAplicarFiltro('pendientes')">⏳ Pendientes</button>
+      </div>
+      <button class="admin-btn verde" onclick="adminCargarPedidos()">↻ Actualizar</button>
+    </div>
+    <div class="admin-list" id="adminList">
+      <div class="admin-loading">⏳ Cargando...</div>
+    </div>
   </div>
 </div>
 
@@ -1615,11 +1668,386 @@ function cerrarConfirmacion(){
 
 /* ============================================================
    PANEL ADMIN — MOSAR Refaccionarias
+   Con Dashboard, Sistema de Estatus y Folio SAP
 ============================================================ */
-var ADMIN_PWD = 'mosar2026';
+var ADMIN_PWD = 'mosar2025';
 var _adminPedidos = [];
+var _adminStatus = {};   // { folio: { procesado: bool, folioSAP: string } }
 var _adminFiltrados = [];
 var _adminFiltroActivo = 'todos';
+var _adminTabActiva = 'dash';
+var _detalleIdx = -1;
+
+/* ── Login ── */
+function abrirAdminLogin(){
+  document.getElementById('adminLoginBg').classList.add('open');
+  document.getElementById('adminLoginErr').style.display='none';
+  document.getElementById('adminPwdInput').value='';
+  setTimeout(function(){document.getElementById('adminPwdInput').focus();},250);
+}
+function verificarAdminPwd(){
+  if(document.getElementById('adminPwdInput').value===ADMIN_PWD){
+    document.getElementById('adminLoginBg').classList.remove('open');
+    document.getElementById('adminBg').classList.add('open');
+    adminCargarPedidos();
+  } else {
+    document.getElementById('adminLoginErr').style.display='block';
+    document.getElementById('adminPwdInput').value='';
+    document.getElementById('adminPwdInput').focus();
+  }
+}
+function cerrarAdmin(){ document.getElementById('adminBg').classList.remove('open'); }
+
+/* ── Tabs ── */
+function adminSwitchTab(tab){
+  _adminTabActiva=tab;
+  ['dash','pedidos'].forEach(function(t){
+    document.getElementById('tab'+t.charAt(0).toUpperCase()+t.slice(1)).classList.toggle('active',t===tab);
+    document.getElementById('view'+t.charAt(0).toUpperCase()+t.slice(1)).classList.toggle('active',t===tab);
+  });
+  if(tab==='dash') adminRenderDash();
+}
+
+/* ── Cargar datos ── */
+async function adminCargarPedidos(){
+  document.getElementById('adminList').innerHTML='<div class="admin-loading">⏳ Cargando pedidos...</div>';
+  document.getElementById('dashBody').innerHTML='<div class="admin-loading">⏳ Cargando dashboard...</div>';
+  try{
+    // Pedidos
+    var r1=await fetch(SUPA_URL+'/rest/v1/historial_pedidos?select=*&order=fecha.desc&limit=200',{
+      headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY}
+    });
+    if(!r1.ok) throw new Error('HTTP '+r1.status);
+    _adminPedidos=await r1.json()||[];
+
+    // Status (tabla pedidos_status)
+    var r2=await fetch(SUPA_URL+'/rest/v1/pedidos_status?select=*',{
+      headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY}
+    });
+    if(r2.ok){
+      var statusData=await r2.json()||[];
+      _adminStatus={};
+      statusData.forEach(function(s){ _adminStatus[s.folio]={procesado:s.procesado,folioSAP:s.folio_sap||''}; });
+    }
+
+    adminAplicarFiltro(_adminFiltroActivo);
+    if(_adminTabActiva==='dash') adminRenderDash();
+  }catch(e){
+    document.getElementById('adminList').innerHTML='<div class="admin-empty">❌ Error al cargar. Verifica tu conexión.</div>';
+    console.error(e);
+  }
+}
+
+/* ── Dashboard ── */
+function adminRenderDash(){
+  var hoyMX=_getMX(new Date());
+  var ayerD=new Date(); ayerD.setDate(ayerD.getDate()-1);
+  var ayerMX=_getMX(ayerD);
+  var mesMX=hoyMX.slice(0,7);
+
+  var pedHoy=0,totHoy=0,pedAyer=0,totAyer=0,pedMes=0,totMes=0,pendientes=0;
+  _adminPedidos.forEach(function(p){
+    var f=fechaLocalMX(p.fecha), t=parseFloat(p.total||0);
+    var st=_adminStatus[p.folio]||{};
+    if(f===hoyMX){pedHoy++;totHoy+=t;}
+    if(f===ayerMX){pedAyer++;totAyer+=t;}
+    if(f.slice(0,7)===mesMX){pedMes++;totMes+=t;}
+    if(!st.procesado) pendientes++;
+  });
+
+  var fmt2=function(n){return '$'+parseFloat(n).toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2});};
+  var recientes=_adminPedidos.slice(0,8);
+
+  var recHtml=recientes.map(function(p,i){
+    var st=_adminStatus[p.folio]||{};
+    var fd=p.fecha?new Date(p.fecha).toLocaleString('es-MX',{timeZone:'America/Monterrey',day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}):'—';
+    return '<div class="dash-rec-row" onclick="adminSwitchTab(\'pedidos\');setTimeout(function(){adminAbrirDetalle('+i+');},100)">'
+      +'<div class="dash-rec-folio">'+(p.folio||'—')+'</div>'
+      +'<div class="dash-rec-info"><div class="dash-rec-cliente">'+esc(p.mensaje||p.cliente_id||'Cliente')+'</div><div class="dash-rec-fecha">'+fd+'</div></div>'
+      +'<div class="dash-rec-total">'+fmt2(p.total||0)+'</div>'
+      +'<div class="dash-rec-status '+(st.procesado?'procesado':'pendiente')+'"></div>'
+      +'</div>';
+  }).join('');
+
+  document.getElementById('dashBody').innerHTML=
+    '<div class="dash-kpis">'
+      +'<div class="dash-kpi"><div class="dash-kpi-lbl">Pedidos hoy</div><div class="dash-kpi-val azul">'+pedHoy+'</div><div class="dash-kpi-sub">'+fmt2(totHoy)+' en ventas</div></div>'
+      +'<div class="dash-kpi"><div class="dash-kpi-lbl">Pedidos ayer</div><div class="dash-kpi-val">'+pedAyer+'</div><div class="dash-kpi-sub">'+fmt2(totAyer)+' en ventas</div></div>'
+      +'<div class="dash-kpi"><div class="dash-kpi-lbl">Pedidos del mes</div><div class="dash-kpi-val verde">'+pedMes+'</div><div class="dash-kpi-sub">'+fmt2(totMes)+' total</div></div>'
+      +'<div class="dash-kpi"><div class="dash-kpi-lbl">Total registros</div><div class="dash-kpi-val">'+_adminPedidos.length+'</div><div class="dash-kpi-sub">historial completo</div></div>'
+    +'</div>'
+    +'<div class="dash-pendientes-banner" onclick="adminSwitchTab(\'pedidos\');setTimeout(function(){adminAplicarFiltro(\'pendientes\');},100)">'
+      +'<div class="dash-pendientes-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6l4 2m6-2a10 10 0 1 1-20 0 10 10 0 0 1 20 0Z"/></svg></div>'
+      +'<div class="dash-pendientes-txt"><strong>'+pendientes+' pedido'+(pendientes!==1?'s':'')+' pendiente'+(pendientes!==1?'s':'')+' de capturar en SAP</strong><span>Toca aquí para verlos y procesarlos →</span></div>'
+    +'</div>'
+    +'<div><div class="dash-section-title">Pedidos más recientes</div>'
+    +'<div class="dash-recientes">'+recHtml+'</div></div>';
+}
+
+/* ── Filtros y búsqueda ── */
+function _getMX(d){ return d.toLocaleDateString('es-MX',{timeZone:'America/Monterrey',year:'numeric',month:'2-digit',day:'2-digit'}).split('/').reverse().join('-'); }
+
+function adminAplicarFiltro(filtro){
+  _adminFiltroActivo=filtro;
+  ['filTodos','filHoy','filAyer','filSemana','filPendientes'].forEach(function(id){
+    var el=document.getElementById(id);
+    if(el) el.classList.toggle('on', id==='fil'+filtro.charAt(0).toUpperCase()+filtro.slice(1));
+  });
+  var hoyMX=_getMX(new Date());
+  var ayerD=new Date(); ayerD.setDate(ayerD.getDate()-1);
+  var ayerMX=_getMX(ayerD);
+  var semana=new Date(); semana.setDate(semana.getDate()-7);
+  _adminFiltrados=_adminPedidos.filter(function(p){
+    var f=fechaLocalMX(p.fecha);
+    var st=_adminStatus[p.folio]||{};
+    if(filtro==='hoy') return f===hoyMX;
+    if(filtro==='ayer') return f===ayerMX;
+    if(filtro==='semana') return new Date(p.fecha)>=semana;
+    if(filtro==='pendientes') return !st.procesado;
+    return true;
+  });
+  var q=(document.getElementById('adminSearch').value||'').toLowerCase().trim();
+  if(q) _adminFiltrados=_adminFiltrados.filter(function(p){
+    return (p.folio||'').toLowerCase().includes(q)||(p.mensaje||'').toLowerCase().includes(q)
+      ||(p.cliente_id||'').toLowerCase().includes(q)||(JSON.stringify(p.productos_json||'')).toLowerCase().includes(q);
+  });
+  adminRenderizar();
+}
+function adminFiltrar(){ adminAplicarFiltro(_adminFiltroActivo); }
+
+/* ── Renderizar lista ── */
+function adminRenderizar(){
+  var list=document.getElementById('adminList');
+  if(!_adminFiltrados.length){ list.innerHTML='<div class="admin-empty">📭 No hay pedidos en este período.</div>'; return; }
+  list.innerHTML='';
+  var hoyMX=_getMX(new Date());
+  var ayerD=new Date(); ayerD.setDate(ayerD.getDate()-1);
+  var ayerMX=_getMX(ayerD);
+
+  _adminFiltrados.forEach(function(p,idx){
+    var prods=[];
+    try{prods=typeof p.productos_json==='string'?JSON.parse(p.productos_json):(Array.isArray(p.productos_json)?p.productos_json:[]);}catch(e){}
+    var st=_adminStatus[p.folio]||{};
+    var fLocal=fechaLocalMX(p.fecha);
+    var fechaStr=p.fecha?new Date(p.fecha).toLocaleString('es-MX',{timeZone:'America/Monterrey',day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}):'—';
+    var total=parseFloat(p.total||0).toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2});
+    var numLineas=prods.length;
+    var numArts=prods.reduce(function(a,b){return a+(parseInt(b.cantidad)||1);},0);
+    var clienteNombre=p.mensaje||p.cliente_id||'Cliente';
+    var clienteNum=p.cliente_id||'';
+    var resumen=prods.slice(0,3).map(function(pr){return pr.cantidad+'x '+pr.codigo;}).join(' · ')+(prods.length>3?' +'+( prods.length-3)+' más':'');
+
+    var badge=fLocal===hoyMX?'<span style="background:#22c55e;color:#fff;font-size:9px;font-weight:800;padding:2px 7px;border-radius:20px;vertical-align:middle;margin-left:5px;">HOY</span>'
+      :fLocal===ayerMX?'<span style="background:#F59E0B;color:#fff;font-size:9px;font-weight:800;padding:2px 7px;border-radius:20px;vertical-align:middle;margin-left:5px;">AYER</span>':'';
+
+    var statusPill=st.procesado
+      ?'<div class="admin-status-pill procesado">✓ SAP: '+(st.folioSAP||'—')+'</div>'
+      :'<div class="admin-status-pill pendiente">⏳ Pendiente</div>';
+
+    var card=document.createElement('div');
+    card.className='admin-card '+(st.procesado?'procesado':'pendiente');
+    card.onclick=function(){adminAbrirDetalle(idx);};
+    card.innerHTML=
+      '<div class="admin-card-top">'
+        +'<div class="admin-folio-wrap">'
+          +'<div class="admin-folio">'+(p.folio||'—')+badge+'</div>'
+          +statusPill
+        +'</div>'
+        +'<div class="admin-cliente">'
+          +'<div class="admin-cliente-nombre">'+esc(clienteNombre)+(clienteNum&&clienteNum!==clienteNombre?' <span style="color:#334155;font-size:11px;">'+esc(clienteNum)+'</span>':'')+'</div>'
+          +'<div class="admin-cliente-sub">'+fechaStr+'</div>'
+          +'<div class="admin-cliente-sub" style="color:#1E3A5F;margin-top:2px;">'+esc(resumen)+'</div>'
+        +'</div>'
+        +'<div class="admin-right">'
+          +'<div class="admin-total-val">$'+total+'</div>'
+          +'<div class="admin-arts-badge">'+numLineas+' art · '+numArts+' uds</div>'
+        +'</div>'
+      +'</div>';
+    list.appendChild(card);
+  });
+}
+
+/* ── Detalle pedido ── */
+function adminAbrirDetalle(idx){
+  _detalleIdx=idx;
+  var p=_adminFiltrados[idx];
+  if(!p) return;
+  var prods=[];
+  try{prods=typeof p.productos_json==='string'?JSON.parse(p.productos_json):(Array.isArray(p.productos_json)?p.productos_json:[]);}catch(e){}
+  var st=_adminStatus[p.folio]||{};
+  var fechaStr=p.fecha?new Date(p.fecha).toLocaleString('es-MX',{timeZone:'America/Monterrey',weekday:'long',day:'2-digit',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'}):'—';
+  var clienteNombre=p.mensaje||p.cliente_id||'Cliente';
+  var clienteNum=p.cliente_id||'';
+  var total=parseFloat(p.total||0).toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2});
+  var subtotal=parseFloat(p.subtotal||0).toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2});
+  var iva=parseFloat(p.iva||0).toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2});
+
+  document.getElementById('detalleForlio').innerHTML=(p.folio||'—')+' <span style="font-size:13px;font-weight:400;color:#475569;">'+esc(clienteNombre)+(clienteNum?' · '+esc(clienteNum):'')+'</span>';
+  document.getElementById('detalleMeta').textContent=fechaStr;
+
+  // Caja de status
+  var statusBox='';
+  if(st.procesado){
+    statusBox='<div class="admin-status-box procesado">'
+      +'<div style="width:36px;height:36px;border-radius:50%;background:rgba(34,197,94,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:18px;">✓</div>'
+      +'<div class="admin-status-box-info">'
+        +'<div class="admin-status-box-lbl procesado">✅ Pedido procesado en SAP</div>'
+        +'<div class="admin-status-box-folio">Folio SAP: <strong style="color:#34D399;">'+(st.folioSAP||'—')+'</strong></div>'
+      +'</div>'
+      +'<button class="admin-btn-desprocesar" onclick="adminDesprocesar()">Desmarcar</button>'
+    +'</div>';
+  } else {
+    statusBox='<div class="admin-status-box pendiente">'
+      +'<div style="width:36px;height:36px;border-radius:50%;background:rgba(251,191,36,.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:18px;">⏳</div>'
+      +'<div class="admin-status-box-info">'
+        +'<div class="admin-status-box-lbl pendiente">Pendiente de captura en SAP</div>'
+        +'<div class="admin-status-box-folio">Ingresa el folio que te asignó SAP:</div>'
+      +'</div>'
+      +'<input class="admin-folio-sap-input" id="inputFolioSAP" type="text" placeholder="Folio SAP..." value="'+(st.folioSAP||'')+'" />'
+      +'<button class="admin-btn-procesar" onclick="adminMarcarProcesado()">✓ Marcar como procesado</button>'
+    +'</div>';
+  }
+
+  // Tabla productos
+  var filas=prods.map(function(pr,i){
+    var pu=parseFloat(pr.precioUnitario||pr.precio||0).toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2});
+    var tl=parseFloat(pr.totalLinea||0).toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2});
+    return '<tr><td class="td-num">'+(i+1)+'</td><td class="td-cod">'+esc(pr.codigo||'')+'</td>'
+      +'<td class="td-desc">'+esc(pr.descripcion||'')+'</td>'
+      +'<td class="td-cant">'+(pr.cantidad||1)+'</td>'
+      +'<td class="td-pu">$'+pu+'</td><td class="td-tot">$'+tl+'</td></tr>';
+  }).join('');
+
+  document.getElementById('adminDetalleBody').innerHTML=
+    statusBox
+    +'<div style="overflow-x:auto;">'
+      +'<table class="admin-detalle-table" style="min-width:460px;">'
+        +'<thead><tr><th class="c">#</th><th>Código</th><th>Descripción</th><th class="c">Cant.</th><th class="r">P. Unit.</th><th class="r">Total</th></tr></thead>'
+        +'<tbody>'+filas+'</tbody>'
+      +'</table>'
+    +'</div>'
+    +'<div class="admin-totales-box">'
+      +'<span>Subtotal: <strong>$'+subtotal+'</strong></span>'
+      +'<span>IVA 16%: <strong>$'+iva+'</strong></span>'
+      +'<span class="gran-total">TOTAL: $'+total+'</span>'
+    +'</div>'
+    +'<div class="admin-detalle-actions">'
+      +'<button class="admin-btn-copiar" onclick="adminCopiarSAP('+idx+')">'
+        +'📋 Copiar Código + Cantidad para SAP'
+      +'</button>'
+      +'<button class="admin-btn-excel" onclick="adminDescargarExcel('+idx+')">'
+        +'⬇ Descargar Excel SAP'
+      +'</button>'
+    +'</div>';
+
+  document.getElementById('adminDetalleBg').classList.add('open');
+  document.getElementById('adminDetalleBody').scrollTop=0;
+}
+
+function adminCerrarDetalle(e){
+  if(e.target===document.getElementById('adminDetalleBg'))
+    document.getElementById('adminDetalleBg').classList.remove('open');
+}
+
+/* ── Marcar procesado ── */
+async function adminMarcarProcesado(){
+  var p=_adminFiltrados[_detalleIdx];
+  if(!p) return;
+  var folioSAP=(document.getElementById('inputFolioSAP')||{}).value||'';
+  try{
+    await fetch(SUPA_URL+'/rest/v1/pedidos_status',{
+      method:'POST',
+      headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Content-Type':'application/json','Prefer':'resolution=merge-duplicates'},
+      body:JSON.stringify({folio:p.folio,procesado:true,folio_sap:folioSAP,updated_at:new Date().toISOString()})
+    });
+    _adminStatus[p.folio]={procesado:true,folioSAP:folioSAP};
+    document.getElementById('adminDetalleBg').classList.remove('open');
+    adminRenderizar();
+    if(_adminTabActiva==='dash') adminRenderDash();
+    toast('✅ Pedido '+(p.folio||'')+(folioSAP?' → SAP '+folioSAP:'')+' marcado como procesado');
+  }catch(e){ toast('❌ Error al guardar. Intenta de nuevo.'); }
+}
+
+async function adminDesprocesar(){
+  var p=_adminFiltrados[_detalleIdx];
+  if(!p) return;
+  try{
+    await fetch(SUPA_URL+'/rest/v1/pedidos_status?folio=eq.'+encodeURIComponent(p.folio),{
+      method:'PATCH',
+      headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Content-Type':'application/json'},
+      body:JSON.stringify({procesado:false,folio_sap:''})
+    });
+    _adminStatus[p.folio]={procesado:false,folioSAP:''};
+    document.getElementById('adminDetalleBg').classList.remove('open');
+    adminRenderizar();
+    if(_adminTabActiva==='dash') adminRenderDash();
+    toast('↩ Pedido desmarcado como pendiente');
+  }catch(e){ toast('❌ Error al guardar.'); }
+}
+
+/* ── Copiar para SAP ── */
+function adminCopiarSAP(idx){
+  var p=_adminFiltrados[idx];
+  if(!p) return;
+  var prods=[];
+  try{prods=typeof p.productos_json==='string'?JSON.parse(p.productos_json):(Array.isArray(p.productos_json)?p.productos_json:[]);}catch(e){}
+  var texto=prods.map(function(pr){ return (pr.codigo||'')+'\t'+(pr.cantidad||1); }).join('\n');
+  navigator.clipboard.writeText(texto).then(function(){
+    toast('✅ '+prods.length+' artículos copiados — pega directo en SAP');
+  }).catch(function(){
+    var ta=document.createElement('textarea');
+    ta.value=texto; ta.style.position='fixed'; ta.style.opacity='0';
+    document.body.appendChild(ta); ta.select(); document.execCommand('copy');
+    document.body.removeChild(ta);
+    toast('✅ '+prods.length+' artículos copiados — pega directo en SAP');
+  });
+}
+
+/* ── Descargar Excel SAP ── */
+function adminDescargarExcel(idx){
+  var p=_adminFiltrados[idx];
+  if(!p) return;
+  var prods=[];
+  try{prods=typeof p.productos_json==='string'?JSON.parse(p.productos_json):(Array.isArray(p.productos_json)?p.productos_json:[]);}catch(e){}
+  var WB=XLSX.utils.book_new();
+  var folio=p.folio||('PED-'+p.id);
+  var fecha=p.fecha?new Date(p.fecha).toLocaleDateString('es-MX',{timeZone:'America/Monterrey'}):'';
+  var clienteNombre=p.mensaje||''; var clienteNum=p.cliente_id||'';
+
+  var resumenData=[['MOSAR REFACCIONARIAS — PEDIDO DE VENTA','','','','',''],
+    ['Folio:',folio,'','Fecha:',fecha,''],['Cliente:',clienteNombre,'','Núm. Cliente:',clienteNum,''],[],
+    ['#','Código','Descripción','Cantidad','Precio Unitario','Total Línea']];
+  prods.forEach(function(pr,i){ resumenData.push([i+1,pr.codigo,pr.descripcion||'',pr.cantidad,parseFloat(pr.precioUnitario||pr.precio||0),parseFloat(pr.totalLinea||0)]); });
+  resumenData.push([]);
+  resumenData.push(['','','','','Subtotal:',parseFloat(p.subtotal||0)]);
+  resumenData.push(['','','','','IVA (16%):',parseFloat(p.iva||0)]);
+  resumenData.push(['','','','','TOTAL:',parseFloat(p.total||0)]);
+  var wsR=XLSX.utils.aoa_to_sheet(resumenData);
+  wsR['!cols']=[{wch:4},{wch:18},{wch:45},{wch:10},{wch:16},{wch:16}];
+  XLSX.utils.book_append_sheet(WB,wsR,'Pedido');
+
+  var sapHeaders=['DocNum','CardCode','CardName','ItemCode','Quantity','Price'];
+  var sapFilas=prods.map(function(pr){ return[folio,clienteNum,clienteNombre,pr.codigo,pr.cantidad,parseFloat(pr.precioUnitario||pr.precio||0)]; });
+  var wsSAP=XLSX.utils.aoa_to_sheet([sapHeaders].concat(sapFilas));
+  wsSAP['!cols']=[{wch:16},{wch:14},{wch:28},{wch:18},{wch:10},{wch:14}];
+  XLSX.utils.book_append_sheet(WB,wsSAP,'Para_SAP');
+  XLSX.writeFile(WB,folio+'_SAP.xlsx');
+  toast('✓ Excel descargado');
+}
+
+/* Acceso admin por URL ?admin */
+(function(){ if(window.location.search.includes('admin')){ setTimeout(abrirAdminLogin,400); } })();
+/* Convierte fecha UTC de Supabase a fecha local México YYYY-MM-DD */
+function fechaLocalMX(fechaStr){
+  if(!fechaStr) return '';
+  var d=new Date(fechaStr);
+  return d.toLocaleDateString('es-MX',{timeZone:'America/Monterrey',year:'numeric',month:'2-digit',day:'2-digit'})
+    .split('/').reverse().join('-');
+}
+
+</script>
+</body>
+</html>
 
 function abrirAdminLogin(){
   document.getElementById('adminLoginBg').classList.add('open');
