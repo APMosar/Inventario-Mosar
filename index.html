@@ -276,10 +276,10 @@
     .btn-excel-sap:active{transform:scale(.98)}
     .btn-excel-sap svg{width:17px;height:17px;fill:none;stroke:#fff;stroke-width:2;flex-shrink:0}
     /* ============ PANEL ADMIN ============ */
-    .admin-bg{position:fixed;inset:0;background:#070D1A;z-index:600;display:none;flex-direction:column;overflow:hidden}
+    .admin-bg{position:fixed;inset:0;background:#F1F5F9;z-index:600;display:none;flex-direction:column;overflow:hidden}
     .admin-bg.open{display:flex}
     /* Topbar */
-    .admin-topbar{background:linear-gradient(135deg,#0B1426,#0F2040);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,.07);flex-shrink:0;gap:12px}
+    .admin-topbar{background:linear-gradient(135deg,#1a1a2e,#16213e);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,.07);flex-shrink:0;gap:12px}
     .admin-topbar-left{display:flex;align-items:center;gap:10px}
     .admin-logo-dot{width:9px;height:9px;border-radius:50%;background:#22c55e;animation:livepulse 2s infinite;flex-shrink:0}
     .admin-title{font-family:'Outfit',sans-serif;font-size:17px;font-weight:800;color:#fff}
@@ -294,7 +294,7 @@
     .admin-view{display:none;flex:1;overflow:hidden;flex-direction:column}
     .admin-view.active{display:flex}
     /* === DASHBOARD === */
-    .dash-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:18px 20px;display:flex;flex-direction:column;gap:16px}
+    .dash-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:18px 20px;display:flex;flex-direction:column;gap:16px;background:#F1F5F9}
     .dash-kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
     @media(min-width:600px){.dash-kpis{grid-template-columns:repeat(4,1fr)}}
     .dash-kpi{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:14px 16px}
@@ -324,18 +324,18 @@
     .dash-rec-status.pendiente{background:#FBBF24}
     .dash-rec-status.procesado{background:#22c55e}
     /* === PEDIDOS === */
-    .admin-toolbar{padding:14px 20px 10px;display:flex;gap:8px;flex-shrink:0;flex-wrap:wrap;align-items:center;border-bottom:1px solid rgba(255,255,255,.06)}
-    .admin-search{flex:1;min-width:160px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.09);border-radius:10px;padding:9px 14px;color:#fff;font-size:14px;font-family:'DM Sans',sans-serif;outline:none}
-    .admin-search::placeholder{color:#334155}
-    .admin-search:focus{border-color:#3B82F6;background:rgba(59,130,246,.08)}
+    .admin-toolbar{padding:14px 20px 10px;display:flex;gap:8px;flex-shrink:0;flex-wrap:wrap;align-items:center;border-bottom:1px solid #E2E8F0;background:#fff}
+    .admin-search{flex:1;min-width:160px;background:#F8FAFC;border:1px solid #CBD5E1;border-radius:10px;padding:9px 14px;color:#1e293b;font-size:14px;font-family:'DM Sans',sans-serif;outline:none}
+    .admin-search::placeholder{color:#94a3b8}
+    .admin-search:focus{border-color:#E8A020;background:#fff}
     .admin-filtros{display:flex;gap:4px;flex-wrap:wrap}
-    .admin-fil{padding:6px 12px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;color:#475569;border:1px solid rgba(255,255,255,.08);background:transparent;font-family:'DM Sans',sans-serif;transition:all .15s}
-    .admin-fil.on{background:#1e3a5f;color:#fff;border-color:#2563EB}
+    .admin-fil{padding:6px 12px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;color:#64748b;border:1px solid #E2E8F0;background:#fff;font-family:'DM Sans',sans-serif;transition:all .15s}
+    .admin-fil.on{background:#1a1a2e;color:#fff;border-color:#1a1a2e}
     .admin-fil.amarillo.on{background:rgba(251,191,36,.15);color:#FBBF24;border-color:rgba(251,191,36,.3)}
     .admin-btn{background:linear-gradient(135deg,#1e3a5f,#2563EB);border:none;border-radius:9px;padding:8px 14px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;display:flex;align-items:center;gap:5px;white-space:nowrap;flex-shrink:0}
     .admin-btn:hover{opacity:.9}
     .admin-btn.verde{background:linear-gradient(135deg,#059669,#10B981)}
-    .admin-list{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:12px 20px;display:flex;flex-direction:column;gap:8px}
+    .admin-list{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:12px 20px;display:flex;flex-direction:column;gap:6px}
     /* Cards */
     .admin-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:14px;overflow:hidden;cursor:pointer;transition:all .15s}
     .admin-card:hover{border-color:rgba(96,165,250,.4);background:rgba(255,255,255,.07);transform:translateY(-1px)}
@@ -403,8 +403,8 @@
     .admin-btn-copiar:hover{opacity:.9}
     .admin-btn-excel{background:linear-gradient(135deg,#064E3B,#059669);border:none;border-radius:9px;padding:11px 18px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;display:flex;align-items:center;gap:7px;flex:1;justify-content:center;min-width:140px}
     .admin-btn-excel:hover{opacity:.9}
-    .admin-loading{text-align:center;padding:4rem 2rem;color:#334155;font-size:14px}
-    .admin-empty{text-align:center;padding:4rem 2rem;color:#334155;font-size:14px}
+    .admin-loading{text-align:center;padding:4rem 2rem;color:#64748b;font-size:14px}
+    .admin-empty{text-align:center;padding:4rem 2rem;color:#64748b;font-size:14px}
     /* LOGIN ADMIN */
     .admin-login-bg{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:700;display:none;align-items:center;justify-content:center;padding:1rem}
     .admin-login-bg.open{display:flex}
@@ -1713,14 +1713,14 @@ async function adminCargarPedidos(){
   document.getElementById('adminList').innerHTML='<div class="admin-loading">⏳ Cargando pedidos...</div>';
   document.getElementById('dashBody').innerHTML='<div class="admin-loading">⏳ Cargando dashboard...</div>';
   try{
-    // Pedidos
-    var r1=await fetch(SUPA_URL+'/rest/v1/historial_pedidos?select=*&order=fecha.desc&limit=200',{
+    // Pedidos + join con clientes para obtener nombre real
+    var r1=await fetch(SUPA_URL+'/rest/v1/historial_pedidos?select=*,clientes_mayoreo(nombre,numero_cliente)&order=fecha.desc&limit=200',{
       headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY}
     });
     if(!r1.ok) throw new Error('HTTP '+r1.status);
     _adminPedidos=await r1.json()||[];
 
-    // Status (tabla pedidos_status)
+    // Status
     var r2=await fetch(SUPA_URL+'/rest/v1/pedidos_status?select=*',{
       headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY}
     });
@@ -1729,7 +1729,6 @@ async function adminCargarPedidos(){
       _adminStatus={};
       statusData.forEach(function(s){ _adminStatus[s.folio]={procesado:s.procesado,folioSAP:s.folio_sap||''}; });
     }
-
     adminAplicarFiltro(_adminFiltroActivo);
     if(_adminTabActiva==='dash') adminRenderDash();
   }catch(e){
@@ -1738,37 +1737,48 @@ async function adminCargarPedidos(){
   }
 }
 
+// Extrae nombre legible del cliente
+function _getNombreCliente(p){
+  if(p.clientes_mayoreo&&p.clientes_mayoreo.nombre) return p.clientes_mayoreo.nombre;
+  return p.nombre_contacto||'Cliente';
+}
+function _getNumCliente(p){
+  if(p.clientes_mayoreo&&p.clientes_mayoreo.numero_cliente) return p.clientes_mayoreo.numero_cliente;
+  return '';
+}
+// Extrae resumen limpio de productos (sin flechas ni precios)
+function _getResumenProds(prods){
+  if(!prods||!prods.length) return '—';
+  return prods.slice(0,4).map(function(pr){ return pr.cantidad+'x '+pr.codigo; }).join(' · ')+(prods.length>4?' +'+( prods.length-4)+' más':'');
+}
+
 /* ── Dashboard ── */
 function adminRenderDash(){
   var hoyMX=_getMX(new Date());
   var ayerD=new Date(); ayerD.setDate(ayerD.getDate()-1);
   var ayerMX=_getMX(ayerD);
   var mesMX=hoyMX.slice(0,7);
-
   var pedHoy=0,totHoy=0,pedAyer=0,totAyer=0,pedMes=0,totMes=0,pendientes=0;
   _adminPedidos.forEach(function(p){
-    var f=fechaLocalMX(p.fecha), t=parseFloat(p.total||0);
+    var f=fechaLocalMX(p.fecha),t=parseFloat(p.total||0);
     var st=_adminStatus[p.folio]||{};
     if(f===hoyMX){pedHoy++;totHoy+=t;}
     if(f===ayerMX){pedAyer++;totAyer+=t;}
     if(f.slice(0,7)===mesMX){pedMes++;totMes+=t;}
     if(!st.procesado) pendientes++;
   });
-
   var fmt2=function(n){return '$'+parseFloat(n).toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2});};
   var recientes=_adminPedidos.slice(0,8);
-
   var recHtml=recientes.map(function(p,i){
     var st=_adminStatus[p.folio]||{};
     var fd=p.fecha?new Date(p.fecha).toLocaleString('es-MX',{timeZone:'America/Monterrey',day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}):'—';
-    return '<div class="dash-rec-row" onclick="adminSwitchTab(\'pedidos\');setTimeout(function(){adminAbrirDetalle('+i+');},100)">'
+    return '<div class="dash-rec-row" onclick="adminSwitchTab(\'pedidos\');setTimeout(function(){adminAbrirDetalle('+i+');},150)">'
       +'<div class="dash-rec-folio">'+(p.folio||'—')+'</div>'
-      +'<div class="dash-rec-info"><div class="dash-rec-cliente">'+esc(p.mensaje||p.cliente_id||'Cliente')+'</div><div class="dash-rec-fecha">'+fd+'</div></div>'
+      +'<div class="dash-rec-info"><div class="dash-rec-cliente">'+esc(_getNombreCliente(p))+'</div><div class="dash-rec-fecha">'+fd+'</div></div>'
       +'<div class="dash-rec-total">'+fmt2(p.total||0)+'</div>'
       +'<div class="dash-rec-status '+(st.procesado?'procesado':'pendiente')+'"></div>'
       +'</div>';
   }).join('');
-
   document.getElementById('dashBody').innerHTML=
     '<div class="dash-kpis">'
       +'<div class="dash-kpi"><div class="dash-kpi-lbl">Pedidos hoy</div><div class="dash-kpi-val azul">'+pedHoy+'</div><div class="dash-kpi-sub">'+fmt2(totHoy)+' en ventas</div></div>'
@@ -1778,10 +1788,9 @@ function adminRenderDash(){
     +'</div>'
     +'<div class="dash-pendientes-banner" onclick="adminSwitchTab(\'pedidos\');setTimeout(function(){adminAplicarFiltro(\'pendientes\');},100)">'
       +'<div class="dash-pendientes-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6l4 2m6-2a10 10 0 1 1-20 0 10 10 0 0 1 20 0Z"/></svg></div>'
-      +'<div class="dash-pendientes-txt"><strong>'+pendientes+' pedido'+(pendientes!==1?'s':'')+' pendiente'+(pendientes!==1?'s':'')+' de capturar en SAP</strong><span>Toca aquí para verlos y procesarlos →</span></div>'
+      +'<div class="dash-pendientes-txt"><strong>'+pendientes+' pedido'+(pendientes!==1?'s':'')+' pendiente'+(pendientes!==1?'s':'')+' de capturar en SAP</strong><span>Toca aquí para verlos → </span></div>'
     +'</div>'
-    +'<div><div class="dash-section-title">Pedidos más recientes</div>'
-    +'<div class="dash-recientes">'+recHtml+'</div></div>';
+    +'<div><div class="dash-section-title">Pedidos recientes</div><div class="dash-recientes">'+recHtml+'</div></div>';
 }
 
 /* ── Filtros y búsqueda ── */
@@ -1818,49 +1827,57 @@ function adminFiltrar(){ adminAplicarFiltro(_adminFiltroActivo); }
 /* ── Renderizar lista ── */
 function adminRenderizar(){
   var list=document.getElementById('adminList');
-  if(!_adminFiltrados.length){ list.innerHTML='<div class="admin-empty">📭 No hay pedidos en este período.</div>'; return; }
+  if(!_adminFiltrados.length){list.innerHTML='<div class="admin-empty">📭 No hay pedidos en este período.</div>';return;}
   list.innerHTML='';
   var hoyMX=_getMX(new Date());
-  var ayerD=new Date(); ayerD.setDate(ayerD.getDate()-1);
+  var ayerD=new Date();ayerD.setDate(ayerD.getDate()-1);
   var ayerMX=_getMX(ayerD);
-
   _adminFiltrados.forEach(function(p,idx){
     var prods=[];
     try{prods=typeof p.productos_json==='string'?JSON.parse(p.productos_json):(Array.isArray(p.productos_json)?p.productos_json:[]);}catch(e){}
     var st=_adminStatus[p.folio]||{};
     var fLocal=fechaLocalMX(p.fecha);
+    var procesado=!!st.procesado;
     var fechaStr=p.fecha?new Date(p.fecha).toLocaleString('es-MX',{timeZone:'America/Monterrey',day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}):'—';
     var total=parseFloat(p.total||0).toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2});
     var numLineas=prods.length;
     var numArts=prods.reduce(function(a,b){return a+(parseInt(b.cantidad)||1);},0);
-    var clienteNombre=p.mensaje||p.cliente_id||'Cliente';
-    var clienteNum=p.cliente_id||'';
-    var resumen=prods.slice(0,3).map(function(pr){return pr.cantidad+'x '+pr.codigo;}).join(' · ')+(prods.length>3?' +'+( prods.length-3)+' más':'');
-
-    var badge=fLocal===hoyMX?'<span style="background:#22c55e;color:#fff;font-size:9px;font-weight:800;padding:2px 7px;border-radius:20px;vertical-align:middle;margin-left:5px;">HOY</span>'
-      :fLocal===ayerMX?'<span style="background:#F59E0B;color:#fff;font-size:9px;font-weight:800;padding:2px 7px;border-radius:20px;vertical-align:middle;margin-left:5px;">AYER</span>':'';
-
-    var statusPill=st.procesado
-      ?'<div class="admin-status-pill procesado">✓ SAP: '+(st.folioSAP||'—')+'</div>'
-      :'<div class="admin-status-pill pendiente">⏳ Pendiente</div>';
-
+    // Nombre real del cliente via join
+    var clienteNombre=(p.clientes_mayoreo&&p.clientes_mayoreo.nombre)?p.clientes_mayoreo.nombre:(p.nombre_contacto||'Cliente');
+    var clienteNum=(p.clientes_mayoreo&&p.clientes_mayoreo.numero_cliente)?p.clientes_mayoreo.numero_cliente:'';
+    // Resumen limpio sin flechas
+    var resumen=prods.slice(0,4).map(function(pr){return pr.cantidad+'x '+pr.codigo;}).join(' - ')+(prods.length>4?' +'+( prods.length-4)+' más':'');
+    var badge=fLocal===hoyMX
+      ?'<span style="background:#22c55e;color:#fff;font-size:9px;font-weight:800;padding:2px 7px;border-radius:20px;margin-left:6px;vertical-align:middle;">HOY</span>'
+      :fLocal===ayerMX
+      ?'<span style="background:#F59E0B;color:#fff;font-size:9px;font-weight:800;padding:2px 7px;border-radius:20px;margin-left:6px;vertical-align:middle;">AYER</span>'
+      :'';
     var card=document.createElement('div');
-    card.className='admin-card '+(st.procesado?'procesado':'pendiente');
+    card.style.cssText='background:#fff;border:1px solid #E2E8F0;border-radius:14px;margin-bottom:2px;cursor:pointer;transition:box-shadow .15s,transform .1s;border-left:4px solid '+(procesado?'#22c55e':'#E8A020')+';overflow:hidden;';
+    card.onmouseenter=function(){this.style.boxShadow='0 4px 18px rgba(0,0,0,.1)';this.style.transform='translateY(-1px)';};
+    card.onmouseleave=function(){this.style.boxShadow='none';this.style.transform='none';};
     card.onclick=function(){adminAbrirDetalle(idx);};
     card.innerHTML=
-      '<div class="admin-card-top">'
-        +'<div class="admin-folio-wrap">'
-          +'<div class="admin-folio">'+(p.folio||'—')+badge+'</div>'
-          +statusPill
+      '<div style="display:grid;grid-template-columns:1fr auto;gap:10px;padding:14px 16px;align-items:center;">'
+        +'<div style="min-width:0;">'
+          +'<div style="display:flex;align-items:center;gap:6px;margin-bottom:5px;flex-wrap:wrap;">'
+            +'<span style="font-family:'Outfit',sans-serif;font-size:15px;font-weight:800;color:#1a1a2e;">'+esc(p.folio||'—')+'</span>'
+            +badge
+            +(procesado
+              ?'<span style="background:#dcfce7;color:#15803d;border:1px solid #bbf7d0;font-size:9px;font-weight:800;padding:2px 8px;border-radius:20px;">✓ SAP '+(st.folioSAP||'')+'</span>'
+              :'<span style="background:#fef9c3;color:#92400e;border:1px solid #fde68a;font-size:9px;font-weight:800;padding:2px 8px;border-radius:20px;">⏳ Pendiente</span>'
+            )
+          +'</div>'
+          +'<div style="font-size:14px;font-weight:700;color:#1e293b;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'
+            +esc(clienteNombre)+(clienteNum?' <span style="color:#94a3b8;font-size:12px;font-weight:400;">'+esc(clienteNum)+'</span>':'')
+          +'</div>'
+          +'<div style="font-size:11px;color:#94a3b8;margin-bottom:6px;">'+fechaStr+'</div>'
+          +'<div style="font-size:12px;color:#64748b;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:5px 10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+esc(resumen)+'</div>'
         +'</div>'
-        +'<div class="admin-cliente">'
-          +'<div class="admin-cliente-nombre">'+esc(clienteNombre)+(clienteNum&&clienteNum!==clienteNombre?' <span style="color:#334155;font-size:11px;">'+esc(clienteNum)+'</span>':'')+'</div>'
-          +'<div class="admin-cliente-sub">'+fechaStr+'</div>'
-          +'<div class="admin-cliente-sub" style="color:#1E3A5F;margin-top:2px;">'+esc(resumen)+'</div>'
-        +'</div>'
-        +'<div class="admin-right">'
-          +'<div class="admin-total-val">$'+total+'</div>'
-          +'<div class="admin-arts-badge">'+numLineas+' art · '+numArts+' uds</div>'
+        +'<div style="text-align:right;flex-shrink:0;padding-left:8px;">'
+          +'<div style="font-family:'Outfit',sans-serif;font-size:20px;font-weight:900;color:#16a34a;">$'+total+'</div>'
+          +'<div style="font-size:10px;color:#94a3b8;margin-top:3px;">'+numLineas+' art · '+numArts+' uds</div>'
+          +'<div style="font-size:10px;color:'+(procesado?'#16a34a':'#d97706')+';font-weight:700;margin-top:2px;">'+(procesado?'✓ Listo':'⏳ Falta SAP')+'</div>'
         +'</div>'
       +'</div>';
     list.appendChild(card);
@@ -1876,8 +1893,8 @@ function adminAbrirDetalle(idx){
   try{prods=typeof p.productos_json==='string'?JSON.parse(p.productos_json):(Array.isArray(p.productos_json)?p.productos_json:[]);}catch(e){}
   var st=_adminStatus[p.folio]||{};
   var fechaStr=p.fecha?new Date(p.fecha).toLocaleString('es-MX',{timeZone:'America/Monterrey',weekday:'long',day:'2-digit',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'}):'—';
-  var clienteNombre=p.mensaje||p.cliente_id||'Cliente';
-  var clienteNum=p.cliente_id||'';
+  var clienteNombre=(p.clientes_mayoreo&&p.clientes_mayoreo.nombre)?p.clientes_mayoreo.nombre:(p.nombre_contacto||'Cliente');
+  var clienteNum=(p.clientes_mayoreo&&p.clientes_mayoreo.numero_cliente)?p.clientes_mayoreo.numero_cliente:'';
   var total=parseFloat(p.total||0).toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2});
   var subtotal=parseFloat(p.subtotal||0).toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2});
   var iva=parseFloat(p.iva||0).toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2});
