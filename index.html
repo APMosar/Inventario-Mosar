@@ -1756,10 +1756,7 @@ function _getResumenProds(prods){
 function adminRenderDash(){
   var hoyMX=_getMX(new Date());var ayerD=new Date();ayerD.setDate(ayerD.getDate()-1);var ayerMX=_getMX(ayerD);var mesMX=hoyMX.slice(0,7);
   var pedHoy=0,totHoy=0,pedAyer=0,totAyer=0,pedMes=0,totMes=0,pendientes=0,procesadosCount=0;
-  
-  // Mapas para top clientes y productos
-  var mapaClientes={}; // { nombre: { total: num, pedidos: num } }
-  var mapaProductos={}; // { codigo: { cantidad: num } }
+  var mapaClientes={}; var mapaProductos={};
 
   _adminPedidos.forEach(function(p){
     var f=fechaLocalMX(p.fecha);var t=parseFloat(p.total||0);var st=_adminStatus[p.folio]||{};
@@ -1768,13 +1765,11 @@ function adminRenderDash(){
     if(f.slice(0,7)===mesMX){pedMes++;totMes+=t;}
     if(!st.procesado)pendientes++; else procesadosCount++;
     
-    // Acumular por cliente
     var cNombre = _getNombreCliente(p);
     if(!mapaClientes[cNombre]) mapaClientes[cNombre] = {total:0, pedidos:0};
     mapaClientes[cNombre].total += t;
     mapaClientes[cNombre].pedidos++;
     
-    // Acumular por producto
     var prods=[];
     try{prods=typeof p.productos_json==='string'?JSON.parse(p.productos_json):(Array.isArray(p.productos_json)?p.productos_json:[]);}catch(e){}
     prods.forEach(function(pr){
@@ -1786,12 +1781,9 @@ function adminRenderDash(){
 
   var fmt2=function(n){return'$'+parseFloat(n).toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2});};
   var ticketPromedio = pedMes>0 ? totMes/pedMes : 0;
-  var pctProcesados = (pedHoy+pedAyer)>0 ? Math.round((procesadosCount/(procesadosCount+pendientes))*100) : 0;
+  var pctProcesados = (procesadosCount+pendientes)>0 ? Math.round((procesadosCount/(procesadosCount+pendientes))*100) : 0;
 
-  // Ordenar Top Clientes
   var topClientesArr = Object.keys(mapaClientes).map(function(nombre){ return {nombre:nombre, total:mapaClientes[nombre].total, pedidos:mapaClientes[nombre].pedidos}; }).sort(function(a,b){return b.total-a.total;}).slice(0,5);
-  
-  // Ordenar Top Productos
   var topProductosArr = Object.keys(mapaProductos).map(function(cod){ return {codigo:cod, cantidad:mapaProductos[cod].cantidad}; }).sort(function(a,b){return b.cantidad-a.cantidad;}).slice(0,5);
 
   var recientes=_adminPedidos.slice(0,6);
@@ -1800,17 +1792,38 @@ function adminRenderDash(){
     return'<div class="dash-rec-row" onclick="adminSwitchTab(\'pedidos\');setTimeout(function(){adminAbrirDetalle('+i+');},150)"><div class="dash-rec-folio">'+(p.folio||'—')+'</div><div class="dash-rec-info"><div class="dash-rec-cliente">'+esc(_getNombreCliente(p))+'</div><div class="dash-rec-fecha">'+fd+'</div></div><div class="dash-rec-total">'+fmt2(p.total||0)+'</div><div class="dash-rec-status '+(st.procesado?'procesado':'pendiente')+'"></div></div>';
   }).join('');
 
-  // Construir Top Clientes HTML
+  /* --- TOP CLIENTES (BLANCO Y LEGIBLE) --- */
   var clientesHtml = topClientesArr.map(function(c, i){
     var medalla = i===0?'🥇':i===1?'🥈':i===2?'🥉':(i+1)+'.';
-    return '<div style="display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid rgba(255,255,255,.05);background:rgba(255,255,255,.02);"><span style="font-size:16px;width:24px;text-align:center;">'+medalla+'</span><div style="flex:1;min-width:0;"><div style="font-size:13px;font-weight:700;color:#E2E8F0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+esc(c.nombre)+'</div><div style="font-size:11px;color:#475569;">'+c.pedidos+' pedido'+(c.pedidos!==1?'s':'')+'</div></div><div style="font-family:Outfit,sans-serif;font-size:15px;font-weight:800;color:#34D399;">'+fmt2(c.total)+'</div></div>';
+    var mx=topClientesArr[0]?topClientesArr[0].total:1; var pct=Math.round((c.total/mx)*100);
+    return '<div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #F1F5F9;">'
+      +'<span style="font-size:16px;width:24px;text-align:center;flex-shrink:0;">'+medalla+'</span>'
+      +'<div style="flex:1;min-width:0;">'
+        +'<div style="font-size:13px;font-weight:700;color:#1E293B;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+esc(c.nombre)+'</div>'
+        +'<div style="display:flex;align-items:center;gap:8px;margin-top:4px;">'
+          +'<div style="flex:1;height:6px;background:#E2E8F0;border-radius:3px;overflow:hidden;"><div style="height:100%;width:'+pct+'%;background:linear-gradient(90deg,#3B82F6,#60A5FA);border-radius:3px;"></div></div>'
+          +'<div style="font-size:11px;color:#64748B;white-space:nowrap;">'+c.pedidos+' ped · '+fmt2(c.total)+'</div>'
+        +'</div>'
+      +'</div></div>';
   }).join('');
 
-  // Construir Top Productos HTML
+  /* --- TOP PRODUCTOS (BLANCO Y LEGIBLE) --- */
   var productosHtml = topProductosArr.map(function(p, i){
     var medalla = i===0?'🥇':i===1?'🥈':i===2?'🥉':(i+1)+'.';
-    return '<div style="display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid rgba(255,255,255,.05);background:rgba(255,255,255,.02);"><span style="font-size:16px;width:24px;text-align:center;">'+medalla+'</span><div style="flex:1;min-width:0;"><div style="font-family:monospace;font-size:14px;font-weight:800;color:#60A5FA;">'+esc(p.codigo)+'</div></div><div style="font-family:Outfit,sans-serif;font-size:14px;font-weight:700;color:#FBBF24;">'+p.cantidad+' uds</div></div>';
+    var mx=topProductosArr[0]?topProductosArr[0].cantidad:1; var pct=Math.round((p.cantidad/mx)*100);
+    return '<div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #F1F5F9;">'
+      +'<span style="font-size:16px;width:24px;text-align:center;flex-shrink:0;">'+medalla+'</span>'
+      +'<div style="flex:1;min-width:0;">'
+        +'<div style="font-family:monospace;font-size:14px;font-weight:800;color:#2563EB;">'+esc(p.codigo)+'</div>'
+        +'<div style="display:flex;align-items:center;gap:8px;margin-top:4px;">'
+          +'<div style="flex:1;height:6px;background:#E2E8F0;border-radius:3px;overflow:hidden;"><div style="height:100%;width:'+pct+'%;background:linear-gradient(90deg,#F59E0B,#FBBF24);border-radius:3px;"></div></div>'
+          +'<div style="font-size:11px;color:#64748B;white-space:nowrap;">'+p.cantidad+' uds</div>'
+        +'</div>'
+      +'</div></div>';
   }).join('');
+
+  /* ESTILO CAJAS BLANCAS CON SOMBRA */
+  var cajaBlanca = 'background:#fff;border-radius:16px;box-shadow:0 4px 16px rgba(0,0,0,.05);border:1px solid #E2E8F0;padding:18px;';
 
   document.getElementById('dashBody').innerHTML=
     /* KPIs */
@@ -1822,21 +1835,22 @@ function adminRenderDash(){
     +'</div>'
     
     /* Pendientes */
-    +(pendientes>0?('<div class="dash-pendientes-banner" onclick="adminSwitchTab(\'pedidos\');setTimeout(function(){adminAplicarFiltro(\'pendientes\');},100)"><div class="dash-pendientes-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6l4 2m6-2a10 10 0 1 1-20 0 10 10 0 0 1 20 0Z"/></svg></div><div class="dash-pendientes-txt"><strong>'+pendientes+' pedido'+(pendientes!==1?'s':'')+' pendiente'+(pendientes!==1?'s':'')+' de capturar en SAP</strong><span>Toca aquí para verlos → </span></div></div>'):'')
+    +(pendientes>0?('<div class="dash-pendientes-banner" onclick="adminSwitchTab(\'pedidos\');setTimeout(function(){adminAplicarFiltro(\'pendientes\');},100)"><div class="dash-pendientes-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6l4 2m6-2a10 10 0 1 1-20 0 10 10 0 0 1 20 0Z"/></svg></div><div class="dash-pendientes-txt"><strong>'+pendientes+' pedido'+(pendientes!==1?'s':'')+' pendiente'+(pendientes!==1?'s':'')+' de capturar en SAP</strong><span>Toca aquí para verlos →</span></div></div>'):'')
     
-    /* Contenedores flex para Rankings */
+    /* Top Clientes y Top Productos en CAJAS BLANCAS */
     +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">'
-      +'<div class="dash-recientes"><div class="dash-section-title" style="padding:12px 16px;border-bottom:1px solid rgba(255,255,255,.05);">🏆 Top Clientes (Mes)</div>'+clientesHtml+'</div>'
-      +'<div class="dash-recientes"><div class="dash-section-title" style="padding:12px 16px;border-bottom:1px solid rgba(255,255,255,.05);">📦 Top Productos (Mes)</div>'+productosHtml+'</div>'
+      +'<div style="'+cajaBlanca+'"><div style="font-size:14px;font-weight:800;color:#0F172A;margin-bottom:12px;display:flex;align-items:center;gap:6px;">🏆 Top 5 Clientes (Mes)</div>'+(clientesHtml||'<div style="font-size:12px;color:#94A3B8;">Sin datos aún</div>')+'</div>'
+      +'<div style="'+cajaBlanca+'"><div style="font-size:14px;font-weight:800;color:#0F172A;margin-bottom:12px;display:flex;align-items:center;gap:6px;">📦 Top 5 Productos (Mes)</div>'+(productosHtml||'<div style="font-size:12px;color:#94A3B8;">Sin datos aún</div>')+'</div>'
     +'</div>'
     
-    /* Resumen mes y Recientes */
-    +'<div class="dash-kpis" style="margin-top:4px;">'
-      +'<div class="dash-kpi" style="grid-column: span 2;"><div class="dash-kpi-lbl">Total ventas del mes</div><div class="dash-kpi-val verde" style="font-size:32px;">'+fmt2(totMes)+'</div><div class="dash-kpi-sub">'+pedMes+' pedidos en total</div></div>'
-      +'<div class="dash-kpi" style="grid-column: span 2;"><div class="dash-kpi-lbl">Total registros</div><div class="dash-kpi-val" style="font-size:32px;">'+_adminPedidos.length+'</div><div class="dash-kpi-sub">Historial completo en sistema</div></div>'
+    /* Resumen del mes en CAJAS BLANCAS */
+    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:4px;">'
+      +'<div style="'+cajaBlanca+'text-align:center;"><div style="font-size:11px;color:#64748B;text-transform:uppercase;letter-spacing:.08em;font-weight:700;">Total ventas del mes</div><div style="font-family:Outfit,sans-serif;font-size:32px;font-weight:900;color:#059669;margin-top:4px;">'+fmt2(totMes)+'</div><div style="font-size:12px;color:#94A3B8;margin-top:2px;">'+pedMes+' pedidos en total</div></div>'
+      +'<div style="'+cajaBlanca+'text-align:center;"><div style="font-size:11px;color:#64748B;text-transform:uppercase;letter-spacing:.08em;font-weight:700;">Total registros</div><div style="font-family:Outfit,sans-serif;font-size:32px;font-weight:900;color:#0F172A;margin-top:4px;">'+_adminPedidos.length+'</div><div style="font-size:12px;color:#94A3B8;margin-top:2px;">Historial completo en sistema</div></div>'
     +'</div>'
     
-    +'<div><div class="dash-section-title">Pedidos recientes</div><div class="dash-recientes">'+recHtml+'</div></div>';
+    /* Recientes en CAJA BLANCA */
+    +'<div style="'+cajaBlanca+'margin-top:4px;"><div style="font-size:14px;font-weight:800;color:#0F172A;margin-bottom:8px;display:flex;align-items:center;gap:6px;">🕒 Pedidos recientes</div><div class="dash-recientes" style="border:none;">'+recHtml+'</div></div>';
 }
 /* ── Filtros y búsqueda ── */
 function _getMX(d){ return d.toLocaleDateString('es-MX',{timeZone:'America/Monterrey',year:'numeric',month:'2-digit',day:'2-digit'}).split('/').reverse().join('-'); }
