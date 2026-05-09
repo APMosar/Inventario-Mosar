@@ -1873,52 +1873,51 @@ function adminFiltrar(){ adminAplicarFiltro(_adminFiltroActivo); }
 function adminRenderizar(){
   var list=document.getElementById('adminList');
   if(!_adminFiltrados.length){list.innerHTML='<div class="admin-empty">📭 No hay pedidos en este período.</div>';return;}
-  list.innerHTML='';var hoyMX=_getMX(new Date());var ayerD=new Date();ayerD.setDate(ayerD.getDate()-1);var ayerMX=_getMX(ayerD);
+  var hoyMX=_getMX(new Date());var ayerD=new Date();ayerD.setDate(ayerD.getDate()-1);var ayerMX=_getMX(ayerD);
+  var html='';
   
   _adminFiltrados.forEach(function(p,idx){
-    var prods=[];try{prods=typeof p.productos_json==='string'?JSON.parse(p.productos_json):(Array.isArray(p.productos_json)?p.productos_json:[]);}catch(e){}
     var st=_adminStatus[p.folio]||{};var fLocal=fechaLocalMX(p.fecha);var procesado=!!st.procesado;
-    var fechaStr=p.fecha?new Date(p.fecha).toLocaleString('es-MX',{timeZone:'America/Monterrey',day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}):'—';
-    var total=parseFloat(p.total||0).toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2});var numArts=prods.reduce(function(a,b){return a+(parseInt(b.cantidad)||1);},0);
-    var clienteNombre=(p.clientes_mayoreo&&p.clientes_mayoreo.nombre)?p.clientes_mayoreo.nombre:(p.nombre_contacto||'Cliente');var clienteNum=(p.clientes_mayoreo&&p.clientes_mayoreo.numero_cliente)?p.clientes_mayoreo.numero_cliente:'';
-    var resumen=prods.slice(0,5).map(function(pr){return pr.cantidad+'x '+pr.codigo;}).join(' · ')+(prods.length>5?' +'+(prods.length-5)+' más':'');
-    var badge=fLocal===hoyMX?'<span style="background:#22c55e;color:#fff;font-size:10px;font-weight:800;padding:3px 8px;border-radius:20px;margin-left:8px;">HOY</span>':fLocal===ayerMX?'<span style="background:#F59E0B;color:#fff;font-size:10px;font-weight:800;padding:3px 8px;border-radius:20px;margin-left:8px;">AYER</span>':'';
-    var statusSpan=procesado?'<span style="background:#dcfce7;color:#15803d;border:1px solid #bbf7d0;font-size:10px;font-weight:800;padding:3px 10px;border-radius:20px;">✓ SAP '+(st.folioSAP||'')+'</span>':'<span style="background:#fef9c3;color:#92400e;border:1px solid #fde68a;font-size:10px;font-weight:800;padding:3px 10px;border-radius:20px;">⏳ Pendiente</span>';
+    var fechaStr=p.fecha?new Date(p.fecha).toLocaleString('es-MX',{timeZone:'America/Monterrey',day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}):'—';
+    var total='$'+parseFloat(p.total||0).toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2});
+    var clienteNombre=(p.clientes_mayoreo&&p.clientes_mayoreo.nombre)?p.clientes_mayoreo.nombre:(p.nombre_contacto||'Cliente');
+    var clienteNum=(p.clientes_mayoreo&&p.clientes_mayoreo.numero_cliente)?p.clientes_mayoreo.numero_cliente:'';
     
-    /* --- NUEVO DISEÑO: TARJETAS ESPACIOSAS Y LEGIBLES --- */
-    var card=document.createElement('div');
-    card.style.cssText='background:#fff;border:1.5px solid #E2E8F0;border-radius:16px;margin-bottom:10px;cursor:pointer;transition:all .15s;border-left:6px solid '+(procesado?'#22c55e':'#F59E0B')+';overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.04);';
-    card.onmouseenter=function(){this.style.boxShadow='0 8px 24px rgba(0,0,0,.1)';this.style.transform='translateY(-2px)';this.style.borderColor='#CBD5E1';};
-    card.onmouseleave=function(){this.style.boxShadow='0 1px 3px rgba(0,0,0,.04)';this.style.transform='none';this.style.borderColor='#E2E8F0';};
-    card.onclick=function(){adminAbrirDetalle(idx);};
-    
-    card.innerHTML=''
-      +'<div style="padding:16px 20px;display:flex;align-items:flex-start;justify-content:space-between;gap:16px;">'
-        +'<!-- LADO IZQUIERDO -->'
-        +'<div style="flex:1;min-width:0;">'
-          +'<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap;">'
-            +'<span style="font-family:Outfit,sans-serif;font-size:17px;font-weight:800;color:#0F172A;">'+esc(p.folio||'—')+'</span>'
-            +badge+statusSpan
-          +'</div>'
-          +'<div style="font-size:15px;font-weight:700;color:#1e293b;margin-bottom:4px;display:flex;align-items:center;gap:6px;">'
-            +'<span style="color:#64748B;">👤</span> '+esc(clienteNombre)
-            +(clienteNum?' <span style="color:#94a3b8;font-size:12px;font-weight:500;background:#F1F5F9;padding:2px 8px;border-radius:6px;">'+esc(clienteNum)+'</span>':'')
-          +'</div>'
-          +'<div style="font-size:12px;color:#94a3b8;margin-bottom:10px;display:flex;align-items:center;gap:6px;">'
-            +'<span style="color:#64748B;">📅</span> '+fechaStr
-            +'<span style="margin-left:auto;font-size:11px;color:#cbd5e1;">'+numArts+' unidades</span>'
-          +'</div>'
-          +'<div style="font-size:13px;color:#475569;background:#F8FAFC;border:1px solid #E2E8F0;border-radius:10px;padding:10px 14px;line-height:1.5;">'+esc(resumen)+'</div>'
-        +'</div>'
-        +'<!-- LADO DERECHO (PRECIO) -->'
-        +'<div style="text-align:right;flex-shrink:0;padding-left:10px;">'
-          +'<div style="font-size:11px;color:#94a3b8;font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;">Total</div>'
-          +'<div style="font-family:Outfit,sans-serif;font-size:22px;font-weight:900;color:#059669;">$'+total+'</div>'
-        +'</div>'
-      +'</div>';
+    /* Badges */
+    var statusSpan=procesado
+      ?'<span style="background:#dcfce7;color:#15803d;font-size:9px;font-weight:800;padding:2px 6px;border-radius:4px;white-space:nowrap;">✓ SAP '+(st.folioSAP||'')+'</span>'
+      :'<span style="background:#fef9c3;color:#92400e;font-size:9px;font-weight:800;padding:2px 6px;border-radius:4px;white-space:nowrap;">⏳ PENDIENTE</span>';
       
-    list.appendChild(card);
+    var diaBadge=fLocal===hoyMX
+      ?'<span style="background:#DCFCE7;color:#15803d;font-size:9px;font-weight:700;padding:2px 5px;border-radius:4px;margin-left:4px;">HOY</span>'
+      :fLocal===ayerMX
+      ?'<span style="background:#FEF3C7;color:#92400E;font-size:9px;font-weight:700;padding:2px 5px;border-radius:4px;margin-left:4px;">AYER</span>'
+      :'';
+      
+    /* --- DISEÑO FILA COMPACTA FIJA --- */
+    html+='<div onclick="adminAbrirDetalle('+idx+')" style="display:grid;grid-template-columns:minmax(110px, 140px) 1fr auto auto;align-items:center;gap:12px;padding:11px 16px;background:#fff;border-bottom:1px solid #F1F5F9;cursor:pointer;transition:background .1s;" onmouseenter="this.style.background=\'#F8FAFC\'" onmouseleave="this.style.background=\'#fff\'">'
+      /* COLUMNA 1: FOLIO */
+      +'<div>'
+        +'<div style="font-family:Outfit,sans-serif;font-size:13px;font-weight:800;color:#0F172A;display:flex;align-items:center;">'+esc(p.folio||'—')+diaBadge+'</div>'
+      +'</div>'
+      /* COLUMNA 2: CLIENTE Y FECHA */
+      +'<div style="min-width:0;">'
+        +'<div style="font-size:12px;font-weight:600;color:#334155;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+esc(clienteNombre)+(clienteNum?' <span style="color:#94a3b8;font-weight:400;">('+esc(clienteNum)+')</span>':'')+'</div>'
+        +'<div style="font-size:10px;color:#94a3b8;margin-top:2px;">'+fechaStr+'</div>'
+      +'</div>'
+      /* COLUMNA 3: TOTAL */
+      +'<div style="text-align:right;white-space:nowrap;">'
+        +'<div style="font-family:Outfit,sans-serif;font-size:14px;font-weight:800;color:#059669;">'+total+'</div>'
+      +'</div>'
+      /* COLUMNA 4: ESTADO Y FLECHA */
+      +'<div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">'
+        +statusSpan
+        +'<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" stroke="#CBD5E1" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/></svg>'
+      +'</div>'
+      +'</div>';
   });
+  
+  list.innerHTML=html;
 }
 
 /* ── Detalle pedido ── */
