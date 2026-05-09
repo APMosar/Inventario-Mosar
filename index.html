@@ -1754,45 +1754,90 @@ function _getResumenProds(prods){
 
 /* ── Dashboard ── */
 function adminRenderDash(){
-  var hoyMX=_getMX(new Date());
-  var ayerD=new Date(); ayerD.setDate(ayerD.getDate()-1);
-  var ayerMX=_getMX(ayerD);
-  var mesMX=hoyMX.slice(0,7);
-  var pedHoy=0,totHoy=0,pedAyer=0,totAyer=0,pedMes=0,totMes=0,pendientes=0;
+  var hoyMX=_getMX(new Date());var ayerD=new Date();ayerD.setDate(ayerD.getDate()-1);var ayerMX=_getMX(ayerD);var mesMX=hoyMX.slice(0,7);
+  var pedHoy=0,totHoy=0,pedAyer=0,totAyer=0,pedMes=0,totMes=0,pendientes=0,procesadosCount=0;
+  
+  // Mapas para top clientes y productos
+  var mapaClientes={}; // { nombre: { total: num, pedidos: num } }
+  var mapaProductos={}; // { codigo: { cantidad: num } }
+
   _adminPedidos.forEach(function(p){
-    var f=fechaLocalMX(p.fecha),t=parseFloat(p.total||0);
-    var st=_adminStatus[p.folio]||{};
+    var f=fechaLocalMX(p.fecha);var t=parseFloat(p.total||0);var st=_adminStatus[p.folio]||{};
     if(f===hoyMX){pedHoy++;totHoy+=t;}
     if(f===ayerMX){pedAyer++;totAyer+=t;}
     if(f.slice(0,7)===mesMX){pedMes++;totMes+=t;}
-    if(!st.procesado) pendientes++;
+    if(!st.procesado)pendientes++; else procesadosCount++;
+    
+    // Acumular por cliente
+    var cNombre = _getNombreCliente(p);
+    if(!mapaClientes[cNombre]) mapaClientes[cNombre] = {total:0, pedidos:0};
+    mapaClientes[cNombre].total += t;
+    mapaClientes[cNombre].pedidos++;
+    
+    // Acumular por producto
+    var prods=[];
+    try{prods=typeof p.productos_json==='string'?JSON.parse(p.productos_json):(Array.isArray(p.productos_json)?p.productos_json:[]);}catch(e){}
+    prods.forEach(function(pr){
+      var cod = pr.codigo || 'SIN-CODIGO';
+      if(!mapaProductos[cod]) mapaProductos[cod] = {cantidad:0};
+      mapaProductos[cod].cantidad += (parseInt(pr.cantidad)||0);
+    });
   });
-  var fmt2=function(n){return '$'+parseFloat(n).toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2});};
-  var recientes=_adminPedidos.slice(0,8);
+
+  var fmt2=function(n){return'$'+parseFloat(n).toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2});};
+  var ticketPromedio = pedMes>0 ? totMes/pedMes : 0;
+  var pctProcesados = (pedHoy+pedAyer)>0 ? Math.round((procesadosCount/(procesadosCount+pendientes))*100) : 0;
+
+  // Ordenar Top Clientes
+  var topClientesArr = Object.keys(mapaClientes).map(function(nombre){ return {nombre:nombre, total:mapaClientes[nombre].total, pedidos:mapaClientes[nombre].pedidos}; }).sort(function(a,b){return b.total-a.total;}).slice(0,5);
+  
+  // Ordenar Top Productos
+  var topProductosArr = Object.keys(mapaProductos).map(function(cod){ return {codigo:cod, cantidad:mapaProductos[cod].cantidad}; }).sort(function(a,b){return b.cantidad-a.cantidad;}).slice(0,5);
+
+  var recientes=_adminPedidos.slice(0,6);
   var recHtml=recientes.map(function(p,i){
-    var st=_adminStatus[p.folio]||{};
-    var fd=p.fecha?new Date(p.fecha).toLocaleString('es-MX',{timeZone:'America/Monterrey',day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}):'—';
-    return '<div class="dash-rec-row" onclick="adminSwitchTab(\'pedidos\');setTimeout(function(){adminAbrirDetalle('+i+');},150)">'
-      +'<div class="dash-rec-folio">'+(p.folio||'—')+'</div>'
-      +'<div class="dash-rec-info"><div class="dash-rec-cliente">'+esc(_getNombreCliente(p))+'</div><div class="dash-rec-fecha">'+fd+'</div></div>'
-      +'<div class="dash-rec-total">'+fmt2(p.total||0)+'</div>'
-      +'<div class="dash-rec-status '+(st.procesado?'procesado':'pendiente')+'"></div>'
-      +'</div>';
+    var st=_adminStatus[p.folio]||{};var fd=p.fecha?new Date(p.fecha).toLocaleString('es-MX',{timeZone:'America/Monterrey',day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}):'—';
+    return'<div class="dash-rec-row" onclick="adminSwitchTab(\'pedidos\');setTimeout(function(){adminAbrirDetalle('+i+');},150)"><div class="dash-rec-folio">'+(p.folio||'—')+'</div><div class="dash-rec-info"><div class="dash-rec-cliente">'+esc(_getNombreCliente(p))+'</div><div class="dash-rec-fecha">'+fd+'</div></div><div class="dash-rec-total">'+fmt2(p.total||0)+'</div><div class="dash-rec-status '+(st.procesado?'procesado':'pendiente')+'"></div></div>';
   }).join('');
+
+  // Construir Top Clientes HTML
+  var clientesHtml = topClientesArr.map(function(c, i){
+    var medalla = i===0?'🥇':i===1?'🥈':i===2?'🥉':(i+1)+'.';
+    return '<div style="display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid rgba(255,255,255,.05);background:rgba(255,255,255,.02);"><span style="font-size:16px;width:24px;text-align:center;">'+medalla+'</span><div style="flex:1;min-width:0;"><div style="font-size:13px;font-weight:700;color:#E2E8F0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+esc(c.nombre)+'</div><div style="font-size:11px;color:#475569;">'+c.pedidos+' pedido'+(c.pedidos!==1?'s':'')+'</div></div><div style="font-family:Outfit,sans-serif;font-size:15px;font-weight:800;color:#34D399;">'+fmt2(c.total)+'</div></div>';
+  }).join('');
+
+  // Construir Top Productos HTML
+  var productosHtml = topProductosArr.map(function(p, i){
+    var medalla = i===0?'🥇':i===1?'🥈':i===2?'🥉':(i+1)+'.';
+    return '<div style="display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid rgba(255,255,255,.05);background:rgba(255,255,255,.02);"><span style="font-size:16px;width:24px;text-align:center;">'+medalla+'</span><div style="flex:1;min-width:0;"><div style="font-family:monospace;font-size:14px;font-weight:800;color:#60A5FA;">'+esc(p.codigo)+'</div></div><div style="font-family:Outfit,sans-serif;font-size:14px;font-weight:700;color:#FBBF24;">'+p.cantidad+' uds</div></div>';
+  }).join('');
+
   document.getElementById('dashBody').innerHTML=
+    /* KPIs */
     '<div class="dash-kpis">'
       +'<div class="dash-kpi"><div class="dash-kpi-lbl">Pedidos hoy</div><div class="dash-kpi-val azul">'+pedHoy+'</div><div class="dash-kpi-sub">'+fmt2(totHoy)+' en ventas</div></div>'
       +'<div class="dash-kpi"><div class="dash-kpi-lbl">Pedidos ayer</div><div class="dash-kpi-val">'+pedAyer+'</div><div class="dash-kpi-sub">'+fmt2(totAyer)+' en ventas</div></div>'
-      +'<div class="dash-kpi"><div class="dash-kpi-lbl">Pedidos del mes</div><div class="dash-kpi-val verde">'+pedMes+'</div><div class="dash-kpi-sub">'+fmt2(totMes)+' total</div></div>'
-      +'<div class="dash-kpi"><div class="dash-kpi-lbl">Total registros</div><div class="dash-kpi-val">'+_adminPedidos.length+'</div><div class="dash-kpi-sub">historial completo</div></div>'
+      +'<div class="dash-kpi"><div class="dash-kpi-lbl">Ticket Promedio</div><div class="dash-kpi-val verde">'+fmt2(ticketPromedio)+'</div><div class="dash-kpi-sub">Basado en el mes</div></div>'
+      +'<div class="dash-kpi"><div class="dash-kpi-lbl">Eficiencia SAP</div><div class="dash-kpi-val amarillo">'+pctProcesados+'%</div><div class="dash-kpi-sub">'+procesadosCount+' de '+(procesadosCount+pendientes)+' procesados</div></div>'
     +'</div>'
-    +'<div class="dash-pendientes-banner" onclick="adminSwitchTab(\'pedidos\');setTimeout(function(){adminAplicarFiltro(\'pendientes\');},100)">'
-      +'<div class="dash-pendientes-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6l4 2m6-2a10 10 0 1 1-20 0 10 10 0 0 1 20 0Z"/></svg></div>'
-      +'<div class="dash-pendientes-txt"><strong>'+pendientes+' pedido'+(pendientes!==1?'s':'')+' pendiente'+(pendientes!==1?'s':'')+' de capturar en SAP</strong><span>Toca aquí para verlos → </span></div>'
+    
+    /* Pendientes */
+    +(pendientes>0?('<div class="dash-pendientes-banner" onclick="adminSwitchTab(\'pedidos\');setTimeout(function(){adminAplicarFiltro(\'pendientes\');},100)"><div class="dash-pendientes-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6l4 2m6-2a10 10 0 1 1-20 0 10 10 0 0 1 20 0Z"/></svg></div><div class="dash-pendientes-txt"><strong>'+pendientes+' pedido'+(pendientes!==1?'s':'')+' pendiente'+(pendientes!==1?'s':'')+' de capturar en SAP</strong><span>Toca aquí para verlos → </span></div></div>'):'')
+    
+    /* Contenedores flex para Rankings */
+    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">'
+      +'<div class="dash-recientes"><div class="dash-section-title" style="padding:12px 16px;border-bottom:1px solid rgba(255,255,255,.05);">🏆 Top Clientes (Mes)</div>'+clientesHtml+'</div>'
+      +'<div class="dash-recientes"><div class="dash-section-title" style="padding:12px 16px;border-bottom:1px solid rgba(255,255,255,.05);">📦 Top Productos (Mes)</div>'+productosHtml+'</div>'
     +'</div>'
+    
+    /* Resumen mes y Recientes */
+    +'<div class="dash-kpis" style="margin-top:4px;">'
+      +'<div class="dash-kpi" style="grid-column: span 2;"><div class="dash-kpi-lbl">Total ventas del mes</div><div class="dash-kpi-val verde" style="font-size:32px;">'+fmt2(totMes)+'</div><div class="dash-kpi-sub">'+pedMes+' pedidos en total</div></div>'
+      +'<div class="dash-kpi" style="grid-column: span 2;"><div class="dash-kpi-lbl">Total registros</div><div class="dash-kpi-val" style="font-size:32px;">'+_adminPedidos.length+'</div><div class="dash-kpi-sub">Historial completo en sistema</div></div>'
+    +'</div>'
+    
     +'<div><div class="dash-section-title">Pedidos recientes</div><div class="dash-recientes">'+recHtml+'</div></div>';
 }
-
 /* ── Filtros y búsqueda ── */
 function _getMX(d){ return d.toLocaleDateString('es-MX',{timeZone:'America/Monterrey',year:'numeric',month:'2-digit',day:'2-digit'}).split('/').reverse().join('-'); }
 
@@ -1828,58 +1873,50 @@ function adminFiltrar(){ adminAplicarFiltro(_adminFiltroActivo); }
 function adminRenderizar(){
   var list=document.getElementById('adminList');
   if(!_adminFiltrados.length){list.innerHTML='<div class="admin-empty">📭 No hay pedidos en este período.</div>';return;}
-  list.innerHTML='';
-  var hoyMX=_getMX(new Date());
-  var ayerD=new Date();ayerD.setDate(ayerD.getDate()-1);
-  var ayerMX=_getMX(ayerD);
+  list.innerHTML='';var hoyMX=_getMX(new Date());var ayerD=new Date();ayerD.setDate(ayerD.getDate()-1);var ayerMX=_getMX(ayerD);
+  
   _adminFiltrados.forEach(function(p,idx){
-    var prods=[];
-    try{prods=typeof p.productos_json==='string'?JSON.parse(p.productos_json):(Array.isArray(p.productos_json)?p.productos_json:[]);}catch(e){}
-    var st=_adminStatus[p.folio]||{};
-    var fLocal=fechaLocalMX(p.fecha);
-    var procesado=!!st.procesado;
+    var prods=[];try{prods=typeof p.productos_json==='string'?JSON.parse(p.productos_json):(Array.isArray(p.productos_json)?p.productos_json:[]);}catch(e){}
+    var st=_adminStatus[p.folio]||{};var fLocal=fechaLocalMX(p.fecha);var procesado=!!st.procesado;
     var fechaStr=p.fecha?new Date(p.fecha).toLocaleString('es-MX',{timeZone:'America/Monterrey',day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}):'—';
-    var total=parseFloat(p.total||0).toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2});
-    var numLineas=prods.length;
-    var numArts=prods.reduce(function(a,b){return a+(parseInt(b.cantidad)||1);},0);
-    // Nombre real del cliente via join
-    var clienteNombre=(p.clientes_mayoreo&&p.clientes_mayoreo.nombre)?p.clientes_mayoreo.nombre:(p.nombre_contacto||'Cliente');
-    var clienteNum=(p.clientes_mayoreo&&p.clientes_mayoreo.numero_cliente)?p.clientes_mayoreo.numero_cliente:'';
-    // Resumen limpio sin flechas
-    var resumen=prods.slice(0,4).map(function(pr){return pr.cantidad+'x '+pr.codigo;}).join(' - ')+(prods.length>4?' +'+( prods.length-4)+' más':'');
-    var badge=fLocal===hoyMX
-      ?'<span style="background:#22c55e;color:#fff;font-size:9px;font-weight:800;padding:2px 7px;border-radius:20px;margin-left:6px;vertical-align:middle;">HOY</span>'
-      :fLocal===ayerMX
-      ?'<span style="background:#F59E0B;color:#fff;font-size:9px;font-weight:800;padding:2px 7px;border-radius:20px;margin-left:6px;vertical-align:middle;">AYER</span>'
-      :'';
+    var total=parseFloat(p.total||0).toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2});var numArts=prods.reduce(function(a,b){return a+(parseInt(b.cantidad)||1);},0);
+    var clienteNombre=(p.clientes_mayoreo&&p.clientes_mayoreo.nombre)?p.clientes_mayoreo.nombre:(p.nombre_contacto||'Cliente');var clienteNum=(p.clientes_mayoreo&&p.clientes_mayoreo.numero_cliente)?p.clientes_mayoreo.numero_cliente:'';
+    var resumen=prods.slice(0,5).map(function(pr){return pr.cantidad+'x '+pr.codigo;}).join(' · ')+(prods.length>5?' +'+(prods.length-5)+' más':'');
+    var badge=fLocal===hoyMX?'<span style="background:#22c55e;color:#fff;font-size:10px;font-weight:800;padding:3px 8px;border-radius:20px;margin-left:8px;">HOY</span>':fLocal===ayerMX?'<span style="background:#F59E0B;color:#fff;font-size:10px;font-weight:800;padding:3px 8px;border-radius:20px;margin-left:8px;">AYER</span>':'';
+    var statusSpan=procesado?'<span style="background:#dcfce7;color:#15803d;border:1px solid #bbf7d0;font-size:10px;font-weight:800;padding:3px 10px;border-radius:20px;">✓ SAP '+(st.folioSAP||'')+'</span>':'<span style="background:#fef9c3;color:#92400e;border:1px solid #fde68a;font-size:10px;font-weight:800;padding:3px 10px;border-radius:20px;">⏳ Pendiente</span>';
+    
+    /* --- NUEVO DISEÑO: TARJETAS ESPACIOSAS Y LEGIBLES --- */
     var card=document.createElement('div');
-    card.style.cssText='background:#fff;border:1px solid #E2E8F0;border-radius:14px;margin-bottom:2px;cursor:pointer;transition:box-shadow .15s,transform .1s;border-left:4px solid '+(procesado?'#22c55e':'#E8A020')+';overflow:hidden;';
-    card.onmouseenter=function(){this.style.boxShadow='0 4px 18px rgba(0,0,0,.1)';this.style.transform='translateY(-1px)';};
-    card.onmouseleave=function(){this.style.boxShadow='none';this.style.transform='none';};
+    card.style.cssText='background:#fff;border:1.5px solid #E2E8F0;border-radius:16px;margin-bottom:10px;cursor:pointer;transition:all .15s;border-left:6px solid '+(procesado?'#22c55e':'#F59E0B')+';overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.04);';
+    card.onmouseenter=function(){this.style.boxShadow='0 8px 24px rgba(0,0,0,.1)';this.style.transform='translateY(-2px)';this.style.borderColor='#CBD5E1';};
+    card.onmouseleave=function(){this.style.boxShadow='0 1px 3px rgba(0,0,0,.04)';this.style.transform='none';this.style.borderColor='#E2E8F0';};
     card.onclick=function(){adminAbrirDetalle(idx);};
-    card.innerHTML=
-      '<div style="display:grid;grid-template-columns:1fr auto;gap:10px;padding:14px 16px;align-items:center;">'
-        +'<div style="min-width:0;">'
-          +'<div style="display:flex;align-items:center;gap:6px;margin-bottom:5px;flex-wrap:wrap;">'
-            +'<span style="font-family:Outfit,sans-serif;font-size:15px;font-weight:800;color:#1a1a2e;">'+esc(p.folio||'—')+'</span>'
-            +badge
-            +(procesado
-              ?'<span style="background:#dcfce7;color:#15803d;border:1px solid #bbf7d0;font-size:9px;font-weight:800;padding:2px 8px;border-radius:20px;">✓ SAP '+(st.folioSAP||'')+'</span>'
-              :'<span style="background:#fef9c3;color:#92400e;border:1px solid #fde68a;font-size:9px;font-weight:800;padding:2px 8px;border-radius:20px;">⏳ Pendiente</span>'
-            )
+    
+    card.innerHTML=''
+      +'<div style="padding:16px 20px;display:flex;align-items:flex-start;justify-content:space-between;gap:16px;">'
+        +'<!-- LADO IZQUIERDO -->'
+        +'<div style="flex:1;min-width:0;">'
+          +'<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap;">'
+            +'<span style="font-family:Outfit,sans-serif;font-size:17px;font-weight:800;color:#0F172A;">'+esc(p.folio||'—')+'</span>'
+            +badge+statusSpan
           +'</div>'
-          +'<div style="font-size:14px;font-weight:700;color:#1e293b;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'
-            +esc(clienteNombre)+(clienteNum?' <span style="color:#94a3b8;font-size:12px;font-weight:400;">'+esc(clienteNum)+'</span>':'')
+          +'<div style="font-size:15px;font-weight:700;color:#1e293b;margin-bottom:4px;display:flex;align-items:center;gap:6px;">'
+            +'<span style="color:#64748B;">👤</span> '+esc(clienteNombre)
+            +(clienteNum?' <span style="color:#94a3b8;font-size:12px;font-weight:500;background:#F1F5F9;padding:2px 8px;border-radius:6px;">'+esc(clienteNum)+'</span>':'')
           +'</div>'
-          +'<div style="font-size:11px;color:#94a3b8;margin-bottom:6px;">'+fechaStr+'</div>'
-          +'<div style="font-size:12px;color:#64748b;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:5px 10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+esc(resumen)+'</div>'
+          +'<div style="font-size:12px;color:#94a3b8;margin-bottom:10px;display:flex;align-items:center;gap:6px;">'
+            +'<span style="color:#64748B;">📅</span> '+fechaStr
+            +'<span style="margin-left:auto;font-size:11px;color:#cbd5e1;">'+numArts+' unidades</span>'
+          +'</div>'
+          +'<div style="font-size:13px;color:#475569;background:#F8FAFC;border:1px solid #E2E8F0;border-radius:10px;padding:10px 14px;line-height:1.5;">'+esc(resumen)+'</div>'
         +'</div>'
-        +'<div style="text-align:right;flex-shrink:0;padding-left:8px;">'
-          +'<div style="font-family:Outfit,sans-serif;font-size:20px;font-weight:900;color:#16a34a;">$'+total+'</div>'
-          +'<div style="font-size:10px;color:#94a3b8;margin-top:3px;">'+numLineas+' art · '+numArts+' uds</div>'
-          +'<div style="font-size:10px;color:'+(procesado?'#16a34a':'#d97706')+';font-weight:700;margin-top:2px;">'+(procesado?'✓ Listo':'⏳ Falta SAP')+'</div>'
+        +'<!-- LADO DERECHO (PRECIO) -->'
+        +'<div style="text-align:right;flex-shrink:0;padding-left:10px;">'
+          +'<div style="font-size:11px;color:#94a3b8;font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;">Total</div>'
+          +'<div style="font-family:Outfit,sans-serif;font-size:22px;font-weight:900;color:#059669;">$'+total+'</div>'
         +'</div>'
       +'</div>';
+      
     list.appendChild(card);
   });
 }
