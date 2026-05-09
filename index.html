@@ -2065,6 +2065,77 @@ function fechaLocalMX(fechaStr){
 /* Acceso admin por URL ?admin */
 (function(){ if(window.location.search.includes('admin')){ setTimeout(abrirAdminLogin,400); } })();
 
+/* --- DIAGNÓSTICO Y CARGA ADMIN DEFINITIVA --- */
+async function adminCargarPedidosFinal(){
+  var list = document.getElementById('adminList');
+  var dash = document.getElementById('dashBody');
+  
+  if(!list || !dash) {
+    console.error("No encontré los contenedores del admin");
+    return;
+  }
+
+  list.innerHTML = '<div class="admin-loading">⏳ Conectando con Supabase...</div>';
+  dash.innerHTML = '<div class="admin-loading">⏳ Conectando con Supabase...</div>';
+
+  try {
+    /* 1. Pedidos */
+    var r1 = await fetch(SUPA_URL+'/rest/v1/historial_pedidos?select=*&order=fecha.desc&limit=200', {
+      headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY}
+    });
+    if(!r1.ok) throw new Error('Error tabla historial_pedidos: ' + r1.status);
+    _adminPedidos = await r1.json() || [];
+
+    /* 2. Clientes */
+    var mapaClientes = {};
+    try {
+      var r3 = await fetch(SUPA_URL+'/rest/v1/clientes_mayoreo?select=id,nombre,numero_cliente&limit=500', {
+        headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY}
+      });
+      if(r3.ok) {
+        var clientes = await r3.json() || [];
+        clientes.forEach(function(c){ mapaClientes[c.id] = c; });
+      }
+    } catch(eC) { console.warn("Clientes omitidos:", eC.message); }
+    
+    _adminPedidos.forEach(function(p){ p.clientes_mayoreo = mapaClientes[p.cliente_id] || null; });
+
+    /* 3. Status */
+    try {
+      var r2 = await fetch(SUPA_URL+'/rest/v1/pedidos_status?select=*', {
+        headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY}
+      });
+      if(r2.ok) {
+        var statusData = await r2.json() || [];
+        _adminStatus = {};
+        statusData.forEach(function(s){ _adminStatus[s.folio] = {procesado:s.procesado, folioSAP:s.folio_sap||''}; });
+      }
+    } catch(eS) { console.warn("Status omitido:", eS.message); }
+
+    /* Éxito: Renderizar */
+    adminAplicarFiltro(_adminFiltroActivo);
+    if(_adminTabActiva==='dash') adminRenderDash();
+
+  } catch (error) {
+    console.error("ERROR ADMIN:", error);
+    list.innerHTML = '<div class="admin-empty" style="color:#B91C1C;">❌ Error detectado:<br><br><small style="color:#334155;">' + error.message + '<br><br>Si dice "Failed to fetch", es un problema de CORS o URL de Supabase.</small></div>';
+    dash.innerHTML = '<div class="admin-empty" style="color:#B91C1C;">❌ Error al cargar el dashboard.</div>';
+  }
+}
+
+/* Sobrescribimos la función original por esta */
+verificarAdminPwd = function() {
+  if(document.getElementById('adminPwdInput').value === ADMIN_PWD){
+    document.getElementById('adminLoginBg').classList.remove('open');
+    document.getElementById('adminBg').classList.add('open');
+    adminCargarPedidosFinal(); /* Usamos la nueva */
+  } else {
+    document.getElementById('adminLoginErr').style.display = 'block';
+    document.getElementById('adminPwdInput').value = '';
+    document.getElementById('adminPwdInput').focus();
+  }
+};
+  
 </script>
 </body>
 </html>
