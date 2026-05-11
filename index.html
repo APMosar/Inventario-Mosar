@@ -1668,17 +1668,15 @@ function cerrarConfirmacion(){
 
 /* ============================================================
    PANEL ADMIN — MOSAR Refaccionarias
-   Con Dashboard, Sistema de Estatus y Folio SAP
 ============================================================ */
 var ADMIN_PWD = 'mosar2025';
 var _adminPedidos = [];
-var _adminStatus = {};   // { folio: { procesado: bool, folioSAP: string } }
+var _adminStatus = {};
 var _adminFiltrados = [];
 var _adminFiltroActivo = 'todos';
 var _adminTabActiva = 'dash';
 var _detalleIdx = -1;
 
-/* ── Login ── */
 function abrirAdminLogin(){
   document.getElementById('adminLoginBg').classList.add('open');
   document.getElementById('adminLoginErr').style.display='none';
@@ -1698,163 +1696,179 @@ function verificarAdminPwd(){
 }
 function cerrarAdmin(){ document.getElementById('adminBg').classList.remove('open'); }
 
-/* ── Tabs ── */
 function adminSwitchTab(tab){
   _adminTabActiva=tab;
-  ['dash','pedidos'].forEach(function(t){
-    document.getElementById('tab'+t.charAt(0).toUpperCase()+t.slice(1)).classList.toggle('active',t===tab);
-    document.getElementById('view'+t.charAt(0).toUpperCase()+t.slice(1)).classList.toggle('active',t===tab);
-  });
+  document.getElementById('tabDash').classList.toggle('active',tab==='dash');
+  document.getElementById('tabPedidos').classList.toggle('active',tab==='pedidos');
+  document.getElementById('viewDash').classList.toggle('active',tab==='dash');
+  document.getElementById('viewPedidos').classList.toggle('active',tab==='pedidos');
   if(tab==='dash') adminRenderDash();
 }
 
-/* ── Cargar datos ── */
+/* ── Función única de carga — sin duplicados ── */
 async function adminCargarPedidos(){
-  document.getElementById('adminList').innerHTML='<div class="admin-loading">⏳ Cargando pedidos...</div>';
-  document.getElementById('dashBody').innerHTML='<div class="admin-loading">⏳ Cargando dashboard...</div>';
+  var list=document.getElementById('adminList');
+  var dash=document.getElementById('dashBody');
+  list.innerHTML='<div class="admin-loading">⏳ Cargando pedidos...</div>';
+  dash.innerHTML='<div class="admin-loading">⏳ Cargando dashboard...</div>';
   try{
-    // Pedidos + join con clientes para obtener nombre real
-    var r1=await fetch(SUPA_URL+'/rest/v1/historial_pedidos?select=*,clientes_mayoreo(nombre,numero_cliente)&order=fecha.desc&limit=200',{
+    /* 1. Pedidos */
+    var r1=await fetch(SUPA_URL+'/rest/v1/historial_pedidos?select=*&order=fecha.desc&limit=200',{
       headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY}
     });
-    if(!r1.ok) throw new Error('HTTP '+r1.status);
+    if(!r1.ok) throw new Error('historial_pedidos HTTP '+r1.status);
     _adminPedidos=await r1.json()||[];
 
-    // Status
-    var r2=await fetch(SUPA_URL+'/rest/v1/pedidos_status?select=*',{
-      headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY}
-    });
-    if(r2.ok){
-      var statusData=await r2.json()||[];
-      _adminStatus={};
-      statusData.forEach(function(s){ _adminStatus[s.folio]={procesado:s.procesado,folioSAP:s.folio_sap||''}; });
-    }
+    /* 2. Clientes — join manual */
+    var mapaClientes={};
+    try{
+      var rc=await fetch(SUPA_URL+'/rest/v1/clientes_mayoreo?select=id,nombre,numero_cliente&limit=500',{
+        headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY}
+      });
+      if(rc.ok){
+        var cl=await rc.json()||[];
+        cl.forEach(function(c){ mapaClientes[c.id]=c; });
+      }
+    }catch(ce){ console.warn('Clientes no cargados:',ce.message); }
+    _adminPedidos.forEach(function(p){ p._cl=mapaClientes[p.cliente_id]||null; });
+
+    /* 3. Status SAP */
+    _adminStatus={};
+    try{
+      var r2=await fetch(SUPA_URL+'/rest/v1/pedidos_status?select=*',{
+        headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY}
+      });
+      if(r2.ok){
+        var sd=await r2.json()||[];
+        sd.forEach(function(s){ _adminStatus[s.folio]={procesado:s.procesado,folioSAP:s.folio_sap||''}; });
+      }
+    }catch(se){ console.warn('Status no cargados:',se.message); }
+
     adminAplicarFiltro(_adminFiltroActivo);
     if(_adminTabActiva==='dash') adminRenderDash();
   }catch(e){
-    document.getElementById('adminList').innerHTML='<div class="admin-empty">❌ Error al cargar. Verifica tu conexión.</div>';
-    console.error(e);
+    console.error('Admin error:',e);
+    list.innerHTML='<div class="admin-empty" style="color:#B91C1C;">❌ '+e.message+'<br><small style=\'color:#64748B;margin-top:8px;display:block;\'>Intenta de nuevo con el botón Actualizar</small></div>';
+    dash.innerHTML='<div class="admin-empty">❌ Error al cargar el dashboard.</div>';
   }
 }
 
-// Extrae nombre legible del cliente
-function _getNombreCliente(p){
-  if(p.clientes_mayoreo&&p.clientes_mayoreo.nombre) return p.clientes_mayoreo.nombre;
-  return p.nombre_contacto||'Cliente';
-}
-function _getNumCliente(p){
-  if(p.clientes_mayoreo&&p.clientes_mayoreo.numero_cliente) return p.clientes_mayoreo.numero_cliente;
-  return '';
-}
-// Extrae resumen limpio de productos (sin flechas ni precios)
-function _getResumenProds(prods){
-  if(!prods||!prods.length) return '—';
-  return prods.slice(0,4).map(function(pr){ return pr.cantidad+'x '+pr.codigo; }).join(' · ')+(prods.length>4?' +'+( prods.length-4)+' más':'');
-}
+/* Helpers de nombre */
+function _nom(p){ return (p._cl&&p._cl.nombre)?p._cl.nombre:(p.nombre_contacto||'Cliente'); }
+function _num(p){ return (p._cl&&p._cl.numero_cliente)?p._cl.numero_cliente:''; }
+function _getMX(d){ return d.toLocaleDateString('es-MX',{timeZone:'America/Monterrey',year:'numeric',month:'2-digit',day:'2-digit'}).split('/').reverse().join('-'); }
 
-/* ── Dashboard ── */
+/* ── Dashboard profesional ── */
 function adminRenderDash(){
-  var hoyMX=_getMX(new Date());var ayerD=new Date();ayerD.setDate(ayerD.getDate()-1);var ayerMX=_getMX(ayerD);var mesMX=hoyMX.slice(0,7);
-  var pedHoy=0,totHoy=0,pedAyer=0,totAyer=0,pedMes=0,totMes=0,pendientes=0,procesadosCount=0;
-  var mapaClientes={}; var mapaProductos={};
+  if(!_adminPedidos.length){
+    document.getElementById('dashBody').innerHTML='<div class="admin-empty">Sin pedidos en el sistema.</div>';
+    return;
+  }
+  var hoyMX=_getMX(new Date());
+  var ayerD=new Date();ayerD.setDate(ayerD.getDate()-1);var ayerMX=_getMX(ayerD);
+  var mesMX=hoyMX.slice(0,7);
+  var pedHoy=0,totHoy=0,pedAyer=0,totAyer=0,pedMes=0,totMes=0,pendientes=0,procesados=0;
+  var mapaClien={},mapaProd={};
 
   _adminPedidos.forEach(function(p){
-    var f=fechaLocalMX(p.fecha);var t=parseFloat(p.total||0);var st=_adminStatus[p.folio]||{};
-    if(f===hoyMX){pedHoy++;totHoy+=t;}
-    if(f===ayerMX){pedAyer++;totAyer+=t;}
-    if(f.slice(0,7)===mesMX){pedMes++;totMes+=t;}
-    if(!st.procesado)pendientes++; else procesadosCount++;
-    
-    var cNombre = _getNombreCliente(p);
-    if(!mapaClientes[cNombre]) mapaClientes[cNombre] = {total:0, pedidos:0};
-    mapaClientes[cNombre].total += t;
-    mapaClientes[cNombre].pedidos++;
-    
+    var f=fechaLocalMX(p.fecha),tv=parseFloat(p.total||0),st=_adminStatus[p.folio]||{};
+    if(f===hoyMX){pedHoy++;totHoy+=tv;}
+    if(f===ayerMX){pedAyer++;totAyer+=tv;}
+    if(f.slice(0,7)===mesMX){pedMes++;totMes+=tv;}
+    if(st.procesado)procesados++;else pendientes++;
+    var nm=_nom(p);
+    if(!mapaClien[nm])mapaClien[nm]={total:0,pedidos:0};
+    mapaClien[nm].total+=tv;mapaClien[nm].pedidos++;
     var prods=[];
     try{prods=typeof p.productos_json==='string'?JSON.parse(p.productos_json):(Array.isArray(p.productos_json)?p.productos_json:[]);}catch(e){}
     prods.forEach(function(pr){
-      var cod = pr.codigo || 'SIN-CODIGO';
-      if(!mapaProductos[cod]) mapaProductos[cod] = {cantidad:0};
-      mapaProductos[cod].cantidad += (parseInt(pr.cantidad)||0);
+      var cod=pr.codigo||'SIN-CODIGO';
+      if(!mapaProd[cod])mapaProd[cod]={cantidad:0};
+      mapaProd[cod].cantidad+=(parseInt(pr.cantidad)||0);
     });
   });
 
-  var fmt2=function(n){return'$'+parseFloat(n).toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2});};
-  var ticketPromedio = pedMes>0 ? totMes/pedMes : 0;
-  var pctProcesados = (procesadosCount+pendientes)>0 ? Math.round((procesadosCount/(procesadosCount+pendientes))*100) : 0;
+  var f2=function(n){return'$'+parseFloat(n).toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2});};
+  var ticket=pedMes>0?totMes/pedMes:0;
+  var pctSAP=(procesados+pendientes)>0?Math.round(procesados/(procesados+pendientes)*100):0;
 
-  var topClientesArr = Object.keys(mapaClientes).map(function(nombre){ return {nombre:nombre, total:mapaClientes[nombre].total, pedidos:mapaClientes[nombre].pedidos}; }).sort(function(a,b){return b.total-a.total;}).slice(0,5);
-  var topProductosArr = Object.keys(mapaProductos).map(function(cod){ return {codigo:cod, cantidad:mapaProductos[cod].cantidad}; }).sort(function(a,b){return b.cantidad-a.cantidad;}).slice(0,5);
+  /* Top 5 clientes y productos */
+  var topClientes=Object.keys(mapaClien).map(function(n){return{nombre:n,total:mapaClien[n].total,pedidos:mapaClien[n].pedidos};}).sort(function(a,b){return b.total-a.total;}).slice(0,5);
+  var topProds=Object.keys(mapaProd).map(function(c){return{codigo:c,cantidad:mapaProd[c].cantidad};}).sort(function(a,b){return b.cantidad-a.cantidad;}).slice(0,5);
 
-  var recientes=_adminPedidos.slice(0,6);
-  var recHtml=recientes.map(function(p,i){
-    var st=_adminStatus[p.folio]||{};var fd=p.fecha?new Date(p.fecha).toLocaleString('es-MX',{timeZone:'America/Monterrey',day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}):'—';
-    return'<div class="dash-rec-row" onclick="adminSwitchTab(\'pedidos\');setTimeout(function(){adminAbrirDetalle('+i+');},150)"><div class="dash-rec-folio">'+(p.folio||'—')+'</div><div class="dash-rec-info"><div class="dash-rec-cliente">'+esc(_getNombreCliente(p))+'</div><div class="dash-rec-fecha">'+fd+'</div></div><div class="dash-rec-total">'+fmt2(p.total||0)+'</div><div class="dash-rec-status '+(st.procesado?'procesado':'pendiente')+'"></div></div>';
-  }).join('');
-
-  /* --- TOP CLIENTES (BLANCO Y LEGIBLE) --- */
-  var clientesHtml = topClientesArr.map(function(c, i){
-    var medalla = i===0?'🥇':i===1?'🥈':i===2?'🥉':(i+1)+'.';
-    var mx=topClientesArr[0]?topClientesArr[0].total:1; var pct=Math.round((c.total/mx)*100);
-    return '<div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #F1F5F9;">'
-      +'<span style="font-size:16px;width:24px;text-align:center;flex-shrink:0;">'+medalla+'</span>'
-      +'<div style="flex:1;min-width:0;">'
-        +'<div style="font-size:13px;font-weight:700;color:#1E293B;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+esc(c.nombre)+'</div>'
-        +'<div style="display:flex;align-items:center;gap:8px;margin-top:4px;">'
-          +'<div style="flex:1;height:6px;background:#E2E8F0;border-radius:3px;overflow:hidden;"><div style="height:100%;width:'+pct+'%;background:linear-gradient(90deg,#3B82F6,#60A5FA);border-radius:3px;"></div></div>'
-          +'<div style="font-size:11px;color:#64748B;white-space:nowrap;">'+c.pedidos+' ped · '+fmt2(c.total)+'</div>'
+  var barClientes=topClientes.map(function(c,i){
+    var med=['🥇','🥈','🥉','4.','5.'][i]||'';
+    var pct=topClientes[0]?Math.round(c.total/topClientes[0].total*100):0;
+    return'<div style=\'display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid #F1F5F9;\'>'
+      +'<span style=\'font-size:16px;width:22px;flex-shrink:0;\'>'+med+'</span>'
+      +'<div style=\'flex:1;min-width:0;\'>'
+        +'<div style=\'font-size:12px;font-weight:700;color:#1E293B;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;\'>'+esc(c.nombre)+'</div>'
+        +'<div style=\'display:flex;align-items:center;gap:6px;margin-top:3px;\'>'
+          +'<div style=\'flex:1;height:5px;background:#E2E8F0;border-radius:3px;\'><div style=\'height:100%;width:'+pct+'%;background:linear-gradient(90deg,#3B82F6,#60A5FA);border-radius:3px;\'></div></div>'
+          +'<span style=\'font-size:10px;color:#64748B;white-space:nowrap;\'>'+c.pedidos+' ped · '+f2(c.total)+'</span>'
         +'</div>'
       +'</div></div>';
   }).join('');
 
-  /* --- TOP PRODUCTOS (BLANCO Y LEGIBLE) --- */
-  var productosHtml = topProductosArr.map(function(p, i){
-    var medalla = i===0?'🥇':i===1?'🥈':i===2?'🥉':(i+1)+'.';
-    var mx=topProductosArr[0]?topProductosArr[0].cantidad:1; var pct=Math.round((p.cantidad/mx)*100);
-    return '<div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #F1F5F9;">'
-      +'<span style="font-size:16px;width:24px;text-align:center;flex-shrink:0;">'+medalla+'</span>'
-      +'<div style="flex:1;min-width:0;">'
-        +'<div style="font-family:monospace;font-size:14px;font-weight:800;color:#2563EB;">'+esc(p.codigo)+'</div>'
-        +'<div style="display:flex;align-items:center;gap:8px;margin-top:4px;">'
-          +'<div style="flex:1;height:6px;background:#E2E8F0;border-radius:3px;overflow:hidden;"><div style="height:100%;width:'+pct+'%;background:linear-gradient(90deg,#F59E0B,#FBBF24);border-radius:3px;"></div></div>'
-          +'<div style="font-size:11px;color:#64748B;white-space:nowrap;">'+p.cantidad+' uds</div>'
+  var barProds=topProds.map(function(p,i){
+    var med=['🥇','🥈','🥉','4.','5.'][i]||'';
+    var pct=topProds[0]?Math.round(p.cantidad/topProds[0].cantidad*100):0;
+    return'<div style=\'display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid #F1F5F9;\'>'
+      +'<span style=\'font-size:16px;width:22px;flex-shrink:0;\'>'+med+'</span>'
+      +'<div style=\'flex:1;min-width:0;\'>'
+        +'<div style=\'font-family:monospace;font-size:13px;font-weight:800;color:#1D4ED8;\'>'+esc(p.codigo)+'</div>'
+        +'<div style=\'display:flex;align-items:center;gap:6px;margin-top:3px;\'>'
+          +'<div style=\'flex:1;height:5px;background:#E2E8F0;border-radius:3px;\'><div style=\'height:100%;width:'+pct+'%;background:linear-gradient(90deg,#F59E0B,#FBBF24);border-radius:3px;\'></div></div>'
+          +'<span style=\'font-size:10px;color:#64748B;\'>'+p.cantidad+' uds</span>'
         +'</div>'
       +'</div></div>';
   }).join('');
 
-  /* ESTILO CAJAS BLANCAS CON SOMBRA */
-  var cajaBlanca = 'background:#fff;border-radius:16px;box-shadow:0 4px 16px rgba(0,0,0,.05);border:1px solid #E2E8F0;padding:18px;';
+  var recientes=_adminPedidos.slice(0,6).map(function(p,i){
+    var st=_adminStatus[p.folio]||{};
+    var fd=p.fecha?new Date(p.fecha).toLocaleString('es-MX',{timeZone:'America/Monterrey',day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}):'—';
+    return'<div style=\'display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid #F1F5F9;cursor:pointer;\' onclick=\'adminSwitchTab(\'pedidos\');setTimeout(function(){adminAbrirDetalle('+i+');},100)\'>'
+      +'<div style=\'font-family:Outfit,sans-serif;font-weight:800;font-size:13px;color:#2563EB;min-width:80px;\'>'+esc(p.folio||'—')+'</div>'
+      +'<div style=\'flex:1;min-width:0;\'>'
+        +'<div style=\'font-size:12px;font-weight:600;color:#1E293B;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;\'>'+esc(_nom(p))+'</div>'
+        +'<div style=\'font-size:10px;color:#94A3B8;margin-top:1px;\'>'+fd+'</div>'
+      +'</div>'
+      +'<div style=\'font-family:Outfit,sans-serif;font-size:13px;font-weight:800;color:#059669;white-space:nowrap;\'>'+f2(p.total||0)+'</div>'
+      +'<div style=\'width:8px;height:8px;border-radius:50%;background:'+(st.procesado?'#22c55e':'#FBBF24')+';flex-shrink:0;\'></div>'
+      +'</div>';
+  }).join('');
+
+  var bx='background:#fff;border-radius:14px;border:1px solid #E2E8F0;padding:16px 18px;box-shadow:0 2px 10px rgba(0,0,0,.04);';
 
   document.getElementById('dashBody').innerHTML=
     /* KPIs */
-    '<div class="dash-kpis">'
-      +'<div class="dash-kpi"><div class="dash-kpi-lbl">Pedidos hoy</div><div class="dash-kpi-val azul">'+pedHoy+'</div><div class="dash-kpi-sub">'+fmt2(totHoy)+' en ventas</div></div>'
-      +'<div class="dash-kpi"><div class="dash-kpi-lbl">Pedidos ayer</div><div class="dash-kpi-val azul">'+pedAyer+'</div><div class="dash-kpi-sub">'+fmt2(totAyer)+' en ventas</div></div>'
-      +'<div class="dash-kpi"><div class="dash-kpi-lbl">Ticket Promedio</div><div class="dash-kpi-val verde">'+fmt2(ticketPromedio)+'</div><div class="dash-kpi-sub">Basado en el mes</div></div>'
-      +'<div class="dash-kpi"><div class="dash-kpi-lbl">Eficiencia SAP</div><div class="dash-kpi-val amarillo">'+pctProcesados+'%</div><div class="dash-kpi-sub">'+procesadosCount+' de '+(procesadosCount+pendientes)+' procesados</div></div>'
+    '<div style=\'display:grid;grid-template-columns:repeat(2,1fr);gap:10px;\'>'
+      +'<div style=\''+bx+'\"><div style=\'font-size:10px;color:#64748B;font-weight:700;text-transform:uppercase;letter-spacing:.08em;\'>Pedidos hoy</div><div style=\'font-family:Outfit,sans-serif;font-size:28px;font-weight:900;color:#2563EB;margin:4px 0 2px;\'>'+pedHoy+'</div><div style=\'font-size:11px;color:#94A3B8;\'>'+f2(totHoy)+' en ventas</div></div>'
+      +'<div style=\''+bx+'\"><div style=\'font-size:10px;color:#64748B;font-weight:700;text-transform:uppercase;letter-spacing:.08em;\'>Pedidos ayer</div><div style=\'font-family:Outfit,sans-serif;font-size:28px;font-weight:900;color:#0F172A;margin:4px 0 2px;\'>'+pedAyer+'</div><div style=\'font-size:11px;color:#94A3B8;\'>'+f2(totAyer)+' en ventas</div></div>'
+      +'<div style=\''+bx+'\"><div style=\'font-size:10px;color:#64748B;font-weight:700;text-transform:uppercase;letter-spacing:.08em;\'>Ticket promedio</div><div style=\'font-family:Outfit,sans-serif;font-size:22px;font-weight:900;color:#059669;margin:4px 0 2px;\'>'+f2(ticket)+'</div><div style=\'font-size:11px;color:#94A3B8;\'>'+pedMes+' pedidos este mes</div></div>'
+      +'<div style=\''+bx+'\"><div style=\'font-size:10px;color:#64748B;font-weight:700;text-transform:uppercase;letter-spacing:.08em;\'>Eficiencia SAP</div><div style=\'font-family:Outfit,sans-serif;font-size:28px;font-weight:900;color:'+(pctSAP>=80?'#059669':pctSAP>=50?'#F59E0B':'#DC2626')+';margin:4px 0 2px;\'>'+pctSAP+'%</div><div style=\'font-size:11px;color:#94A3B8;\'>'+procesados+' procesados · '+pendientes+' pendientes</div></div>'
     +'</div>'
-    
-    /* Pendientes */
-    +(pendientes>0?('<div class="dash-pendientes-banner" onclick="adminSwitchTab(\'pedidos\');setTimeout(function(){adminAplicarFiltro(\'pendientes\');},100)"><div class="dash-pendientes-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6l4 2m6-2a10 10 0 1 1-20 0 10 10 0 0 1 20 0Z"/></svg></div><div class="dash-pendientes-txt"><strong>'+pendientes+' pedido'+(pendientes!==1?'s':'')+' pendiente'+(pendientes!==1?'s':'')+' de capturar en SAP</strong><span>Toca aquí para verlos →</span></div></div>'):'')
-    
-    /* Top Clientes y Top Productos en CAJAS BLANCAS */
-    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">'
-      +'<div style="'+cajaBlanca+'"><div style="font-size:14px;font-weight:800;color:#0F172A;margin-bottom:12px;display:flex;align-items:center;gap:6px;">🏆 Top 5 Clientes (Mes)</div>'+(clientesHtml||'<div style="font-size:12px;color:#94A3B8;">Sin datos aún</div>')+'</div>'
-      +'<div style="'+cajaBlanca+'"><div style="font-size:14px;font-weight:800;color:#0F172A;margin-bottom:12px;display:flex;align-items:center;gap:6px;">📦 Top 5 Productos (Mes)</div>'+(productosHtml||'<div style="font-size:12px;color:#94A3B8;">Sin datos aún</div>')+'</div>'
-    +'</div>'
-    
-    /* Resumen del mes en CAJAS BLANCAS */
-    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:4px;">'
-      +'<div style="'+cajaBlanca+'text-align:center;"><div style="font-size:11px;color:#64748B;text-transform:uppercase;letter-spacing:.08em;font-weight:700;">Total ventas del mes</div><div style="font-family:Outfit,sans-serif;font-size:32px;font-weight:900;color:#059669;margin-top:4px;">'+fmt2(totMes)+'</div><div style="font-size:12px;color:#94A3B8;margin-top:2px;">'+pedMes+' pedidos en total</div></div>'
-      +'<div style="'+cajaBlanca+'text-align:center;"><div style="font-size:11px;color:#64748B;text-transform:uppercase;letter-spacing:.08em;font-weight:700;">Total registros</div><div style="font-family:Outfit,sans-serif;font-size:32px;font-weight:900;color:#0F172A;margin-top:4px;">'+_adminPedidos.length+'</div><div style="font-size:12px;color:#94A3B8;margin-top:2px;">Historial completo en sistema</div></div>'
-    +'</div>'
-    
-    /* Recientes en CAJA BLANCA */
-    +'<div style="'+cajaBlanca+'margin-top:4px;"><div style="font-size:14px;font-weight:800;color:#0F172A;margin-bottom:8px;display:flex;align-items:center;gap:6px;">🕒 Pedidos recientes</div><div class="dash-recientes" style="border:none;">'+recHtml+'</div></div>';
-}
-/* ── Filtros y búsqueda ── */
-function _getMX(d){ return d.toLocaleDateString('es-MX',{timeZone:'America/Monterrey',year:'numeric',month:'2-digit',day:'2-digit'}).split('/').reverse().join('-'); }
 
+    /* Pendientes banner */
+    +(pendientes>0?('<div style=\'background:linear-gradient(135deg,#FFF7ED,#FEF3C7);border:1px solid #FDE68A;border-radius:14px;padding:14px 18px;display:flex;align-items:center;gap:12px;cursor:pointer;\' onclick=\'adminSwitchTab(\'pedidos\');setTimeout(function(){adminAplicarFiltro(\'pendientes\');},100)\'><div style=\'width:40px;height:40px;border-radius:10px;background:#FEF3C7;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;\'>⏳</div><div><div style=\'font-size:15px;font-weight:800;color:#92400E;\'>'+pendientes+' pedido'+(pendientes!==1?'s':'')+' pendiente'+(pendientes!==1?'s':'')+' de capturar en SAP</div><div style=\'font-size:12px;color:#B45309;margin-top:2px;\'>Toca aquí para verlos y procesarlos →</div></div></div>'):'')
+
+    /* Total del mes */
+    +'<div style=\''+bx+'display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;\'>'
+      +'<div><div style=\'font-size:11px;color:#64748B;font-weight:700;text-transform:uppercase;letter-spacing:.08em;\'>Ventas totales del mes</div><div style=\'font-family:Outfit,sans-serif;font-size:34px;font-weight:900;color:#059669;margin-top:4px;\'>'+f2(totMes)+'</div></div>'
+      +'<div style=\'text-align:right;\'><div style=\'font-size:11px;color:#64748B;\'>Total registros en sistema</div><div style=\'font-family:Outfit,sans-serif;font-size:26px;font-weight:800;color:#0F172A;\'>'+_adminPedidos.length+'</div></div>'
+    +'</div>'
+
+    /* Top Clientes y Productos */
+    +'<div style=\'display:grid;grid-template-columns:1fr 1fr;gap:12px;\'>'
+      +'<div style=\''+bx+'\"><div style=\'font-size:13px;font-weight:800;color:#0F172A;margin-bottom:10px;\'>🏆 Top Clientes del Mes</div>'+(barClientes||'<div style=\'font-size:12px;color:#94A3B8;\'>Sin datos</div>')+'</div>'
+      +'<div style=\''+bx+'\"><div style=\'font-size:13px;font-weight:800;color:#0F172A;margin-bottom:10px;\'>📦 Productos más vendidos</div>'+(barProds||'<div style=\'font-size:12px;color:#94A3B8;\'>Sin datos</div>')+'</div>'
+    +'</div>'
+
+    /* Recientes */
+    +'<div style=\''+bx+'\"><div style=\'font-size:13px;font-weight:800;color:#0F172A;margin-bottom:10px;\'>🕒 Pedidos recientes</div>'+recientes+'</div>';
+}
+
+/* ── Filtros ── */
 function adminAplicarFiltro(filtro){
   _adminFiltroActivo=filtro;
   ['filTodos','filHoy','filAyer','filSemana','filPendientes'].forEach(function(id){
@@ -1862,12 +1876,10 @@ function adminAplicarFiltro(filtro){
     if(el) el.classList.toggle('on', id==='fil'+filtro.charAt(0).toUpperCase()+filtro.slice(1));
   });
   var hoyMX=_getMX(new Date());
-  var ayerD=new Date(); ayerD.setDate(ayerD.getDate()-1);
-  var ayerMX=_getMX(ayerD);
-  var semana=new Date(); semana.setDate(semana.getDate()-7);
+  var ayerD=new Date();ayerD.setDate(ayerD.getDate()-1);var ayerMX=_getMX(ayerD);
+  var semana=new Date();semana.setDate(semana.getDate()-7);
   _adminFiltrados=_adminPedidos.filter(function(p){
-    var f=fechaLocalMX(p.fecha);
-    var st=_adminStatus[p.folio]||{};
+    var f=fechaLocalMX(p.fecha),st=_adminStatus[p.folio]||{};
     if(filtro==='hoy') return f===hoyMX;
     if(filtro==='ayer') return f===ayerMX;
     if(filtro==='semana') return new Date(p.fecha)>=semana;
@@ -1877,7 +1889,7 @@ function adminAplicarFiltro(filtro){
   var q=(document.getElementById('adminSearch').value||'').toLowerCase().trim();
   if(q) _adminFiltrados=_adminFiltrados.filter(function(p){
     return (p.folio||'').toLowerCase().includes(q)||(p.mensaje||'').toLowerCase().includes(q)
-      ||(p.cliente_id||'').toLowerCase().includes(q)||(JSON.stringify(p.productos_json||'')).toLowerCase().includes(q);
+      ||(_nom(p)).toLowerCase().includes(q)||(JSON.stringify(p.productos_json||'')).toLowerCase().includes(q);
   });
   adminRenderizar();
 }
@@ -1886,65 +1898,58 @@ function adminFiltrar(){ adminAplicarFiltro(_adminFiltroActivo); }
 /* ── Renderizar lista ── */
 function adminRenderizar(){
   var list=document.getElementById('adminList');
-  if(!_adminFiltrados.length){list.innerHTML='<div class="admin-empty">📭 No hay pedidos en este período.</div>';return;}
-  var hoyMX=_getMX(new Date());var ayerD=new Date();ayerD.setDate(ayerD.getDate()-1);var ayerMX=_getMX(ayerD);
-  var html='';
-  
+  if(!_adminFiltrados.length){
+    list.innerHTML='<div class="admin-empty">📭 No hay pedidos en este período.</div>';
+    return;
+  }
+  var hoyMX=_getMX(new Date());
+  var ayerD=new Date();ayerD.setDate(ayerD.getDate()-1);var ayerMX=_getMX(ayerD);
+  var html='<div style="background:#fff;border-radius:14px;border:1px solid #E2E8F0;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.04);">';
+  html+='<div style="padding:10px 16px;background:#F8FAFC;border-bottom:1px solid #E2E8F0;font-size:11px;color:#64748B;font-weight:700;display:grid;grid-template-columns:minmax(100px,130px) 1fr auto auto;gap:12px;">'
+    +'<span>FOLIO</span><span>CLIENTE</span><span>TOTAL</span><span>ESTADO</span></div>';
+
   _adminFiltrados.forEach(function(p,idx){
-    var st=_adminStatus[p.folio]||{};var fLocal=fechaLocalMX(p.fecha);var procesado=!!st.procesado;
+    var st=_adminStatus[p.folio]||{};
+    var fLocal=fechaLocalMX(p.fecha);var procesado=!!st.procesado;
     var fechaStr=p.fecha?new Date(p.fecha).toLocaleString('es-MX',{timeZone:'America/Monterrey',day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}):'—';
     var total='$'+parseFloat(p.total||0).toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2});
-    var clienteNombre=(p.clientes_mayoreo&&p.clientes_mayoreo.nombre)?p.clientes_mayoreo.nombre:(p.nombre_contacto||'Cliente');
-    var clienteNum=(p.clientes_mayoreo&&p.clientes_mayoreo.numero_cliente)?p.clientes_mayoreo.numero_cliente:'';
-    
-    /* Badges */
-    var statusSpan=procesado
-      ?'<span style="background:#dcfce7;color:#15803d;font-size:9px;font-weight:800;padding:2px 6px;border-radius:4px;white-space:nowrap;">✓ SAP '+(st.folioSAP||'')+'</span>'
-      :'<span style="background:#fef9c3;color:#92400e;font-size:9px;font-weight:800;padding:2px 6px;border-radius:4px;white-space:nowrap;">⏳ PENDIENTE</span>';
-      
+    var clienteNombre=_nom(p);var clienteNum=_num(p);
+
     var diaBadge=fLocal===hoyMX
-      ?'<span style="background:#DCFCE7;color:#15803d;font-size:9px;font-weight:700;padding:2px 5px;border-radius:4px;margin-left:4px;">HOY</span>'
+      ?'<span style="background:#DCFCE7;color:#15803d;font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;margin-left:4px;">HOY</span>'
       :fLocal===ayerMX
-      ?'<span style="background:#FEF3C7;color:#92400E;font-size:9px;font-weight:700;padding:2px 5px;border-radius:4px;margin-left:4px;">AYER</span>'
+      ?'<span style="background:#FEF3C7;color:#92400E;font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;margin-left:4px;">AYER</span>'
       :'';
-      
-    /* --- DISEÑO FILA COMPACTA FIJA --- */
-    html+='<div onclick="adminAbrirDetalle('+idx+')" style="display:grid;grid-template-columns:minmax(110px, 140px) 1fr auto auto;align-items:center;gap:12px;padding:11px 16px;background:#fff;border-bottom:1px solid #F1F5F9;cursor:pointer;transition:background .1s;" onmouseenter="this.style.background=\'#F8FAFC\'" onmouseleave="this.style.background=\'#fff\'">'
-      /* COLUMNA 1: FOLIO */
-      +'<div>'
-        +'<div style="font-family:Outfit,sans-serif;font-size:13px;font-weight:800;color:#0F172A;display:flex;align-items:center;">'+esc(p.folio||'—')+diaBadge+'</div>'
-      +'</div>'
-      /* COLUMNA 2: CLIENTE Y FECHA */
+
+    var statusBadge=procesado
+      ?'<span style="background:#DCFCE7;color:#15803d;font-size:9px;font-weight:800;padding:2px 7px;border-radius:4px;white-space:nowrap;">✓ SAP '+(st.folioSAP||'')+'</span>'
+      :'<span style="background:#FEF9C3;color:#92400e;font-size:9px;font-weight:800;padding:2px 7px;border-radius:4px;white-space:nowrap;">⏳ Pendiente</span>';
+
+    html+='<div onclick="adminAbrirDetalle('+idx+')" '
+      +'style="display:grid;grid-template-columns:minmax(100px,130px) 1fr auto auto;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid #F8FAFC;cursor:pointer;transition:background .1s;" '
+      +'>'
+      +'<div><div style="font-family:Outfit,sans-serif;font-size:13px;font-weight:800;color:#1E293B;display:flex;align-items:center;">'+esc(p.folio||'—')+diaBadge+'</div></div>'
       +'<div style="min-width:0;">'
         +'<div style="font-size:12px;font-weight:600;color:#334155;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+esc(clienteNombre)+(clienteNum?' <span style="color:#94a3b8;font-weight:400;">('+esc(clienteNum)+')</span>':'')+'</div>'
         +'<div style="font-size:10px;color:#94a3b8;margin-top:2px;">'+fechaStr+'</div>'
       +'</div>'
-      /* COLUMNA 3: TOTAL */
-      +'<div style="text-align:right;white-space:nowrap;">'
-        +'<div style="font-family:Outfit,sans-serif;font-size:14px;font-weight:800;color:#059669;">'+total+'</div>'
-      +'</div>'
-      /* COLUMNA 4: ESTADO Y FLECHA */
-      +'<div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">'
-        +statusSpan
-        +'<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" stroke="#CBD5E1" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/></svg>'
-      +'</div>'
+      +'<div style="font-family:Outfit,sans-serif;font-size:13px;font-weight:800;color:#059669;white-space:nowrap;">'+total+'</div>'
+      +'<div style="display:flex;align-items:center;gap:6px;">'+statusBadge+'<svg width="12" height="12" fill="none" stroke="#CBD5E1" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/></svg></div>'
       +'</div>';
   });
-  
+  html+='</div>';
   list.innerHTML=html;
 }
 
 /* ── Detalle pedido ── */
 function adminAbrirDetalle(idx){
   _detalleIdx=idx;
-  var p=_adminFiltrados[idx];
-  if(!p) return;
+  var p=_adminFiltrados[idx];if(!p)return;
   var prods=[];
   try{prods=typeof p.productos_json==='string'?JSON.parse(p.productos_json):(Array.isArray(p.productos_json)?p.productos_json:[]);}catch(e){}
   var st=_adminStatus[p.folio]||{};
   var fechaStr=p.fecha?new Date(p.fecha).toLocaleString('es-MX',{timeZone:'America/Monterrey',weekday:'long',day:'2-digit',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'}):'—';
-  var clienteNombre=(p.clientes_mayoreo&&p.clientes_mayoreo.nombre)?p.clientes_mayoreo.nombre:(p.nombre_contacto||'Cliente');
-  var clienteNum=(p.clientes_mayoreo&&p.clientes_mayoreo.numero_cliente)?p.clientes_mayoreo.numero_cliente:'';
+  var clienteNombre=_nom(p),clienteNum=_num(p);
   var total=parseFloat(p.total||0).toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2});
   var subtotal=parseFloat(p.subtotal||0).toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2});
   var iva=parseFloat(p.iva||0).toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2});
@@ -1952,149 +1957,83 @@ function adminAbrirDetalle(idx){
   document.getElementById('detalleForlio').innerHTML=(p.folio||'—')+' <span style="font-size:13px;font-weight:400;color:#475569;">'+esc(clienteNombre)+(clienteNum?' · '+esc(clienteNum):'')+'</span>';
   document.getElementById('detalleMeta').textContent=fechaStr;
 
-  // Caja de status
-  var statusBox='';
-  if(st.procesado){
-    statusBox='<div class="admin-status-box procesado">'
-      +'<div style="width:36px;height:36px;border-radius:50%;background:rgba(34,197,94,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:18px;">✓</div>'
-      +'<div class="admin-status-box-info">'
-        +'<div class="admin-status-box-lbl procesado">✅ Pedido procesado en SAP</div>'
-        +'<div class="admin-status-box-folio">Folio SAP: <strong style="color:#34D399;">'+(st.folioSAP||'—')+'</strong></div>'
-      +'</div>'
-      +'<button class="admin-btn-desprocesar" onclick="adminDesprocesar()">Desmarcar</button>'
-    +'</div>';
-  } else {
-    statusBox='<div class="admin-status-box pendiente">'
-      +'<div style="width:36px;height:36px;border-radius:50%;background:rgba(251,191,36,.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:18px;">⏳</div>'
-      +'<div class="admin-status-box-info">'
-        +'<div class="admin-status-box-lbl pendiente">Pendiente de captura en SAP</div>'
-        +'<div class="admin-status-box-folio">Ingresa el folio que te asignó SAP:</div>'
-      +'</div>'
-      +'<input class="admin-folio-sap-input" id="inputFolioSAP" type="text" placeholder="Folio SAP..." value="'+(st.folioSAP||'')+'" />'
-      +'<button class="admin-btn-procesar" onclick="adminMarcarProcesado()">✓ Marcar como procesado</button>'
-    +'</div>';
-  }
+  var statusBox=st.procesado
+    ?'<div class="admin-status-box procesado"><div style="font-size:22px;">✅</div><div class="admin-status-box-info"><div class="admin-status-box-lbl procesado">Procesado en SAP</div><div class="admin-status-box-folio">Folio SAP: <strong style="color:#34D399;">'+(st.folioSAP||'—')+'</strong></div></div><button class="admin-btn-desprocesar" onclick="adminDesprocesar()">↩ Desmarcar</button></div>'
+    :'<div class="admin-status-box pendiente"><div style="font-size:22px;">⏳</div><div class="admin-status-box-info"><div class="admin-status-box-lbl pendiente">Pendiente de captura en SAP</div><div class="admin-status-box-folio">Escribe el folio que te generó SAP:</div></div><input class="admin-folio-sap-input" id="inputFolioSAP" type="text" placeholder="Ej: 1234" value="'+(st.folioSAP||'')+'"/><button class="admin-btn-procesar" onclick="adminMarcarProcesado()">✓ Marcar procesado</button></div>';
 
-  // Tabla productos
   var filas=prods.map(function(pr,i){
     var pu=parseFloat(pr.precioUnitario||pr.precio||0).toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2});
     var tl=parseFloat(pr.totalLinea||0).toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2});
-    return '<tr><td class="td-num">'+(i+1)+'</td><td class="td-cod">'+esc(pr.codigo||'')+'</td>'
-      +'<td class="td-desc">'+esc(pr.descripcion||'')+'</td>'
-      +'<td class="td-cant">'+(pr.cantidad||1)+'</td>'
-      +'<td class="td-pu">$'+pu+'</td><td class="td-tot">$'+tl+'</td></tr>';
+    return'<tr><td class="td-num">'+(i+1)+'</td><td class="td-cod">'+esc(pr.codigo||'')+'</td><td class="td-desc">'+esc(pr.descripcion||'')+'</td><td class="td-cant">'+(pr.cantidad||1)+'</td><td class="td-pu">$'+pu+'</td><td class="td-tot">$'+tl+'</td></tr>';
   }).join('');
 
-  document.getElementById('adminDetalleBody').innerHTML=
-    statusBox
-    +'<div style="overflow-x:auto;">'
-      +'<table class="admin-detalle-table" style="min-width:460px;">'
-        +'<thead><tr><th class="c">#</th><th>Código</th><th>Descripción</th><th class="c">Cant.</th><th class="r">P. Unit.</th><th class="r">Total</th></tr></thead>'
-        +'<tbody>'+filas+'</tbody>'
-      +'</table>'
-    +'</div>'
-    +'<div class="admin-totales-box">'
-      +'<span>Subtotal: <strong>$'+subtotal+'</strong></span>'
-      +'<span>IVA 16%: <strong>$'+iva+'</strong></span>'
-      +'<span class="gran-total">TOTAL: $'+total+'</span>'
-    +'</div>'
+  document.getElementById('adminDetalleBody').innerHTML=statusBox
+    +'<div style="overflow-x:auto;"><table class="admin-detalle-table" style="min-width:460px;"><thead><tr><th class="c">#</th><th>Código</th><th>Descripción</th><th class="c">Cant.</th><th class="r">P. Unit.</th><th class="r">Total</th></tr></thead><tbody>'+filas+'</tbody></table></div>'
+    +'<div class="admin-totales-box"><span>Subtotal: <strong>$'+subtotal+'</strong></span><span>IVA 16%: <strong>$'+iva+'</strong></span><span class="gran-total">TOTAL: $'+total+'</span></div>'
     +'<div class="admin-detalle-actions">'
-      +'<button class="admin-btn-copiar" onclick="adminCopiarSAP('+idx+')">'
-        +'📋 Copiar Código + Cantidad para SAP'
-      +'</button>'
-      +'<button class="admin-btn-excel" onclick="adminDescargarExcel('+idx+')">'
-        +'⬇ Descargar Excel SAP'
-      +'</button>'
+      +'<button class="admin-btn-copiar" onclick="adminCopiarSAP('+idx+')">📋 Copiar Código + Cantidad para SAP</button>'
+      +'<button class="admin-btn-excel" onclick="adminDescargarExcel('+idx+')">⬇ Descargar Excel SAP</button>'
     +'</div>';
 
   document.getElementById('adminDetalleBg').classList.add('open');
   document.getElementById('adminDetalleBody').scrollTop=0;
 }
-
 function adminCerrarDetalle(e){
   if(e.target===document.getElementById('adminDetalleBg'))
     document.getElementById('adminDetalleBg').classList.remove('open');
 }
 
-/* ── Marcar procesado ── */
+/* ── Marcar procesado / desmarcar ── */
 async function adminMarcarProcesado(){
-  var p=_adminFiltrados[_detalleIdx];
-  if(!p) return;
+  var p=_adminFiltrados[_detalleIdx];if(!p)return;
   var folioSAP=(document.getElementById('inputFolioSAP')||{}).value||'';
   try{
-    await fetch(SUPA_URL+'/rest/v1/pedidos_status',{
-      method:'POST',
+    await fetch(SUPA_URL+'/rest/v1/pedidos_status',{method:'POST',
       headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Content-Type':'application/json','Prefer':'resolution=merge-duplicates'},
       body:JSON.stringify({folio:p.folio,procesado:true,folio_sap:folioSAP,updated_at:new Date().toISOString()})
     });
     _adminStatus[p.folio]={procesado:true,folioSAP:folioSAP};
     document.getElementById('adminDetalleBg').classList.remove('open');
-    adminRenderizar();
-    if(_adminTabActiva==='dash') adminRenderDash();
-    toast('✅ Pedido '+(p.folio||'')+(folioSAP?' → SAP '+folioSAP:'')+' marcado como procesado');
-  }catch(e){ toast('❌ Error al guardar. Intenta de nuevo.'); }
+    adminRenderizar();if(_adminTabActiva==='dash')adminRenderDash();
+    toast('✅ '+(p.folio||'')+(folioSAP?' → SAP '+folioSAP:'')+' procesado');
+  }catch(e){toast('❌ Error al guardar.');}
 }
-
 async function adminDesprocesar(){
-  var p=_adminFiltrados[_detalleIdx];
-  if(!p) return;
+  var p=_adminFiltrados[_detalleIdx];if(!p)return;
   try{
-    await fetch(SUPA_URL+'/rest/v1/pedidos_status?folio=eq.'+encodeURIComponent(p.folio),{
-      method:'PATCH',
+    await fetch(SUPA_URL+'/rest/v1/pedidos_status?folio=eq.'+encodeURIComponent(p.folio),{method:'PATCH',
       headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Content-Type':'application/json'},
       body:JSON.stringify({procesado:false,folio_sap:''})
     });
     _adminStatus[p.folio]={procesado:false,folioSAP:''};
     document.getElementById('adminDetalleBg').classList.remove('open');
-    adminRenderizar();
-    if(_adminTabActiva==='dash') adminRenderDash();
+    adminRenderizar();if(_adminTabActiva==='dash')adminRenderDash();
     toast('↩ Pedido desmarcado como pendiente');
-  }catch(e){ toast('❌ Error al guardar.'); }
+  }catch(e){toast('❌ Error al guardar.');}
 }
 
-/* ── Copiar para SAP ── */
+/* ── Copiar / Excel ── */
 function adminCopiarSAP(idx){
-  var p=_adminFiltrados[idx];
-  if(!p) return;
-  var prods=[];
-  try{prods=typeof p.productos_json==='string'?JSON.parse(p.productos_json):(Array.isArray(p.productos_json)?p.productos_json:[]);}catch(e){}
-  var texto=prods.map(function(pr){ return (pr.codigo||'')+'\t'+(pr.cantidad||1); }).join('\n');
-  navigator.clipboard.writeText(texto).then(function(){
-    toast('✅ '+prods.length+' artículos copiados — pega directo en SAP');
-  }).catch(function(){
-    var ta=document.createElement('textarea');
-    ta.value=texto; ta.style.position='fixed'; ta.style.opacity='0';
-    document.body.appendChild(ta); ta.select(); document.execCommand('copy');
-    document.body.removeChild(ta);
-    toast('✅ '+prods.length+' artículos copiados — pega directo en SAP');
-  });
+  var p=_adminFiltrados[idx];if(!p)return;
+  var prods=[];try{prods=typeof p.productos_json==='string'?JSON.parse(p.productos_json):(Array.isArray(p.productos_json)?p.productos_json:[]);}catch(e){}
+  var texto=prods.map(function(pr){return(pr.codigo||'')+'\t'+(pr.cantidad||1);}).join('\n');
+  navigator.clipboard.writeText(texto).then(function(){toast('✅ '+prods.length+' artículos copiados — pega en SAP');})
+  .catch(function(){var ta=document.createElement('textarea');ta.value=texto;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);toast('✅ '+prods.length+' artículos copiados');});
 }
-
-/* ── Descargar Excel SAP ── */
 function adminDescargarExcel(idx){
-  var p=_adminFiltrados[idx];
-  if(!p) return;
-  var prods=[];
-  try{prods=typeof p.productos_json==='string'?JSON.parse(p.productos_json):(Array.isArray(p.productos_json)?p.productos_json:[]);}catch(e){}
+  var p=_adminFiltrados[idx];if(!p)return;
+  var prods=[];try{prods=typeof p.productos_json==='string'?JSON.parse(p.productos_json):(Array.isArray(p.productos_json)?p.productos_json:[]);}catch(e){}
   var WB=XLSX.utils.book_new();
   var folio=p.folio||('PED-'+p.id);
   var fecha=p.fecha?new Date(p.fecha).toLocaleDateString('es-MX',{timeZone:'America/Monterrey'}):'';
-  var clienteNombre=p.mensaje||''; var clienteNum=p.cliente_id||'';
-
-  var resumenData=[['MOSAR REFACCIONARIAS — PEDIDO DE VENTA','','','','',''],
-    ['Folio:',folio,'','Fecha:',fecha,''],['Cliente:',clienteNombre,'','Núm. Cliente:',clienteNum,''],[],
-    ['#','Código','Descripción','Cantidad','Precio Unitario','Total Línea']];
-  prods.forEach(function(pr,i){ resumenData.push([i+1,pr.codigo,pr.descripcion||'',pr.cantidad,parseFloat(pr.precioUnitario||pr.precio||0),parseFloat(pr.totalLinea||0)]); });
-  resumenData.push([]);
-  resumenData.push(['','','','','Subtotal:',parseFloat(p.subtotal||0)]);
-  resumenData.push(['','','','','IVA (16%):',parseFloat(p.iva||0)]);
-  resumenData.push(['','','','','TOTAL:',parseFloat(p.total||0)]);
-  var wsR=XLSX.utils.aoa_to_sheet(resumenData);
-  wsR['!cols']=[{wch:4},{wch:18},{wch:45},{wch:10},{wch:16},{wch:16}];
+  var cNombre=_nom(p),cNum=_num(p);
+  var resumenData=[['MOSAR REFACCIONARIAS — PEDIDO DE VENTA','','','','',''],['Folio:',folio,'','Fecha:',fecha,''],['Cliente:',cNombre,'','Núm. Cliente:',cNum,''],[],['#','Código','Descripción','Cantidad','Precio Unitario','Total Línea']];
+  prods.forEach(function(pr,i){resumenData.push([i+1,pr.codigo,pr.descripcion||'',pr.cantidad,parseFloat(pr.precioUnitario||pr.precio||0),parseFloat(pr.totalLinea||0)]);});
+  resumenData.push([],[],['',' ','','','Subtotal:',parseFloat(p.subtotal||0)],['',' ','','','IVA (16%):',parseFloat(p.iva||0)],['',' ','','','TOTAL:',parseFloat(p.total||0)]);
+  var wsR=XLSX.utils.aoa_to_sheet(resumenData);wsR['!cols']=[{wch:4},{wch:18},{wch:45},{wch:10},{wch:16},{wch:16}];
   XLSX.utils.book_append_sheet(WB,wsR,'Pedido');
-
   var sapHeaders=['DocNum','CardCode','CardName','ItemCode','Quantity','Price'];
-  var sapFilas=prods.map(function(pr){ return[folio,clienteNum,clienteNombre,pr.codigo,pr.cantidad,parseFloat(pr.precioUnitario||pr.precio||0)]; });
+  var sapFilas=prods.map(function(pr){return[folio,cNum,cNombre,pr.codigo,pr.cantidad,parseFloat(pr.precioUnitario||pr.precio||0)];});
   var wsSAP=XLSX.utils.aoa_to_sheet([sapHeaders].concat(sapFilas));
   wsSAP['!cols']=[{wch:16},{wch:14},{wch:28},{wch:18},{wch:10},{wch:14}];
   XLSX.utils.book_append_sheet(WB,wsSAP,'Para_SAP');
@@ -2102,90 +2041,15 @@ function adminDescargarExcel(idx){
   toast('✓ Excel descargado');
 }
 
-/* Acceso admin por URL ?admin */
-(function(){ if(window.location.search.includes('admin')){ setTimeout(abrirAdminLogin,400); } })();
-/* Convierte fecha UTC de Supabase a fecha local México YYYY-MM-DD */
+/* Convierte fecha UTC → México YYYY-MM-DD */
 function fechaLocalMX(fechaStr){
   if(!fechaStr) return '';
-  var d=new Date(fechaStr);
-  return d.toLocaleDateString('es-MX',{timeZone:'America/Monterrey',year:'numeric',month:'2-digit',day:'2-digit'})
-    .split('/').reverse().join('-');
+  return new Date(fechaStr).toLocaleDateString('es-MX',{timeZone:'America/Monterrey',year:'numeric',month:'2-digit',day:'2-digit'}).split('/').reverse().join('-');
 }
 
 /* Acceso admin por URL ?admin */
 (function(){ if(window.location.search.includes('admin')){ setTimeout(abrirAdminLogin,400); } })();
 
-/* --- DIAGNÓSTICO Y CARGA ADMIN DEFINITIVA --- */
-async function adminCargarPedidosFinal(){
-  var list = document.getElementById('adminList');
-  var dash = document.getElementById('dashBody');
-  
-  if(!list || !dash) {
-    console.error("No encontré los contenedores del admin");
-    return;
-  }
-
-  list.innerHTML = '<div class="admin-loading">⏳ Conectando con Supabase...</div>';
-  dash.innerHTML = '<div class="admin-loading">⏳ Conectando con Supabase...</div>';
-
-  try {
-    /* 1. Pedidos */
-    var r1 = await fetch(SUPA_URL+'/rest/v1/historial_pedidos?select=*&order=fecha.desc&limit=200', {
-      headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY}
-    });
-    if(!r1.ok) throw new Error('Error tabla historial_pedidos: ' + r1.status);
-    _adminPedidos = await r1.json() || [];
-
-    /* 2. Clientes */
-    var mapaClientes = {};
-    try {
-      var r3 = await fetch(SUPA_URL+'/rest/v1/clientes_mayoreo?select=id,nombre,numero_cliente&limit=500', {
-        headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY}
-      });
-      if(r3.ok) {
-        var clientes = await r3.json() || [];
-        clientes.forEach(function(c){ mapaClientes[c.id] = c; });
-      }
-    } catch(eC) { console.warn("Clientes omitidos:", eC.message); }
-    
-    _adminPedidos.forEach(function(p){ p.clientes_mayoreo = mapaClientes[p.cliente_id] || null; });
-
-    /* 3. Status */
-    try {
-      var r2 = await fetch(SUPA_URL+'/rest/v1/pedidos_status?select=*', {
-        headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY}
-      });
-      if(r2.ok) {
-        var statusData = await r2.json() || [];
-        _adminStatus = {};
-        statusData.forEach(function(s){ _adminStatus[s.folio] = {procesado:s.procesado, folioSAP:s.folio_sap||''}; });
-      }
-    } catch(eS) { console.warn("Status omitido:", eS.message); }
-
-    /* Éxito: Renderizar */
-    adminAplicarFiltro(_adminFiltroActivo);
-    if(_adminTabActiva==='dash') adminRenderDash();
-
-  } catch (error) {
-    console.error("ERROR ADMIN:", error);
-    list.innerHTML = '<div class="admin-empty" style="color:#B91C1C;">❌ Error detectado:<br><br><small style="color:#334155;">' + error.message + '<br><br>Si dice "Failed to fetch", es un problema de CORS o URL de Supabase.</small></div>';
-    dash.innerHTML = '<div class="admin-empty" style="color:#B91C1C;">❌ Error al cargar el dashboard.</div>';
-  }
-}
-
-/* Sobrescribimos la función original por esta */
-verificarAdminPwd = function() {
-  if(document.getElementById('adminPwdInput').value === ADMIN_PWD){
-    document.getElementById('adminLoginBg').classList.remove('open');
-    document.getElementById('adminBg').classList.add('open');
-    adminCargarPedidosFinal(); /* Usamos la nueva */
-  } else {
-    document.getElementById('adminLoginErr').style.display = 'block';
-    document.getElementById('adminPwdInput').value = '';
-    document.getElementById('adminPwdInput').focus();
-  }
-};
-  
 </script>
 </body>
 </html>
